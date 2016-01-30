@@ -11,6 +11,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends Activity {
 
@@ -20,12 +22,18 @@ public class MainActivity extends Activity {
         Man man1 = new Man();
         man1.name = "man1";
         man1.date = "20160130";
-        man1.son = new Son();
-        man1.son.name = "son1";
-        man1.son.phone = "13800138000";
-        man1.son.mFri = new Fri();
-        man1.son.mFri.name = "fri1";
-        man1.son.mFri.address = "地址";
+        man1.maps = new HashMap<>();
+        man1.maps.put("a", 1);
+        man1.maps.put("b", 2);
+        man1.sons = new ArrayList<>();
+        Son son = new Son();
+        son.name = "son1";
+        son.phone = "13800138000";
+        son.mFri = new Fri();
+        son.mFri.name = "fri1";
+        son.mFri.address = "地址";
+        man1.sons.add(son);
+        man1.sons.add(new Son());
         XmlReader xmlReader = new XmlReader();
         XmlWriter xmlWriter = new XmlWriter();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
