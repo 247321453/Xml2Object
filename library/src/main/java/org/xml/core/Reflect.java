@@ -8,6 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -340,27 +342,13 @@ class Reflect {
         return method == null ? Object.class : method.getReturnType();
     }
 
-    public static Class<?>[] getMapClass(Object obj) {
-        if (obj == null) return null;
-        obj = (Map) obj;
-        //成员类
-        Class<?> cls = obj.getClass();
-//        if (cls != Map.class) {
-//            cls = cls.getSuperclass();
-//        }
-//        if (cls != Map.class) {
-//            cls = cls.getSuperclass();
-//        }
-        System.out.println(cls.getName());
-        Class<?>[] memCls = cls.getDeclaredClasses();
-        for (Class<?> mc : memCls) {
-            if ("Entry".equals(mc.getSimpleName())) {
-                return new Class[]{getMethodClass(mc, "getKey"), getMethodClass(mc, "getValue")};
-            } else {
-                System.out.println(mc.getName());
-            }
+    public static Type[] getMapKeyAndValueTypes(Class<?> contextRawType) {
+        Type mapType = contextRawType.getGenericInterfaces()[0];
+        if ((mapType instanceof ParameterizedType)) {
+            ParameterizedType mapParameterizedType = (ParameterizedType) mapType;
+            return mapParameterizedType.getActualTypeArguments();
         }
-        return null;
+        return new Type[]{Object.class, Object.class};
     }
 
     public static Class<?> getListClass(Class<?> cls) {
@@ -371,6 +359,6 @@ class Reflect {
 class Test {
     public static void main(String[] args) {
         Map<String, Long> maps = new HashMap<>();
-        System.out.print(Reflect.getMapClass(maps));
+        System.out.print(""+Reflect.getMapKeyAndValueTypes(maps.getClass()));
     }
 }
