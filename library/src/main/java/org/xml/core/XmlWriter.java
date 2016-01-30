@@ -16,13 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by Administrator on 2016/1/30.
- */
-public class XmlWriter {
+public class XmlWriter extends IXml {
     public void toXml(Object object, OutputStream outputStream) throws IOException, IllegalAccessException {
         toXml(object, outputStream, "UTF-8");
     }
+
     public void toXml(Object object, OutputStream outputStream, String encoding) throws IOException, IllegalAccessException {
         if (outputStream == null) return;
         XmlSerializer serializer = Xml.newSerializer();
@@ -41,65 +39,67 @@ public class XmlWriter {
             mainTag = cls.getSimpleName();
         }
         serializer.startTag(null, mainTag);
-        writeAttributes(object, serializer);
-        writeText(object, serializer);
-        //
-        Field[] fields = Reflect.getFileds(cls);
-        Log.v("xml", mainTag + " fileds=" + fields.length);
-        for (Field field : fields) {
-            if (XmlUtil.isXmlAttribute(field))
-                continue;
-            if (XmlUtil.isXmlValue(field))
-                continue;
-            XmlTag xmlTag = field.getAnnotation(XmlTag.class);
-            String subTag;
-            if (xmlTag == null) {
-                subTag = field.getName();
-            } else {
-                subTag = xmlTag.value();
-            }
-            Reflect.accessible(field);
-            Object value = field.get(object);
-            //自定义类
-            Class<?> fieldCls = field.getType();
-            Log.v("xml", field.getType() + ":" + field.getName());
-            if (Reflect.isNormal(fieldCls)) {
-                Log.v("xml", mainTag + " normal sub tag " + field.getName());
-                serializer.startTag(null, subTag);
-                serializer.text(toString(value));
-                serializer.endTag(null, subTag);
-            } else {
-                Log.v("xml", mainTag + " other sub tag " + field.getName());
-                if (fieldCls.isArray()) {
-                    //数组
-                    int count = Array.getLength(value);
-                    for (int i = 0; i < count; i++) {
-                        writeTag(Array.get(value, i), subTag, serializer);
-                    }
-                } else if (value instanceof Map) {
-                    int count = (int) Reflect.call(value, "size");
-                    Object set = Reflect.call(value, "entrySet");
-                    if (set instanceof Set) {
-                        Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
-                        for (Map.Entry<?, ?> e : sets) {
-                            serializer.startTag(null, subTag);
-                            serializer.attribute(null, "key", toString(e.getKey()));
-                            serializer.attribute(null, "value", toString(e.getValue()));
-                            serializer.endTag(null, subTag);
-                        }
-                    }
-                }
-                else if (value instanceof List) {
-                    int count = (int) Reflect.call(value, "size");
-                    for (int i = 0; i < count; i++) {
-                        writeTag(Reflect.call(value, "get", i), subTag, serializer);
-                    }
+        if (Reflect.isNormal(cls)) {
+            serializer.text(toString(object));
+        } else {
+            writeAttributes(object, serializer);
+            writeText(object, serializer);
+            //
+            Field[] fields = Reflect.getFileds(cls);
+            Log.v("xml", cls + ":" + mainTag + " fileds=" + fields.length);
+            for (Field field : fields) {
+                if (XmlUtil.isXmlAttribute(field))
+                    continue;
+                if (XmlUtil.isXmlValue(field))
+                    continue;
+                XmlTag xmlTag = field.getAnnotation(XmlTag.class);
+                String subTag;
+                if (xmlTag == null) {
+                    subTag = field.getName();
                 } else {
-                    writeTag(value, subTag, serializer);
+                    subTag = xmlTag.value();
+                }
+                Reflect.accessible(field);
+                Object value = field.get(object);
+                //自定义类
+                Class<?> fieldCls = field.getType();
+                Log.v("xml", field.getType() + ":" + field.getName());
+                if (Reflect.isNormal(fieldCls)) {
+                    Log.v("xml", mainTag + " normal sub tag " + field.getName());
+                    serializer.startTag(null, subTag);
+                    serializer.text(toString(value));
+                    serializer.endTag(null, subTag);
+                } else {
+                    Log.v("xml", mainTag + " other sub tag " + field.getName());
+                    if (fieldCls.isArray()) {
+                        //数组
+                        int count = Array.getLength(value);
+                        for (int i = 0; i < count; i++) {
+                            writeTag(Array.get(value, i), subTag, serializer);
+                        }
+                    } else if (value instanceof Map) {
+                        Object set = Reflect.call(value, "entrySet");
+                        if (set instanceof Set) {
+                            Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
+                            for (Map.Entry<?, ?> e : sets) {
+                                serializer.startTag(null, subTag);
+                                Log.v("xml", "map " + e);
+                                writeTag(e.getKey(), MAP_KEY, serializer);
+                                writeTag(e.getValue(), MAP_VALUE, serializer);
+                                serializer.endTag(null, subTag);
+                            }
+                        }
+                    } else if (value instanceof List) {
+                        int count = (int) Reflect.call(value, "size");
+                        for (int i = 0; i < count; i++) {
+                            writeTag(Reflect.call(value, "get", i), subTag, serializer);
+                        }
+                    } else {
+                        writeTag(value, subTag, serializer);
+                    }
                 }
             }
         }
-        //
         serializer.endTag(null, mainTag);
     }
 
@@ -126,13 +126,6 @@ public class XmlWriter {
         }
     }
 
-    private static String toString(Object obj){
-        if(obj==null){
-            return "";
-        }
-        return obj.toString();
-    }
-
     private void writeText(Object object, XmlSerializer serializer) throws IllegalAccessException, IOException {
         if (object == null || serializer == null) return;
         Class<?> cls = object.getClass();
@@ -148,16 +141,6 @@ public class XmlWriter {
             if (xmlValue != null) {
                 serializer.text(toString(val));
             }
-        }
-    }
-
-    private String getTag(Class<?> cls) {
-        XmlTag xmlTag = cls.getAnnotation(XmlTag.class);
-        if (xmlTag != null) {
-            //value
-            return xmlTag.value();
-        } else {
-            return cls.getSimpleName();
         }
     }
 }

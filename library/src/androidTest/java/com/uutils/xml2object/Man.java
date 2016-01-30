@@ -4,7 +4,6 @@ import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlTag;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Administrator on 2016/1/30.
@@ -24,8 +23,8 @@ public class Man {
     @XmlTag("son1")
     List<Son> sons;
 
-    @XmlTag("maps")
-    Map<String, Integer> maps;
+ //   @XmlTag("maps")
+//    Map<String, Integer> maps;
 
     @Override
     public String toString() {

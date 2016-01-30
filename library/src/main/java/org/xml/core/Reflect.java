@@ -10,7 +10,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 class Reflect {
 
@@ -291,8 +293,15 @@ class Reflect {
             InvocationTargetException,
             InstantiationException {
         if (tClass.isArray()) {
-            Log.d("xml",tClass+" is array");
+            Log.d("xml", tClass + " is array");
             return (T) Array.newInstance(tClass, 0);
+        }
+        if (tClass.isInterface()) {
+            Log.w("xml", "create is interface");
+            if (tClass == List.class) {
+                Class<?> scls = getListClass(tClass);
+                return (T) new ArrayList<Object>();
+            }
         }
         Constructor<T> constructor = null;
         try {
@@ -312,6 +321,8 @@ class Reflect {
         if (constructor != null) {
             accessible(constructor);
             return constructor.newInstance();
+        } else {
+            Log.w("xml", "create " + tClass);
         }
         return null;
     }
@@ -322,5 +333,15 @@ class Reflect {
         }
 
         public Class<?> clsName;
+    }
+
+    public static Class<?> getListClass(Class<?> cls)  {
+        Method method = null;
+        try {
+            method = cls.getMethod("get", new Class<?>[0]);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return method == null ? Object.class : method.getReturnType();
     }
 }

@@ -11,12 +11,10 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class XmlReader {
+public class XmlReader extends IXml {
 
     public <T> T toObject(Class<T> tClass, InputStream inputStream)
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
@@ -26,12 +24,16 @@ public class XmlReader {
             HashMap<Integer, Object> objectHashMap = new HashMap<>();
             xmlParser.setInput(inputStream, "utf-8");
             Object object = null;
-            Object subobject = null;
+
+            String listTag = null;
             String tag = null;
             int depth = -1;
+            Object subobject = null;
+//            Object keyobject = null;
+//            Object valueobject = null;
             boolean isList = false;
-            boolean isArray = false;
-            boolean isMap = false;
+//            boolean isArray = false;
+//            boolean isMap = false;
             // 获得解析到的事件类别，这里有开始文档，结束文档，开始标签，结束标签，文本等等事件。
             int evtType = xmlParser.getEventType();
             // 一直循环，直到文档结束
@@ -40,21 +42,31 @@ public class XmlReader {
                     case XmlPullParser.START_TAG:
                         //属性
                         String _tag = xmlParser.getName();
-                        if ((isArray || isMap || isList) && tag.equalsIgnoreCase(_tag)) {
-                            //不用创建
+                        tag = _tag;
+                        int d = xmlParser.getDepth();
+                        Log.v("xml", "depth=" + d);
+                        //不用创建
+                        if (isList && _tag.equals(listTag)) {
+                            subobject = Reflect.create(Reflect.getListClass(object.getClass()));
+                            Reflect.call(object, "add", subobject);
+                            Log.d("xml", "add " + subobject);
                         } else {
-                            tag = _tag;
-                            int d = xmlParser.getDepth();
-                            Log.v("xml", "depth=" + d);
                             Object p = objectHashMap.get(Integer.valueOf(d - 1));
                             object = (depth < 0) ? t : createSubTag(p, tag);
                             if (object == null) {
                                 Log.w("xml", "create fail " + tag);
                             } else {
                                 Log.i("xml", "create ok " + tag);
-                                isArray = object.getClass().isArray();
-                                isList = object instanceof List;
-                                isMap = object instanceof Map;
+                                if (!isList) {
+                                    isList = object instanceof List;
+                                }
+                                if (isList) {
+                                    listTag = tag;
+                                    subobject = Reflect.create(Reflect.getListClass(object.getClass()));
+                                    Reflect.call(object, "add", subobject);
+                                    Log.d("xml", "add " + subobject);
+                                    Log.d("xml", "list tag=" + listTag);
+                                }
                             }
                             if (d != depth) {
                                 depth = d;
@@ -64,24 +76,35 @@ public class XmlReader {
                             if (p != null)
                                 setSubTag(p, object, tag);
                         }
-                        if (isArray) {
-                            subobject = Reflect.create(object.getClass().getComponentType());
-                            //TODO 添加元素
-                        }
-                        if (isList) {
-                            subobject = Reflect.create(getListClass(object.getClass()));
-                            Reflect.call(object, "add", subobject);
-                        }
-                        if (isMap) {
-                            //TODO 创建，添加
-                        }
+
+
+//                        if (isArray) {
+//                            subobject = Reflect.create(object.getClass().getComponentType());
+//                            //TODO 添加元素
+//                        }
+//                        if (isList) {
+//                            subobject = Reflect.create(getListClass(object.getClass()));
+//                            Reflect.call(object, "add", subobject);
+//                        }
+//                        if (isMap) {
+//                            //TODO 创建，添加
+//                            String k = xmlParser.getAttributeValue(null, "key");
+//                            String v = xmlParser.getAttributeValue(null, "value");
+//                            Reflect.call(object, "put", subobject);
+//                        }
                         int count = xmlParser.getAttributeCount();
                         Log.d("xml", "set attribute " + tag);
                         for (int i = 0; i < count; i++) {
                             String k = xmlParser.getAttributeName(i);
                             String v = xmlParser.getAttributeValue(i);
-                            if (isArray || isList) {
+                            if (isList) {
                                 setAttributes(subobject, k, v);
+//                            } else if (isMap) {
+//                                if (keyobject != null) {
+//                                    setAttributes(keyobject, k, v);
+//                                } else if (valueobject != null) {
+//                                    setAttributes(valueobject, k, v);
+//                                }
                             } else {
                                 setAttributes(object, k, v);
                             }
@@ -91,13 +114,25 @@ public class XmlReader {
                         //TODO:数组,List,Map
                         String text = xmlParser.getText();
                         Log.d("xml", tag + " set text = " + text);
-                        if (isArray || isList) {
+                        if (isList) {
                             setText(subobject, text);
+//                        } else if (isMap) {
+//                            if (keyobject != null) {
+//                                setText(keyobject, text);
+//                            } else if (valueobject != null) {
+//                                setText(valueobject, text);
+//                            }
                         } else {
                             setText(object, text);
                         }
                         break;
                     case XmlPullParser.END_TAG:
+                        if (tag != null && tag.equals(listTag)) {
+                            isList = false;
+                        }
+//                        if (valueobject != null) {
+//                            Reflect.call(object, "put", keyobject, valueobject);
+//                        }
                         break;
                 }
                 // 如果xml没有结束，则导航到下一个river节点
@@ -117,11 +152,6 @@ public class XmlReader {
             }
         }
         return t;
-    }
-
-    private Class<?> getListClass(Class<?> cls) throws NoSuchMethodException {
-        Method method = cls.getMethod("get", new Class<?>[0]);
-        return method == null ? Object.class : method.getReturnType();
     }
 
     private void setAttributes(Object object, String key, String value) throws NoSuchFieldException, IllegalAccessException {
@@ -156,6 +186,14 @@ public class XmlReader {
         Reflect.set(Reflect.getFiled(cls, "value"), object, value);
     }
 
+    private Object createMapKey(Object map) {
+        return null;
+    }
+
+    private Object createMapValue(Object map) {
+        return null;
+    }
+
     private Object createSubTag(Object parent, String tag) throws NoSuchFieldException, IllegalAccessException, InstantiationException, InvocationTargetException {
         if (parent == null || tag == null) return null;
         Class<?> cls = parent.getClass();
@@ -164,6 +202,7 @@ public class XmlReader {
             XmlTag xmltag = field.getAnnotation(XmlTag.class);
             if (xmltag != null) {
                 if (tag.equals(xmltag.value())) {
+                    Log.d("xml", "create find " + tag);
                     return Reflect.create(field.getType());
                 }
             }
@@ -174,6 +213,7 @@ public class XmlReader {
         if (field != null) {
             return Reflect.create(field.getType());
         }
+        Log.d("xml", "create no find " + tag);
         return null;
     }
 
@@ -192,21 +232,5 @@ public class XmlReader {
         }
         //
         Reflect.set(Reflect.getFiled(cls, tag), parent, object);
-    }
-
-    private String getTag(Field field) {
-        XmlTag xmltag = field.getAnnotation(XmlTag.class);
-        if (xmltag == null) {
-            return field.getName();
-        }
-        return xmltag.value();
-    }
-
-    private String getTag(Class<?> cls) {
-        XmlTag xmltag = cls.getAnnotation(XmlTag.class);
-        if (xmltag == null) {
-            return cls.getSimpleName();
-        }
-        return xmltag.value();
     }
 }
