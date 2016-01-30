@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import org.xml.core.XmlReader;
 import org.xml.core.XmlWriter;
 
@@ -18,6 +20,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Gson gson = new Gson();
+        gson.fromJson("", Man.class);
         Man man1 = new Man();
         man1.name = "man1";
         man1.date = "20160130";

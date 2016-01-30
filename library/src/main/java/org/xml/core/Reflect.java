@@ -1,7 +1,5 @@
 package org.xml.core;
 
-import android.util.Log;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -12,13 +10,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class Reflect {
 
     public static void set(Field field, Object parent, Object value) throws IllegalAccessException {
         if (field != null) {
-            wrapper(field, parent, value);
+            accessible(field);
+            field.set(parent, wrapper(field.getType(), value));
         }
     }
 
@@ -240,34 +241,32 @@ class Reflect {
         return false;
     }
 
-    private static void wrapper(Field field, Object parent, Object object) throws IllegalAccessException {
-        accessible(field);
+    private static Object wrapper(Class<?> type, Object object) throws IllegalAccessException {
         String value = object == null ? "" : String.valueOf(object);
-        if (parent == null || field == null) {
-            return;
+        if (type == null) {
+            return object;
         }
-        Class<?> type = field.getType();
         if (boolean.class == type || Boolean.class == type) {
-            field.set(parent, Boolean.parseBoolean(value));
+            return Boolean.parseBoolean(value);
         } else if (int.class == type || Integer.class == type) {
-            field.set(parent, (value.startsWith("0x")) ?
-                    Integer.parseInt(value.substring(2), 16) : Integer.parseInt(value));
+            return (value.startsWith("0x")) ?
+                    Integer.parseInt(value.substring(2), 16) : Integer.parseInt(value);
         } else if (long.class == type || Long.class == type) {
-            field.set(parent, (value.startsWith("0x")) ?
-                    Long.parseLong(value.substring(2), 16) : Long.parseLong(value));
+            return (value.startsWith("0x")) ?
+                    Long.parseLong(value.substring(2), 16) : Long.parseLong(value);
         } else if (short.class == type || Short.class == type) {
-            field.set(parent, (value.startsWith("0x")) ?
-                    Short.parseShort(value.substring(2), 16) : Short.parseShort(value));
+            return (value.startsWith("0x")) ?
+                    Short.parseShort(value.substring(2), 16) : Short.parseShort(value);
         } else if (byte.class == type || Byte.class == type) {
-            field.set(parent, value.getBytes()[0]);
+            return value.getBytes()[0];
         } else if (double.class == type || Double.class == type) {
-            field.set(parent, Double.parseDouble(value));
+            return Double.parseDouble(value);
         } else if (float.class == type || Float.class == type) {
-            field.set(parent, Float.parseFloat(value));
+            return Float.parseFloat(value);
         } else if (char.class == type || Character.class == type) {
-            field.set(parent, value.toCharArray()[0]);
+            return value.toCharArray()[0];
         }
-        field.set(parent, object);
+        return object;
     }
 
     private static Object[] reObjects(Object... args) {
@@ -293,11 +292,9 @@ class Reflect {
             InvocationTargetException,
             InstantiationException {
         if (tClass.isArray()) {
-            Log.d("xml", tClass + " is array");
             return (T) Array.newInstance(tClass, 0);
         }
         if (tClass.isInterface()) {
-            Log.w("xml", "create is interface");
             if (tClass == List.class) {
                 Class<?> scls = getListClass(tClass);
                 return (T) new ArrayList<Object>();
@@ -321,8 +318,6 @@ class Reflect {
         if (constructor != null) {
             accessible(constructor);
             return constructor.newInstance();
-        } else {
-            Log.w("xml", "create " + tClass);
         }
         return null;
     }
@@ -335,13 +330,47 @@ class Reflect {
         public Class<?> clsName;
     }
 
-    public static Class<?> getListClass(Class<?> cls)  {
+    public static Class<?> getMethodClass(Class<?> cls, String metod, Class<?>... args) {
         Method method = null;
         try {
-            method = cls.getMethod("get", new Class<?>[0]);
+            method = cls.getMethod(metod, args);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
         return method == null ? Object.class : method.getReturnType();
+    }
+
+    public static Class<?>[] getMapClass(Object obj) {
+        if (obj == null) return null;
+        obj = (Map) obj;
+        //成员类
+        Class<?> cls = obj.getClass();
+//        if (cls != Map.class) {
+//            cls = cls.getSuperclass();
+//        }
+//        if (cls != Map.class) {
+//            cls = cls.getSuperclass();
+//        }
+        System.out.println(cls.getName());
+        Class<?>[] memCls = cls.getDeclaredClasses();
+        for (Class<?> mc : memCls) {
+            if ("Entry".equals(mc.getSimpleName())) {
+                return new Class[]{getMethodClass(mc, "getKey"), getMethodClass(mc, "getValue")};
+            } else {
+                System.out.println(mc.getName());
+            }
+        }
+        return null;
+    }
+
+    public static Class<?> getListClass(Class<?> cls) {
+        return getMethodClass(cls, "get");
+    }
+}
+
+class Test {
+    public static void main(String[] args) {
+        Map<String, Long> maps = new HashMap<>();
+        System.out.print(Reflect.getMapClass(maps));
     }
 }
