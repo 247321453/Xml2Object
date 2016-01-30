@@ -34,15 +34,18 @@ public class XmlReader {
                         //属性
                         tag = xmlParser.getName();
                         int d = xmlParser.getDepth();
-                        Log.d("xml", "depth=" + d);
+                        Log.v("xml", "depth=" + d);
                         Object p = objectHashMap.get(Integer.valueOf(d - 1));
                         object = (depth < 0) ? t : createSubTag(p, tag);
                         if (object == null) {
                             Log.w("xml", "create fail " + tag);
+                        }else{
+                            Log.i("xml", "create ok " + tag);
                         }
                         if (d != depth) {
                             depth = d;
                             objectHashMap.put(d, object);
+                            Log.d("xml", "put depth " + d);
                         }
                         if (p != null)
                             setSubTag(p, object, tag);

@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 
-public class Reflect {
+class Reflect {
 
     public static void set(Field field, Object parent, Object value) throws IllegalAccessException {
         if (field != null) {
@@ -19,8 +19,15 @@ public class Reflect {
         return cls.getDeclaredFields();
     }
 
-    public static Field getFiled(Class<?> cls, String name) throws NoSuchFieldException {
-        return cls.getDeclaredField(name);
+    public static Field getFiled(Class<?> cls, String name) {
+        if (name == null) return null;
+        Field[] fields = getFileds(cls);
+        for (Field f : fields) {
+            if (name.equalsIgnoreCase(f.getName())) {
+                return f;
+            }
+        }
+        return null;
     }
 
     public static <T extends AccessibleObject> T accessible(T accessible) {

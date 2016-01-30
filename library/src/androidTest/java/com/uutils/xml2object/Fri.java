@@ -4,7 +4,7 @@ import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlValue;
 
 public class Fri {
-    @XmlAttribute("name")
+    @XmlAttribute("name1")
     String name;
 
     @XmlValue

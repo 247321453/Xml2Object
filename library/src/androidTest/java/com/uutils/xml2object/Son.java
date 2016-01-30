@@ -11,13 +11,13 @@ public class Son {
 
     }
 
-    @XmlAttribute("name")
+    @XmlAttribute("name1")
     String name;
 
-    @XmlTag("phone")
+    @XmlTag("phone1")
     String phone;
 
-    @XmlTag("fri")
+    @XmlTag("fri1")
     Fri mFri;
 
     @Override
