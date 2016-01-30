@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -342,13 +344,21 @@ class Reflect {
         return method == null ? Object.class : method.getReturnType();
     }
 
-    public static Type[] getMapKeyAndValueTypes(Class<?> contextRawType) {
-        Type mapType = contextRawType.getGenericInterfaces()[0];
+    public static Class<?>[] getMapKeyAndValueTypes(Object object) {
+        Type mapType = object.getClass().getGenericSuperclass();
+        System.out.println("" + ((Class) mapType).getName());
         if ((mapType instanceof ParameterizedType)) {
+            System.out.println("ParameterizedType " + ((ParameterizedType) mapType));
             ParameterizedType mapParameterizedType = (ParameterizedType) mapType;
-            return mapParameterizedType.getActualTypeArguments();
+            return (Class<?>[])mapParameterizedType.getActualTypeArguments();
+        }else if(mapType instanceof TypeVariable){
+            System.out.println("TypeVariable " + ((TypeVariable) mapType).getBounds());
+        }else if(mapType instanceof WildcardType){
+            System.out.println("WildcardType " + ((WildcardType) mapType).getLowerBounds());
+        }else if(mapType instanceof Class){
+            System.out.println("Class " + ((Class) mapType).getName());
         }
-        return new Type[]{Object.class, Object.class};
+        return new Class<?>[]{Object.class, Object.class};
     }
 
     public static Class<?> getListClass(Class<?> cls) {
@@ -359,6 +369,6 @@ class Reflect {
 class Test {
     public static void main(String[] args) {
         Map<String, Long> maps = new HashMap<>();
-        System.out.print(""+Reflect.getMapKeyAndValueTypes(maps.getClass()));
+        Class<?>[] cls = Reflect.getMapKeyAndValueTypes(maps.getClass());
     }
 }

@@ -5,12 +5,15 @@ import android.util.Log;
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlTag;
 import org.xml.annotation.XmlValue;
+import org.xml.bean.Root;
 import org.xml.bean.Tag;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,77 +23,83 @@ import java.util.Set;
  */
 public class XmlConvert extends IXml {
 
-    public Tag toTag(Object object, String name) throws IllegalAccessException, IOException {
-        Tag tag = new Tag();
-        if (object == null) return tag;
-        Class<?> cls = object.getClass();
-        tag.name = name == null ? getTag(object.getClass()) : name;
-        if (Reflect.isNormal(cls)) {
+    protected Tag any(Object object, String name) throws IllegalAccessException {
+        if (Reflect.isNormal(object.getClass())) {
+            Tag tag = new Tag(name);
             tag.value = toString(object);
+            return tag;
         } else {
+            Tag tag = new Tag(name);
             writeAttributes(object, tag);
             writeText(object, tag);
-            //
-            Field[] fields = Reflect.getFileds(cls);
-            Log.v("xml", cls + ":" + tag.name + " fileds=" + fields.length);
-            for (Field field : fields) {
-                if (XmlUtil.isXmlAttribute(field))
-                    continue;
-                if (XmlUtil.isXmlValue(field))
-                    continue;
-                XmlTag xmlTag = field.getAnnotation(XmlTag.class);
-                String subTag;
-                if (xmlTag == null) {
-                    subTag = field.getName();
-                } else {
-                    subTag = xmlTag.value();
-                }
-                Reflect.accessible(field);
-                Object value = field.get(object);
-                //自定义类
-                Class<?> fieldCls = field.getType();
-                Log.v("xml", field.getType() + ":" + field.getName());
-                if (Reflect.isNormal(fieldCls)) {
-                    Log.v("xml", tag.name + " normal sub tag " + field.getName());
-                    Tag stag = new Tag();
-                    stag.name = subTag;
-                    stag.value = toString(value);
-                    tag.tags.add(stag);
-                } else {
-                    Log.v("xml", tag.name + " other sub tag " + field.getName());
-                    if (fieldCls.isArray()) {
-                        //数组
-                        int count = Array.getLength(value);
-                        for (int i = 0; i < count; i++) {
-                            tag.tags.add(toTag(Array.get(value, i), subTag));
-                        }
-                    } else if (value instanceof Map) {
-                        Object set = Reflect.call(value, "entrySet");
-                        if (set instanceof Set) {
-                            Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
-                            for (Map.Entry<?, ?> e : sets) {
-                                Log.v("xml", "map " + e);
-                                Tag mtag = new Tag();
-                                mtag.name = subTag;
-                                mtag.tags.add(toTag(e.getKey(), MAP_KEY));
-                                mtag.tags.add(toTag(e.getValue(), MAP_VALUE));
-                            }
-                        }
-                    } else if (value instanceof List) {
-                        int count = (int) Reflect.call(value, "size");
-                        for (int i = 0; i < count; i++) {
-                            tag.tags.add(toTag(Reflect.call(value, "get", i), subTag));
-                        }
-                    } else {
-                        tag.tags.add(toTag(value, subTag));
-                    }
-                }
-            }
+            writeSubTag(object, tag);
+            return tag;
         }
-        return tag;
     }
 
-    public <T> T toObject(Tag tag, Class<T> tClass)
+    protected ArrayList<Tag> map(Object object, String name) throws IllegalAccessException {
+        ArrayList<Tag> list = new ArrayList<>();
+        if (object == null) {
+            return list;
+        }
+        Object set = Reflect.call(object, "entrySet");
+        if (set instanceof Set) {
+            Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
+            for (Map.Entry<?, ?> e : sets) {
+                Log.v("xml", "map " + e);
+                Tag tag = new Tag(name);
+                tag.add(any(e.getKey(), MAP_KEY));
+                tag.add(any(e.getValue(), MAP_VALUE));
+                list.add(tag);
+            }
+        }
+        return list;
+    }
+
+    protected ArrayList<Tag> array(Object object, String name) throws IllegalAccessException {
+        ArrayList<Tag> list = new ArrayList<>();
+        if (object != null) {
+            int count = Array.getLength(object);
+            Class<?> cls = object.getClass().getComponentType();
+            for (int i = 0; i < count; i++) {
+                list.add(any(object, name));
+            }
+        }
+        return list;
+    }
+
+    protected ArrayList<Tag> list(Object object, String name) throws IllegalAccessException {
+        ArrayList<Tag> list = new ArrayList<>();
+        if (object != null) {
+            int count = (int)Reflect.call(object, "size");
+            for (int i = 0; i < count; i++) {
+                Object o = Reflect.call(object, "get", i);
+                list.add(any(o, name));
+            }
+        }
+        return list;
+    }
+
+    public Root toTag(Object object, String name) throws IllegalAccessException, IOException {
+        Root root = new Root();
+        if (object == null) return root;
+        Class<?> cls = object.getClass();
+        if (name == null) {
+            name = getTag(object.getClass());
+        }
+        if (cls.isArray()) {
+            root.addAll(array(object, name));
+        } else if (object instanceof Map) {
+            root.addAll(map(object, name));
+        } else if (object instanceof Collection) {
+            root.addAll(list(object, name));
+        } else {
+            root.add(any(object, name));
+        }
+        return root;
+    }
+
+    public <T> T toObject(Root tag, Class<T> tClass)
             throws
             IllegalAccessException,
             InstantiationException,
@@ -122,7 +131,7 @@ public class XmlConvert extends IXml {
                         Reflect.call(obj, "add", toObject(st, subCls));
                     }
                 } else if (obj instanceof Map) {
-                    Class<?>[] subCls = Reflect.getMapClass(obj);
+                    Class<?>[] subCls = Reflect.getMapKeyAndValueTypes(obj);
                     if (subCls != null && subCls.length >= 2) {
                         for (Tag st : tag1.tags) {
                             Reflect.call(obj, "put",
@@ -216,6 +225,65 @@ public class XmlConvert extends IXml {
             tag.attributes.put(subTag, toString(val));
         }
     }
+
+    private void writeSubTag(Object object, Tag tag) {
+        Field[] fields = Reflect.getFileds(cls);
+        Log.v("xml", cls + ":" + tag.name + " fileds=" + fields.length);
+        for (Field field : fields) {
+            if (XmlUtil.isXmlIgnore(field))
+                continue;
+            if (XmlUtil.isXmlAttribute(field))
+                continue;
+            if (XmlUtil.isXmlValue(field))
+                continue;
+            XmlTag xmlTag = field.getAnnotation(XmlTag.class);
+            String subTag;
+            if (xmlTag == null) {
+                subTag = field.getName();
+            } else {
+                subTag = xmlTag.value();
+            }
+            Reflect.accessible(field);
+            Object value = field.get(object);
+            //自定义类
+            Class<?> fieldCls = field.getType();
+            Log.v("xml", field.getType() + ":" + field.getName());
+            if (Reflect.isNormal(fieldCls)) {
+                Log.v("xml", tag.name + " normal sub tag " + field.getName());
+                Tag stag = new Tag();
+                stag.name = subTag;
+                stag.value = toString(value);
+                tag.tags.add(stag);
+            } else {
+                Log.v("xml", tag.name + " other sub tag " + field.getName());
+                if (fieldCls.isArray()) {
+                    //数组
+                    int count = Array.getLength(value);
+                    for (int i = 0; i < count; i++) {
+                        tag.tags.add(toTag(Array.get(value, i), subTag));
+                    }
+                } else if (value instanceof Map) {
+                    Object set = Reflect.call(value, "entrySet");
+                    if (set instanceof Set) {
+                        Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
+                        for (Map.Entry<?, ?> e : sets) {
+                            Log.v("xml", "map " + e);
+                            Tag mtag = new Tag();
+                            mtag.name = subTag;
+                            mtag.tags.add(toTag(e.getKey(), MAP_KEY));
+                            mtag.tags.add(toTag(e.getValue(), MAP_VALUE));
+                        }
+                    }
+                } else if (value instanceof List) {
+                    int count = (int) Reflect.call(value, "size");
+                    for (int i = 0; i < count; i++) {
+                        tag.tags.add(toTag(Reflect.call(value, "get", i), subTag));
+                    }
+                } else {
+                    tag.tags.add(toTag(value, subTag));
+                }
+            }
+        }
 
     private void writeText(Object object, Tag tag) throws IllegalAccessException {
         if (object == null || tag == null) return;
