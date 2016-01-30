@@ -34,4 +34,15 @@ public class Root {
         }
         return null;
     }
+
+    public ArrayList<Tag> getList(String name) {
+        ArrayList<Tag> tags = new ArrayList<>();
+        if (name == null) return tags;
+        for (Tag t : tags) {
+            if (name.equals(t.name)) {
+                tags.add(t);
+            }
+        }
+        return tags;
+    }
 }
