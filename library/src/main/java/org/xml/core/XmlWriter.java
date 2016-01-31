@@ -64,13 +64,10 @@ public class XmlWriter extends IXml {
         if (Reflect.isNormal(cls)) {
             root.setValue(toString(object));
         } else if (cls.isArray()) {
-            root.setIsArray(true);
             root.addAll(array(object, name));
         } else if (object instanceof Map) {
-            root.setIsMap(true);
             root.addAll(map(object, name));
         } else if (object instanceof Collection) {
-            root.setIsArray(true);
             root.addAll(list(object, name));
         } else {
             writeAttributes(object, root);

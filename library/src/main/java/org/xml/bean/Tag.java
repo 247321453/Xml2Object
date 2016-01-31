@@ -17,9 +17,6 @@ public class Tag {
         this();
         this.name = name;
     }
-
-    protected boolean isArray = false;
-    protected boolean isMap = false;
     protected String value;
 
     protected String name;
@@ -73,15 +70,11 @@ public class Tag {
     }
 
     public boolean isArray() {
-        return isArray;
+        return tClass.isArray()||Collection.class.isAssignableFrom(tClass);
     }
 
     public boolean isMap() {
-        return isMap;
-    }
-
-    public void setIsArray(boolean isArray) {
-        this.isArray = isArray;
+        return Map.class.isAssignableFrom(tClass);
     }
 
     public void addAll(Collection<Tag> collection) {
@@ -93,7 +86,7 @@ public class Tag {
         if (tClass.isArray()) {
             return tClass.getComponentType();
         }
-        if (isArray) {
+        if (isArray()) {
             return subClasss[0];
         }
         return Object.class;
@@ -120,23 +113,12 @@ public class Tag {
         return tags;
     }
 
-    public void setIsMap(boolean isMap) {
-        this.isMap = isMap;
-    }
-
     public Class<?> getTClass() {
         return tClass;
     }
 
     public void setClass(Class<?> tClass) {
         this.tClass = tClass;
-        isArray = tClass.isArray();
-        if (Map.class.isAssignableFrom(tClass)) {
-            isMap = true;
-        }
-        if (Collection.class.isAssignableFrom(tClass)) {
-            isArray = true;
-        }
     }
 
     @Override
