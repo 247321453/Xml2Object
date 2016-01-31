@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XmlReader extends IXml {
-    public static Tag read(InputStream inputStream) {
+    //region read tag
+    public Tag read(Class<?> tClass, InputStream inputStream) {
         if (inputStream == null) return null;
         Tag main = new Tag();
         XmlPullParser xmlParser = android.util.Xml.newPullParser();
@@ -31,7 +32,11 @@ public class XmlReader extends IXml {
                         tmp = new Tag();
                         Tag parent = tagList.get(d - 1);
                         if (parent != null) {
-                            parent.tags.add(tmp);
+                            parent.add(tmp);
+                        }
+                        if (depth != d) {
+                            depth = d;
+                            tagList.add(tmp);
                         }
 
                         Log.v("xml", "depth=" + d);
@@ -45,7 +50,7 @@ public class XmlReader extends IXml {
                         break;
                     case XmlPullParser.TEXT:
                         if (tmp != null) {
-                            tmp.value = xmlParser.getText();
+                            tmp.setValue(xmlParser.getText());
                         }
                         break;
                     case XmlPullParser.END_TAG:
@@ -69,4 +74,6 @@ public class XmlReader extends IXml {
         }
         return main;
     }
+
+    //ednregion
 }

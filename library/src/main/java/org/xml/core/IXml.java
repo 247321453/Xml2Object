@@ -1,13 +1,13 @@
 package org.xml.core;
 
+import org.xml.annotation.XmlAttribute;
+import org.xml.annotation.XmlMap;
 import org.xml.annotation.XmlTag;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 
 abstract class IXml {
-
-    protected static final String MAP_KEY = "key";
-    protected static final String MAP_VALUE = "value";
 
     protected static String toString(Object obj) {
         if (obj == null) {
@@ -16,7 +16,7 @@ abstract class IXml {
         return obj.toString();
     }
 
-    protected String getTag(Field field) {
+    protected String getTagName(Field field) {
         XmlTag xmltag = field.getAnnotation(XmlTag.class);
         if (xmltag == null) {
             return field.getName();
@@ -24,13 +24,25 @@ abstract class IXml {
         return xmltag.value();
     }
 
-    protected String getTag(Class<?> cls) {
+    protected String getAttributeName(AnnotatedElement cls, String def) {
+        XmlAttribute value = cls.getAnnotation(XmlAttribute.class);
+        if (value != null) {
+            //value
+            return value.value();
+        }
+        return def;
+    }
+
+    protected String getTagName(AnnotatedElement cls, String def) {
         XmlTag xmlTag = cls.getAnnotation(XmlTag.class);
         if (xmlTag != null) {
             //value
             return xmlTag.value();
-        } else {
-            return cls.getSimpleName();
         }
+        XmlMap xmlMap = cls.getAnnotation(XmlMap.class);
+        if (xmlMap != null) {
+            return xmlMap.name();
+        }
+        return def;
     }
 }
