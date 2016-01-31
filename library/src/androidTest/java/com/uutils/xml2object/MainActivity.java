@@ -17,11 +17,15 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        test();
+    }
+
+    private void test() {
         Man man1 = new Man();
         man1.name = "man1";
         man1.date = "20160130";
-        man1.maps.put("a", 1);
-        man1.maps.put("b", 2);
+        man1.maps.put("encrypt", 1);
+        man1.maps.put("decrypt", 2);
         man1.sons = new ArrayList<>();
         Son son = new Son();
         son.name = "son name";
@@ -37,10 +41,12 @@ public class MainActivity extends Activity {
         try {
             Tag tag = xmlWriter.toTag(man1, null);
             xmlWriter.toXml(tag, outputStream, null);
+            Log.d("xml", "" + tag);
             String xmlStr = outputStream.toString();
             Log.i("xml", "" + xmlStr);
             Tag tag1 = xmlReader.read(Man.class, new ByteArrayInputStream(xmlStr.getBytes()));
             outputStream = new ByteArrayOutputStream();
+            Log.d("xml", "" + tag1);
             xmlWriter.toXml(tag1, outputStream, null);
             Log.i("xml", "" + outputStream.toString());
         } catch (Throwable e) {

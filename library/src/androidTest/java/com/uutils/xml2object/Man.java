@@ -7,9 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Administrator on 2016/1/30.
- */
 @XmlTag("man")
 public class Man {
     public Man() {
@@ -22,10 +19,10 @@ public class Man {
     @XmlAttribute("date1")
     String date;
 
-    @XmlTag("son1")
+    @XmlTag(value = "son1", valueType = Son.class)
     List<Son> sons;
 
-    @XmlTag("maps")
+    @XmlTag(value = "maps", keyType = Integer.class, valueType = String.class)
     final Map<String, Integer> maps;
 
     @Override

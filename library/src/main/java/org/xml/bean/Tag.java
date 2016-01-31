@@ -24,6 +24,10 @@ public class Tag {
 
     protected String name;
 
+    protected Class<?> tClass;
+
+    protected Class<?>[] subClasss;
+
     public final Map<String, String> attributes;
     protected final List<Tag> tags;
 
@@ -50,6 +54,14 @@ public class Tag {
     public String getValue() {
         if (value == null) return "";
         return value;
+    }
+
+    public Class<?>[] getSubClasss() {
+        return subClasss;
+    }
+
+    public void setSubClasss(Class<?>... subClasss) {
+        this.subClasss = subClasss;
     }
 
     public void setName(String name) {
@@ -102,12 +114,18 @@ public class Tag {
         this.isMap = isMap;
     }
 
+    public Class<?> getTClass() {
+        return tClass;
+    }
+
+    public void setClass(Class<?> tClass) {
+        this.tClass = tClass;
+    }
+
     @Override
     public String toString() {
         return "Tag{" +
                 "attributes=" + attributes +
-                ", isArray=" + isArray +
-                ", isMap=" + isMap +
                 ", value='" + value + '\'' +
                 ", name='" + name + '\'' +
                 ", tags=" + tags +

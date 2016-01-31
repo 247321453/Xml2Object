@@ -8,15 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 class Reflect {
 
@@ -289,7 +281,7 @@ class Reflect {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T create(Class<T> tClass)
+    public static <T> T create(Class<T> tClass, Class<?>... args)
             throws
             RuntimeException,
             IllegalAccessException,
@@ -298,21 +290,25 @@ class Reflect {
         if (tClass.isArray()) {
             return (T) Array.newInstance(tClass, 0);
         }
-        if (tClass.isInterface()) {
-            if (tClass == List.class) {
-                Class<?> scls = getListClass(tClass);
-                return (T) new ArrayList<Object>();
-            }
-        }
+//        if (tClass.isInterface()) {
+//            if (tClass == List.class) {
+//                Class<?> scls = getListClass(tClass);
+//                return (T) new ArrayList<Object>();
+//            }
+//            if (tClass == Map.class) {
+//                Class<?> scls = getListClass(tClass);
+//                return (T) new ArrayList<Object>();
+//            }
+//        }
         Constructor<T> constructor = null;
         try {
-            constructor = tClass.getDeclaredConstructor();
+            constructor = tClass.getDeclaredConstructor(args);
         }
         // 这种情况下，构造器往往是私有的，多用于工厂方法，刻意的隐藏了构造器。
         catch (NoSuchMethodException e) {
             // private阻止不了反射的脚步:)
             for (Constructor<?> con : tClass.getDeclaredConstructors()) {
-                if (con.getParameterTypes().length == 0) {
+                if (con.getParameterTypes().length == args.length) {
                     constructor = (Constructor<T>) con;
                     break;
                 }
@@ -333,42 +329,72 @@ class Reflect {
 
         public Class<?> clsName;
     }
-
-    public static Class<?> getMethodClass(Class<?> cls, String metod, Class<?>... args) {
-        Method method = null;
-        try {
-            method = cls.getMethod(metod, args);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        return method == null ? Object.class : method.getReturnType();
-    }
-
-    public static Class<?>[] getMapKeyAndValueTypes(Object object) {
-        Type mapType = object.getClass().getGenericSuperclass();
-        System.out.println("" + ((Class) mapType).getName());
-        if ((mapType instanceof ParameterizedType)) {
-            System.out.println("ParameterizedType " + ((ParameterizedType) mapType));
-            ParameterizedType mapParameterizedType = (ParameterizedType) mapType;
-            return (Class<?>[])mapParameterizedType.getActualTypeArguments();
-        }else if(mapType instanceof TypeVariable){
-            System.out.println("TypeVariable " + ((TypeVariable) mapType).getBounds());
-        }else if(mapType instanceof WildcardType){
-            System.out.println("WildcardType " + ((WildcardType) mapType).getLowerBounds());
-        }else if(mapType instanceof Class){
-            System.out.println("Class " + ((Class) mapType).getName());
-        }
-        return new Class<?>[]{Object.class, Object.class};
-    }
-
-    public static Class<?> getListClass(Class<?> cls) {
-        return getMethodClass(cls, "get");
-    }
-}
-
-class Test {
-    public static void main(String[] args) {
-        Map<String, Long> maps = new HashMap<>();
-        Class<?>[] cls = Reflect.getMapKeyAndValueTypes(maps.getClass());
-    }
+//
+//    public static Class<?> getMethodClass(Class<?> cls, String metod, Class<?>... args) {
+//        Method method = null;
+//        try {
+//            method = cls.getMethod(metod, args);
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
+//        return method == null ? Object.class : method.getReturnType();
+//    }
+//
+//    public static Class<?>[] getMethodParamers(Class<?> cls, String name) {
+//        Method[] ms = cls.getDeclaredMethods();
+//        for (Method m : ms) {
+//            if (name.equals(m.getName())) {
+//                return m.getParameterTypes();
+//            }
+//        }
+//        return null;
+//    }
+//
+//    public static Class<?>[] getMapKVClass(Class<?> cls) {
+//        return getMethodParamers(cls, "put");
+//    }
+//
+//    public static Class<?> getListClass(Class<?> cls) {
+//        Class<?> iterator = getMethodClass(cls, "iterator");
+//        return getMethodClass(iterator, "next");
+//    }
+//
+//    private static final String TYPE_NAME_PREFIX = "class ";
+//
+//    public static String getClassName(Type type) {
+//        if (type == null) {
+//            return "";
+//        }
+//        String className = type.toString();
+//        if (className.startsWith(TYPE_NAME_PREFIX)) {
+//            className = className.substring(TYPE_NAME_PREFIX.length());
+//        }
+//        return className;
+//    }
+//
+//    public static Class<?> getClass(Type type)
+//            throws ClassNotFoundException {
+//        String className = getClassName(type);
+//        if (className == null || className.isEmpty()) {
+//            return null;
+//        }
+//        return Class.forName(className);
+//    }
+//
+//    public static Object newInstance(Type type)
+//            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+//        Class<?> clazz = getClass(type);
+//        if (clazz == null) {
+//            return null;
+//        }
+//        return clazz.newInstance();
+//    }
+//
+//    public static Type[] getParameterizedTypes(Object object) {
+//        Type superclassType = object.getClass().getGenericSuperclass();
+//        if (!ParameterizedType.class.isAssignableFrom(superclassType.getClass())) {
+//            return null;
+//        }
+//        return ((ParameterizedType) superclassType).getActualTypeArguments();
+//    }
 }
