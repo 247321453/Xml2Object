@@ -6,7 +6,6 @@ import org.xml.annotation.XmlTag;
 import org.xml.annotation.XmlValue;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
 
 abstract class IXml {
     static final String MAP_KEY = "key";
@@ -37,14 +36,6 @@ abstract class IXml {
             return "";
         }
         return obj.toString();
-    }
-
-    protected String getTagName(Field field) {
-        XmlTag xmltag = field.getAnnotation(XmlTag.class);
-        if (xmltag == null) {
-            return field.getName();
-        }
-        return xmltag.value();
     }
 
     protected String getAttributeName(AnnotatedElement cls, String def) {

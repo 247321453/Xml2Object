@@ -17,6 +17,7 @@ public class Tag {
         this();
         this.name = name;
     }
+
     protected String value;
 
     protected String name;
@@ -70,10 +71,17 @@ public class Tag {
     }
 
     public boolean isArray() {
-        return tClass.isArray()||Collection.class.isAssignableFrom(tClass);
+        if (tClass == null) return false;
+        return tClass.isArray() || isList();
+    }
+
+    public boolean isList() {
+        if (tClass == null) return false;
+        return Collection.class.isAssignableFrom(tClass);
     }
 
     public boolean isMap() {
+        if (tClass == null) return false;
         return Map.class.isAssignableFrom(tClass);
     }
 
@@ -83,10 +91,14 @@ public class Tag {
     }
 
     public Class<?> getListClass() {
+        if (tClass == null) return Object.class;
         if (tClass.isArray()) {
             return tClass.getComponentType();
         }
-        if (isArray()) {
+        if (isList()) {
+            if (subClasss[0] == null) {
+                return subClasss[1];
+            }
             return subClasss[0];
         }
         return Object.class;
