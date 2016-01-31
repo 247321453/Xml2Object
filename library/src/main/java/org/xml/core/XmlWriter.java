@@ -32,7 +32,6 @@ public class XmlWriter extends IXml {
         }
         serializer.setOutput(outputStream, encoding);
         serializer.startDocument(encoding, null);
-        serializer.text("\n");
         writeTag(tag, serializer);
         serializer.endDocument();
     }
@@ -41,29 +40,16 @@ public class XmlWriter extends IXml {
     private void writeTag(Tag tag, XmlSerializer serializer)
             throws IllegalAccessException, IOException {
         if (tag == null || serializer == null) return;
-        if (tag.isArray()) {
-            int count = tag.size();
-            for (int i = 0; i < count; i++) {
-                writeTag(tag.get(i), serializer);
-            }
-        } else if (tag.isMap()) {
-            int count = tag.size();
-            for (int i = 0; i < count; i++) {
-                writeTag(tag.get(i), serializer);
-            }
-        } else {
-            serializer.startTag(null, tag.getName());
-            for (Map.Entry<String, String> e : tag.attributes.entrySet()) {
-                serializer.attribute(null, e.getKey(), e.getValue());
-            }
-            serializer.text(tag.getValue());
-            int count = tag.size();
-            for (int i = 0; i < count; i++) {
-                writeTag(tag.get(i), serializer);
-            }
-            serializer.endTag(null, tag.getName());
-            serializer.text("\n");
+        serializer.startTag(null, tag.getName());
+        for (Map.Entry<String, String> e : tag.attributes.entrySet()) {
+            serializer.attribute(null, e.getKey(), e.getValue());
         }
+        serializer.text(tag.getValue());
+        int count = tag.size();
+        for (int i = 0; i < count; i++) {
+            writeTag(tag.get(i), serializer);
+        }
+        serializer.endTag(null, tag.getName());
     }
 
     public Tag toTag(Object object, String name) throws IllegalAccessException {
@@ -125,13 +111,13 @@ public class XmlWriter extends IXml {
         return list;
     }
 
-    private ArrayList<Tag> list(Object object,String name) throws IllegalAccessException {
+    private ArrayList<Tag> list(Object object, String name) throws IllegalAccessException {
         ArrayList<Tag> list = new ArrayList<>();
         if (object != null) {
             Object[] objs = (Object[]) Reflect.call(object, "toArray");
             if (objs != null) {
                 for (Object o : objs) {
-                    list.add(toTag(o,  name));
+                    list.add(toTag(o, name));
                 }
             }
         }
@@ -154,7 +140,7 @@ public class XmlWriter extends IXml {
         }
     }
 
-    private void writeSubTag(Object object,Tag tag) throws IllegalAccessException {
+    private void writeSubTag(Object object, Tag tag) throws IllegalAccessException {
         if (object == null) return;
         Field[] fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
@@ -165,10 +151,17 @@ public class XmlWriter extends IXml {
             if (isXmlValue(field))
                 continue;
             String name = getTagName(field, field.getName());
+            Class<?> cls = field.getType();
             Reflect.accessible(field);
             Object val = field.get(object);
             if (val != null) {
-                tag.add(toTag(val, name));
+                if (val instanceof Map) {
+                    tag.addAll(map(val, name));
+                } else if (val instanceof Collection) {
+                    tag.addAll(list(val, name));
+                } else {
+                    tag.add(toTag(val, name));
+                }
             }
         }
     }

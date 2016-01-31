@@ -1,4 +1,9 @@
-//package org.xml.core;
+package org.xml.core;
+
+//public class Test {
+//    public static void main(String[] args) throws ClassNotFoundException {
+//    }
+//}
 //
 //import android.util.Log;
 //

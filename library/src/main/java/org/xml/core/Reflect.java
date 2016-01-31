@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 
 class Reflect {
@@ -329,7 +330,8 @@ class Reflect {
 
         public Class<?> clsName;
     }
-//
+
+    //
 //    public static Class<?> getMethodClass(Class<?> cls, String metod, Class<?>... args) {
 //        Method method = null;
 //        try {
@@ -359,27 +361,28 @@ class Reflect {
 //        return getMethodClass(iterator, "next");
 //    }
 //
-//    private static final String TYPE_NAME_PREFIX = "class ";
-//
-//    public static String getClassName(Type type) {
-//        if (type == null) {
-//            return "";
-//        }
-//        String className = type.toString();
-//        if (className.startsWith(TYPE_NAME_PREFIX)) {
-//            className = className.substring(TYPE_NAME_PREFIX.length());
-//        }
-//        return className;
-//    }
-//
-//    public static Class<?> getClass(Type type)
-//            throws ClassNotFoundException {
-//        String className = getClassName(type);
-//        if (className == null || className.isEmpty()) {
-//            return null;
-//        }
-//        return Class.forName(className);
-//    }
+    private static final String TYPE_NAME_PREFIX = "class ";
+
+    private static String getClassName(Type type) {
+        if (type == null) {
+            return "";
+        }
+        String className = type.toString();
+        if (className.startsWith(TYPE_NAME_PREFIX)) {
+            className = className.substring(TYPE_NAME_PREFIX.length());
+        }
+        className = className.trim();
+        return className;
+    }
+
+    public static Class<?> getClass(Type type)
+            throws ClassNotFoundException {
+        String className = getClassName(type);
+        if (className == null || className.isEmpty()) {
+            return null;
+        }
+        return Class.forName(className);
+    }
 //
 //    public static Object newInstance(Type type)
 //            throws ClassNotFoundException, InstantiationException, IllegalAccessException {

@@ -89,6 +89,16 @@ public class Tag {
             tags.addAll(collection);
     }
 
+    public Class<?> getListClass() {
+        if (tClass.isArray()) {
+            return tClass.getComponentType();
+        }
+        if (isArray) {
+            return subClasss[0];
+        }
+        return Object.class;
+    }
+
     public Tag get(String name) {
         if (name == null) return null;
         for (Tag t : tags) {
@@ -120,14 +130,21 @@ public class Tag {
 
     public void setClass(Class<?> tClass) {
         this.tClass = tClass;
+        isArray = tClass.isArray();
+        if (Map.class.isAssignableFrom(tClass)) {
+            isMap = true;
+        }
+        if (Collection.class.isAssignableFrom(tClass)) {
+            isArray = true;
+        }
     }
 
     @Override
     public String toString() {
         return "Tag{" +
-                "attributes=" + attributes +
+                "name='" + name + '\'' +
                 ", value='" + value + '\'' +
-                ", name='" + name + '\'' +
+                ", attributes=" + attributes +
                 ", tags=" + tags +
                 '}';
     }

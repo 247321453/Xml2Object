@@ -9,8 +9,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class XmlReader extends IXml {
 
@@ -18,12 +18,11 @@ public class XmlReader extends IXml {
     public Tag read(Class<?> tClass, InputStream inputStream) {
         if (inputStream == null) return null;
         XmlPullParser xmlParser = android.util.Xml.newPullParser();
-        List<Tag> tagList = new ArrayList<>();
+        Map<Integer, Tag> tagMap = new HashMap<>();
         int depth = -1;
-        tagList.clear();
         Tag mTag = new Tag(getTagName(tClass, tClass.getSimpleName()));
         mTag.setClass(tClass);
-        tagList.add(mTag);
+        tagMap.put(1, mTag);
 
         try {
             xmlParser.setInput(inputStream, "utf-8");
@@ -37,23 +36,17 @@ public class XmlReader extends IXml {
                         int d = xmlParser.getDepth();
                         if (depth < 0) {
                             //
-                        } else if (depth != d) {
-                            Tag p;
-                            if (d - 1 >= 0 && d - 1 < tagList.size())
-                                p = tagList.get(d - 1);
-                            else
-                                p = null;
-
+                        } else {
+                            Tag p = tagMap.get(d - 1);
                             mTag = new Tag(tag);
                             mTag.setClass(findClass(p, tag));
                             if (p != null) {
                                 p.add(mTag);
-                                Log.d("xml", p.getName() + " add " + tag);
+                                Log.d("xml", d + " " + p.getName() + " add " + tag);
                             } else {
-                                Log.d("xml", "add " + tag);
+                                Log.d("xml", d + " add " + tag);
                             }
-                            tagList.add(mTag);
-                            Log.d("xml", "add " + tag);
+                            tagMap.put(d, mTag);
                         }
                         depth = d;
                         Log.v("xml", "mDepth=" + d);
@@ -88,7 +81,7 @@ public class XmlReader extends IXml {
                 }
             }
         }
-        return tagList.get(0);
+        return tagMap.get(1);
     }
 
     //ednregion
