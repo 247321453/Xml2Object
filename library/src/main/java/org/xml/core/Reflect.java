@@ -13,6 +13,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 class Reflect {
 
@@ -311,11 +313,19 @@ class Reflect {
             RuntimeException,
             IllegalAccessException,
             InvocationTargetException,
-            InstantiationException {
+            InstantiationException, NoSuchMethodException {
         if (tClass.isArray()) {
-            return (T) Array.newInstance(tClass, 0);
+            return (T) Array.newInstance(tClass.getComponentType(), 0);
         }
+        //list
+        //map
         Constructor<T> constructor = null;
+        if (Collection.class.isAssignableFrom(tClass)) {
+            //TODO:
+        }
+        if (Map.class.isAssignableFrom(tClass)) {
+            //TODO:
+        }
         try {
             constructor = tClass.getDeclaredConstructor(args);
         }
@@ -329,7 +339,6 @@ class Reflect {
                 }
             }
         }
-
         if (constructor != null) {
             accessible(constructor);
             return constructor.newInstance();
@@ -341,6 +350,7 @@ class Reflect {
         public NULL(Class<?> cls) {
             this.clsName = cls;
         }
+
         public Class<?> clsName;
     }
 

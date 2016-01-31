@@ -22,13 +22,13 @@ public class XmlReader extends IXml {
     static final String DEF_ENCODING = "UTF-8";
 
     public <T> T fromTag(Tag tag, Class<T> pClass)
-            throws IllegalAccessException, InstantiationException, InvocationTargetException {
+            throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         return any(tag, pClass, null);
     }
 
     @SuppressWarnings("unchecked")
     private <T> T array(Tag tag, Class<T> pClass, Object object)
-            throws IllegalAccessException, InstantiationException, InvocationTargetException {
+            throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         if (tag == null) {
             return null;
         }
@@ -47,11 +47,11 @@ public class XmlReader extends IXml {
 
     @SuppressWarnings("unchecked")
     private <T> T map(List<Tag> tags, Class<T> pClass, Object object, Class<?>[] subClass)
-            throws IllegalAccessException, InstantiationException, InvocationTargetException {
+            throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         if (tags == null || subClass == null || subClass.length < 2) {
             return null;
         }
-        T t = object == null ? Reflect.create(pClass) : (T) object;
+        T t = object == null ? Reflect.create(pClass, subClass) : (T) object;
         if (BuildConfig.DEBUG)
             Log.v("xml", " put " + subClass[0] + "," + subClass[1] + " size=" + tags.size());
         for (Tag tag : tags) {
@@ -70,13 +70,13 @@ public class XmlReader extends IXml {
 
     @SuppressWarnings("unchecked")
     private <T> T list(List<Tag> tags, Class<T> pClass, Object object, Class<?> subClass)
-            throws IllegalAccessException, InstantiationException, InvocationTargetException {
+            throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         if (tags == null) {
             return null;
         }
         if (BuildConfig.DEBUG)
             Log.d("xml", "list " + subClass);
-        T t = object == null ? Reflect.create(pClass) : (T) object;
+        T t = object == null ? Reflect.create(pClass, subClass) : (T) object;
         for (Tag tag : tags) {
             tag.setClass(subClass);
             Reflect.call(t, "add", any(tag, subClass, null));
@@ -86,7 +86,7 @@ public class XmlReader extends IXml {
 
     @SuppressWarnings("unchecked")
     private <T> T any(Tag tag, Class<T> pClass, Object object)
-            throws IllegalAccessException, InvocationTargetException, InstantiationException {
+            throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
         if (tag == null) {
             return null;
         }

@@ -12,6 +12,7 @@ import org.xml.core.XmlWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends Activity {
 
@@ -23,6 +24,8 @@ public class MainActivity extends Activity {
 
     private void test() {
         Man man1 = new Man();
+        man1.sons = new ArrayList<>();
+        man1.maps = new HashMap<>();
         man1.name = "man1";
         man1.date = "20160130";
         man1.maps.put("encrypt", 1);

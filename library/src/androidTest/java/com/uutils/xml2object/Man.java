@@ -3,17 +3,15 @@ package com.uutils.xml2object;
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlTag;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @XmlTag("man")
 public class Man {
     public Man() {
-        maps = new HashMap<>();
-        sons = new ArrayList<>();
+      //  maps = new HashMap<>();
+     //   sons = new ArrayList<>();
     }
 
     @XmlAttribute("name1")
@@ -30,7 +28,7 @@ public class Man {
     List<Son> sons;
 
     @XmlTag(value = "maps", keyType = String.class, valueType = Integer.class)
-    final Map<String, Integer> maps;
+    Map<String, Integer> maps;
 
     @Override
     public String toString() {
