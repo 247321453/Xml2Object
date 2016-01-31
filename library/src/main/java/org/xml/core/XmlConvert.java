@@ -2,6 +2,8 @@ package org.xml.core;
 
 import android.util.Log;
 
+import com.uutils.xml2object.BuildConfig;
+
 import org.xml.annotation.XmlTag;
 import org.xml.bean.Tag;
 import org.xmlpull.v1.XmlPullParser;
@@ -53,14 +55,11 @@ public class XmlConvert extends IXml {
                             mTag.setClass(findClass(p, tag));
                             if (p != null) {
                                 p.add(mTag);
-                                Log.d("xml", d + " " + p.getName() + " add " + tag);
                             } else {
-                                Log.d("xml", d + " add " + tag);
                             }
                             tagMap.put(d, mTag);
                         }
                         depth = d;
-                        Log.v("xml", "mDepth=" + d);
                         int count = xmlParser.getAttributeCount();
                         for (int i = 0; i < count; i++) {
                             String k = xmlParser.getAttributeName(i);
@@ -70,7 +69,7 @@ public class XmlConvert extends IXml {
                         break;
                     case XmlPullParser.TEXT:
                         if (mTag != null) {
-                            mTag.setValue(xmlParser.getText());
+                            mTag.setText(xmlParser.getText());
                         }
                         break;
                     case XmlPullParser.END_TAG:
@@ -134,7 +133,7 @@ public class XmlConvert extends IXml {
             root.setName(name);
         }
         if (Reflect.isNormal(cls)) {
-            root.setValue(toString(object));
+            root.setText(toString(object));
         } else if (cls.isArray()) {
             root.addAll(array(object, name));
         } else if (object instanceof Map) {
@@ -159,7 +158,8 @@ public class XmlConvert extends IXml {
         if (set instanceof Set) {
             Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
             for (Map.Entry<?, ?> e : sets) {
-                Log.v("xml", "map " + e);
+                if (BuildConfig.DEBUG)
+                    Log.v("xml", "map " + e);
                 Tag tag = new Tag(name);
                 tag.add(toTag(e.getKey(), MAP_KEY));
                 tag.add(toTag(e.getValue(), MAP_VALUE));
@@ -204,7 +204,8 @@ public class XmlConvert extends IXml {
             String subTag = getAttributeName(field, field.getName());
             Reflect.accessible(field);
             Object val = field.get(object);
-            Log.v("xml", subTag + "=" + val);
+            if (BuildConfig.DEBUG)
+                Log.v("xml", subTag + "=" + val);
             tag.attributes.put(subTag, toString(val));
         }
     }
@@ -243,7 +244,7 @@ public class XmlConvert extends IXml {
             if (isXmlValue(field)) {
                 Reflect.accessible(field);
                 Object val = field.get(object);
-                tag.setValue(toString(val));
+                tag.setText(toString(val));
                 break;
             }
         }

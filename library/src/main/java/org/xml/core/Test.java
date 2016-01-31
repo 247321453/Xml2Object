@@ -72,15 +72,15 @@ package org.xml.core;
 //    }
 //
 ////        for (Map.Entry<String, String> e : tag.attributes.entrySet()) {
-////            setAttributes(t, e.getKey(), e.getValue());
+////            setAttributes(t, e.getKey(), e.getText());
 ////        }
-////        setText(t, tag.value);
+////        setText(t, tag.text);
 ////
 ////        for (Tag tag1 : tag.tags) {
 ////            Field field = Reflect.getFiled(tClass, tag1.name);
 ////            Class<?> fClass = field.getType();
 ////            if (Reflect.isNormal(fClass)) {
-////                Reflect.set(field, t, tag1.value);
+////                Reflect.set(field, t, tag1.text);
 ////            } else if (fClass.isArray()) {
 ////                int count = tag1.tags.size();
 ////                Object arr = Array.newInstance(fClass.getComponentType(), count);
@@ -119,7 +119,7 @@ package org.xml.core;
 //        for (Field field : fields) {
 //            XmlTag xmltag = field.getAnnotation(XmlTag.class);
 //            if (xmltag != null) {
-//                if (tag.equals(xmltag.value())) {
+//                if (tag.equals(xmltag.text())) {
 //                    Log.d("xml", "create find " + tag);
 //                    return Reflect.create(field.getType());
 //                }
@@ -135,36 +135,36 @@ package org.xml.core;
 //        return null;
 //    }
 //
-//    private void setText(Object object, String value) throws NoSuchFieldException, IllegalAccessException {
+//    private void setText(Object object, String text) throws NoSuchFieldException, IllegalAccessException {
 //        if (object == null) return;
 //        Class<?> cls = object.getClass();
 //        Field[] fields = Reflect.getFileds(cls);
 //        for (Field field : fields) {
 //            XmlValue xmltag = field.getAnnotation(XmlValue.class);
 //            if (xmltag != null) {
-//                Reflect.set(field, object, value);
+//                Reflect.set(field, object, text);
 //                return;
 //            }
 //        }
 //        //
-//        Reflect.set(Reflect.getFiled(cls, "value"), object, value);
+//        Reflect.set(Reflect.getFiled(cls, "text"), object, text);
 //    }
 //
-//    private void setAttributes(Object object, String key, String value) throws NoSuchFieldException, IllegalAccessException {
+//    private void setAttributes(Object object, String key, String text) throws NoSuchFieldException, IllegalAccessException {
 //        if (object == null || key == null) return;
 //        Class<?> cls = object.getClass();
 //        Field[] fields = Reflect.getFileds(cls);
 //        for (Field field : fields) {
 //            XmlAttribute xmltag = field.getAnnotation(XmlAttribute.class);
 //            if (xmltag != null) {
-//                if (key.equals(xmltag.value())) {
-//                    Reflect.set(field, object, value);
+//                if (key.equals(xmltag.text())) {
+//                    Reflect.set(field, object, text);
 //                    return;
 //                }
 //            }
 //        }
 //        //
-//        Reflect.set(Reflect.getFiled(cls, key), object, value);
+//        Reflect.set(Reflect.getFiled(cls, key), object, text);
 //    }
 //
 //}

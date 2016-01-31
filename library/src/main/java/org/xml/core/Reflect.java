@@ -1,5 +1,8 @@
 package org.xml.core;
 
+import org.xml.annotation.XmlAttribute;
+import org.xml.annotation.XmlTag;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -16,8 +19,21 @@ class Reflect {
     public static void set(Field field, Object parent, Object value) throws IllegalAccessException {
         if (field != null) {
             accessible(field);
-            field.set(parent, wrapper(field.getType(), value));
+            try {
+                value = wrapper(field.getType(), value);
+            } catch (Throwable e) {
+
+            }
+            field.set(parent, value);
         }
+    }
+
+    public static Object get(Field field, Object parent) throws IllegalAccessException {
+        if (field != null) {
+            accessible(field);
+            return field.get(parent);
+        }
+        return null;
     }
 
     public static Field[] getFileds(Class<?> cls) {
@@ -28,7 +44,15 @@ class Reflect {
         if (name == null) return null;
         Field[] fields = getFileds(cls);
         for (Field f : fields) {
-            if (name.equalsIgnoreCase(f.getName())) {
+            XmlTag xmlTag = f.getAnnotation(XmlTag.class);
+            if (xmlTag != null && name.equals(xmlTag.value())) {
+                return f;
+            }
+            XmlAttribute xmlAttribute = f.getAnnotation(XmlAttribute.class);
+            if (xmlAttribute != null && name.equals(xmlAttribute.value())) {
+                return f;
+            }
+            if (name.equals(f.getName())) {
                 return f;
             }
         }
@@ -238,7 +262,7 @@ class Reflect {
         return false;
     }
 
-    private static Object wrapper(Class<?> type, Object object) throws IllegalAccessException {
+    public static Object wrapper(Class<?> type, Object object) throws IllegalAccessException {
         String value = object == null ? "" : String.valueOf(object);
         if (type == null) {
             return object;
@@ -291,16 +315,6 @@ class Reflect {
         if (tClass.isArray()) {
             return (T) Array.newInstance(tClass, 0);
         }
-//        if (tClass.isInterface()) {
-//            if (tClass == List.class) {
-//                Class<?> scls = getListClass(tClass);
-//                return (T) new ArrayList<Object>();
-//            }
-//            if (tClass == Map.class) {
-//                Class<?> scls = getListClass(tClass);
-//                return (T) new ArrayList<Object>();
-//            }
-//        }
         Constructor<T> constructor = null;
         try {
             constructor = tClass.getDeclaredConstructor(args);
@@ -327,7 +341,6 @@ class Reflect {
         public NULL(Class<?> cls) {
             this.clsName = cls;
         }
-
         public Class<?> clsName;
     }
 
@@ -341,26 +354,7 @@ class Reflect {
 //        }
 //        return method == null ? Object.class : method.getReturnType();
 //    }
-//
-//    public static Class<?>[] getMethodParamers(Class<?> cls, String name) {
-//        Method[] ms = cls.getDeclaredMethods();
-//        for (Method m : ms) {
-//            if (name.equals(m.getName())) {
-//                return m.getParameterTypes();
-//            }
-//        }
-//        return null;
-//    }
-//
-//    public static Class<?>[] getMapKVClass(Class<?> cls) {
-//        return getMethodParamers(cls, "put");
-//    }
-//
-//    public static Class<?> getListClass(Class<?> cls) {
-//        Class<?> iterator = getMethodClass(cls, "iterator");
-//        return getMethodClass(iterator, "next");
-//    }
-//
+
     private static final String TYPE_NAME_PREFIX = "class ";
 
     private static String getClassName(Type type) {

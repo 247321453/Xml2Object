@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface XmlTag {
     String value();
-
-    Class<?> keyType() default Object.class;
+    Class<?> type() default Object.class;
     Class<?> valueType() default Object.class;
+    Class<?> keyType() default Object.class;
 }

@@ -8,8 +8,8 @@ import org.xml.annotation.XmlValue;
 import java.lang.reflect.AnnotatedElement;
 
 abstract class IXml {
-    static final String MAP_KEY = "key";
-    static final String MAP_VALUE = "value";
+    public static final String MAP_KEY = "key";
+    public static final String MAP_VALUE = "text";
 
     protected boolean isXmlAttribute(AnnotatedElement field) {
         XmlAttribute xmlAttr = field.getAnnotation(XmlAttribute.class);
@@ -49,7 +49,7 @@ abstract class IXml {
     protected String getTagName(AnnotatedElement cls, String def) {
         XmlTag xmlTag = cls.getAnnotation(XmlTag.class);
         if (xmlTag != null) {
-            //value
+            //text
             return xmlTag.value();
         }
         return def;

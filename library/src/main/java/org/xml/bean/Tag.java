@@ -1,5 +1,9 @@
 package org.xml.bean;
 
+import android.util.Log;
+
+import com.uutils.xml2object.BuildConfig;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,16 +22,18 @@ public class Tag {
         this.name = name;
     }
 
-    protected String value;
+    protected String text;
 
     protected String name;
 
     protected Class<?> tClass;
 
-    protected Class<?>[] subClasss;
-
     public final Map<String, String> attributes;
     protected final List<Tag> tags;
+
+    public List<Tag> getTags() {
+        return tags;
+    }
 
     public int size() {
         return tags.size();
@@ -49,30 +55,22 @@ public class Tag {
         return name;
     }
 
-    public String getValue() {
-        if (value == null) return "";
-        return value;
-    }
-
-    public Class<?>[] getSubClasss() {
-        return subClasss;
-    }
-
-    public void setSubClasss(Class<?>... subClasss) {
-        this.subClasss = subClasss;
+    public String getText() {
+        if (text == null) return "";
+        return text;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setText(String value) {
+        this.text = value;
     }
 
     public boolean isArray() {
         if (tClass == null) return false;
-        return tClass.isArray() || isList();
+        return tClass.isArray();
     }
 
     public boolean isList() {
@@ -90,20 +88,6 @@ public class Tag {
             tags.addAll(collection);
     }
 
-    public Class<?> getListClass() {
-        if (tClass == null) return Object.class;
-        if (tClass.isArray()) {
-            return tClass.getComponentType();
-        }
-        if (isList()) {
-            if (subClasss[0] == null) {
-                return subClasss[1];
-            }
-            return subClasss[0];
-        }
-        return Object.class;
-    }
-
     public Tag get(String name) {
         if (name == null) return null;
         for (Tag t : tags) {
@@ -116,8 +100,12 @@ public class Tag {
 
     public ArrayList<Tag> getList(String name) {
         ArrayList<Tag> tags = new ArrayList<>();
-        if (name == null) return tags;
-        for (Tag t : tags) {
+        if (name == null) {
+            if (BuildConfig.DEBUG)
+                Log.w("xml", "name is null");
+            return tags;
+        }
+        for (Tag t : this.tags) {
             if (name.equals(t.getName())) {
                 tags.add(t);
             }
@@ -137,7 +125,7 @@ public class Tag {
     public String toString() {
         return "Tag{" +
                 "name='" + name + '\'' +
-                ", value='" + value + '\'' +
+                ", text='" + text + '\'' +
                 ", attributes=" + attributes +
                 ", tags=" + tags +
                 '}';

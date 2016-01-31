@@ -21,7 +21,7 @@ public class XmlWriter {
      * @param encoding     xml编码
      * @throws IOException io异常
      */
-    public static void toXml(Tag tag, OutputStream outputStream, String encoding)
+    public void toXml(Tag tag, OutputStream outputStream, String encoding)
             throws IOException {
         if (outputStream == null) return;
         XmlSerializer serializer = Xml.newSerializer();
@@ -35,14 +35,14 @@ public class XmlWriter {
     }
 
     @SuppressWarnings("unchecked")
-    private static void writeTag(Tag tag, XmlSerializer serializer)
+    private void writeTag(Tag tag, XmlSerializer serializer)
             throws IOException {
         if (tag == null || serializer == null) return;
         serializer.startTag(null, tag.getName());
         for (Map.Entry<String, String> e : tag.attributes.entrySet()) {
             serializer.attribute(null, e.getKey(), e.getValue());
         }
-        serializer.text(tag.getValue());
+        serializer.text(tag.getText());
         int count = tag.size();
         for (int i = 0; i < count; i++) {
             writeTag(tag.get(i), serializer);
