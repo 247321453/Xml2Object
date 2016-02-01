@@ -3,15 +3,17 @@ package com.uutils.xml2object;
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlElement;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @XmlElement("man")
 public class Man {
     public Man() {
-      //  maps = new HashMap<>();
-     //   sons = new ArrayList<>();
+        maps = new HashMap<>();
+        sons = new ArrayList<>();
     }
 
     @XmlAttribute("name1")
@@ -24,6 +26,10 @@ public class Man {
     String text;
 
     int[] as = new int[2];
+
+    @XmlAttribute("type")
+    PeopleType type = PeopleType.Man;
+
     @XmlElement(value = "son1", type = Son.class)
     List<Son> sons;
 
@@ -33,10 +39,11 @@ public class Man {
     @Override
     public String toString() {
         return "Man{" +
-                "name='" + name + '\'' +
+                "as=" + Arrays.toString(as) +
+                ", name='" + name + '\'' +
                 ", date='" + date + '\'' +
                 ", text='" + text + '\'' +
-                ", as=" + Arrays.toString(as) +
+                ", type=" + type +
                 ", sons=" + sons +
                 ", maps=" + maps +
                 '}';

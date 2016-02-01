@@ -1,5 +1,6 @@
 package org.xml.core;
 
+import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlSerializer;
@@ -22,7 +23,7 @@ public class XmlWriter {
      * @param object       java对象
      * @param outputStream 输出流
      * @param encoding     xml编码
-     * @throws IOException io异常
+     * @throws IOException            io异常
      * @throws IllegalAccessException 类型异常
      */
     public void toXml(Object object, OutputStream outputStream, String encoding)
@@ -33,6 +34,8 @@ public class XmlWriter {
     private void toXml(Element element, OutputStream outputStream, String encoding)
             throws IOException {
         if (outputStream == null) return;
+        if (IXml.DEBUG)
+            Log.d("xml", "to " + element);
         XmlSerializer serializer = Xml.newSerializer();
         if (encoding == null) {
             encoding = IXml.DEF_ENCODING;

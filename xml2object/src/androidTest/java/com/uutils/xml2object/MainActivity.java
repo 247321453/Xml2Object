@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-import org.xml.core.Tag;
-import org.xml.core.XmlConvert;
 import org.xml.core.XmlReader;
 import org.xml.core.XmlWriter;
 
@@ -44,21 +42,13 @@ public class MainActivity extends Activity {
         man1.sons.add(new Son());
         XmlReader xmlReader = new XmlReader();
         XmlWriter xmlWriter = new XmlWriter();
-        XmlConvert convert = new XmlConvert();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-            Tag tag = convert.toTag(man1, null);
-            xmlWriter.toXml(tag, outputStream, null);
-            Log.d("xml", "" + tag);
+            Log.i("xml", "main=" + man1);
+            xmlWriter.toXml(man1, outputStream, null);
             String xmlStr = outputStream.toString();
             Log.i("xml", "" + xmlStr);
-            Tag tag1 = convert.toTag(Man.class, new ByteArrayInputStream(xmlStr.getBytes()));
-            outputStream = new ByteArrayOutputStream();
-            Log.d("xml", "" + tag1);
-            xmlWriter.toXml(tag1, outputStream, null);
-            xmlStr = outputStream.toString();
-            Log.i("xml", "" + xmlStr);
-            Man m = xmlReader.fromTag(tag1, Man.class);
+            Man m = xmlReader.from(new ByteArrayInputStream(xmlStr.getBytes()), Man.class);
             Log.i("xml", "main=" + m);
         } catch (Throwable e) {
             e.printStackTrace();

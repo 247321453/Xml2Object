@@ -34,7 +34,10 @@ public class XmlReader extends IXml {
      */
     public <T> T from(InputStream inputStream, Class<T> pClass)
             throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
-        return any(mXmlConvert.toTag(pClass, inputStream), pClass, null);
+        Element tag = mXmlConvert.toTag(pClass, inputStream);
+        if (IXml.DEBUG)
+            Log.d("xml", "form " + tag);
+        return any(tag, pClass, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -87,7 +90,7 @@ public class XmlReader extends IXml {
             return null;
         }
         if (IXml.DEBUG)
-            Log.d("xml", "list " + subClass);
+            Log.d("xml", "list " + subClass.getName());
         T t = object == null ? Reflect.create(pClass, subClass) : (T) object;
         if (t != null) {
             for (Element element : elements) {
@@ -106,19 +109,19 @@ public class XmlReader extends IXml {
         }
         if (element.isArray()) {
             if (IXml.DEBUG)
-                Log.d("xml", "create array " + element.getName() + " " + pClass);
+                Log.v("xml", "create array " + element.getName() + " " + pClass);
             return array(element, pClass, null);
         } else if (element.isList()) {
             if (IXml.DEBUG)
-                Log.d("xml", "create list " + element.getName() + " " + pClass);
+                Log.v("xml", "create list " + element.getName() + " " + pClass);
             return list(element.getElements(), pClass, null, getListClass(pClass));
         } else if (element.isMap()) {
             if (IXml.DEBUG)
-                Log.d("xml", "create map " + element.getName() + " " + pClass);
+                Log.v("xml", "create map " + element.getName() + " " + pClass);
             return map(element.getElements(), pClass, null, getMapClass(pClass));
         } else if (Reflect.isNormal(pClass)) {
             if (IXml.DEBUG)
-                Log.d("xml", "create normal " + element.getName() + " " + pClass);
+                Log.v("xml", "create normal " + element.getName() + " " + pClass);
             if (object == null) {
                 try {
                     object = Reflect.wrapper(pClass, element.getText());
