@@ -20,11 +20,26 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 元素，不支持接口，Void类型，除非接口在默认构造函数初始化
+ */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface XmlTag {
+public @interface XmlElement {
     String value();
+
+    /**
+     * @return List的元素类型
+     */
     Class<?> type() default Object.class;
+
+    /**
+     * @return Map的value元素类型
+     */
     Class<?> valueType() default Object.class;
+
+    /**
+     * @return Map的key元素类型
+     */
     Class<?> keyType() default Object.class;
 }

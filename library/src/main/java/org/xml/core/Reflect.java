@@ -1,7 +1,7 @@
 package org.xml.core;
 
 import org.xml.annotation.XmlAttribute;
-import org.xml.annotation.XmlTag;
+import org.xml.annotation.XmlElement;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
@@ -46,8 +46,8 @@ class Reflect {
         if (name == null) return null;
         Field[] fields = getFileds(cls);
         for (Field f : fields) {
-            XmlTag xmlTag = f.getAnnotation(XmlTag.class);
-            if (xmlTag != null && name.equals(xmlTag.value())) {
+            XmlElement xmlElement = f.getAnnotation(XmlElement.class);
+            if (xmlElement != null && name.equals(xmlElement.value())) {
                 return f;
             }
             XmlAttribute xmlAttribute = f.getAnnotation(XmlAttribute.class);
@@ -76,9 +76,7 @@ class Reflect {
         }
     }
 
-    public static Object call(Object object, String name, Object... args) throws RuntimeException {
-        if (object == null) return null;
-        Class<?> cls = object.getClass();
+    public static Object call(Class<?> cls, Object object, String name, Object... args) throws RuntimeException {
         Class<?>[] types = types(args);
         args = reObjects(args);
         // 尝试调用方法
@@ -288,6 +286,13 @@ class Reflect {
             return Float.parseFloat(value);
         } else if (char.class == type || Character.class == type) {
             return value.toCharArray()[0];
+        } else if (type.isEnum()) {
+            Object[] vals = (Object[]) Reflect.call(type, null, "values");
+            for (Object o : vals) {
+                if (value.equals(String.valueOf(o))) {
+                    return o;
+                }
+            }
         }
         return object;
     }
@@ -313,7 +318,7 @@ class Reflect {
             RuntimeException,
             IllegalAccessException,
             InvocationTargetException,
-            InstantiationException, NoSuchMethodException {
+            InstantiationException {
         if (tClass.isArray()) {
             return (T) Array.newInstance(tClass.getComponentType(), 0);
         }
@@ -405,3 +410,15 @@ class Reflect {
 //        return ((ParameterizedType) superclassType).getActualTypeArguments();
 //    }
 }
+
+//class Test {
+//    public static void main(String[] args) {
+//        PeopleType type = PeopleType.Woman;
+//        Object[] vals = (Object[]) Reflect.call(type.getClass(), null, "values");
+//        for (Object o : vals) {
+//            if (PeopleType.Woman.toString().equals(String.valueOf(o))) {
+//                System.out.print("" + o);
+//            }
+//        }
+//    }
+//}

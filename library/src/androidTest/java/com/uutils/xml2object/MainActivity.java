@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-import org.xml.bean.Tag;
+import org.xml.core.Tag;
 import org.xml.core.XmlConvert;
 import org.xml.core.XmlReader;
 import org.xml.core.XmlWriter;

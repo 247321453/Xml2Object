@@ -1,13 +1,13 @@
 package com.uutils.xml2object;
 
 import org.xml.annotation.XmlAttribute;
-import org.xml.annotation.XmlTag;
+import org.xml.annotation.XmlElement;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@XmlTag("man")
+@XmlElement("man")
 public class Man {
     public Man() {
       //  maps = new HashMap<>();
@@ -20,14 +20,14 @@ public class Man {
     @XmlAttribute("date1")
     String date;
 
-    @XmlTag("text")
+    @XmlElement("text")
     String text;
 
     int[] as = new int[2];
-    @XmlTag(value = "son1", type = Son.class)
+    @XmlElement(value = "son1", type = Son.class)
     List<Son> sons;
 
-    @XmlTag(value = "maps", keyType = String.class, valueType = Integer.class)
+    @XmlElement(value = "maps", keyType = String.class, valueType = Integer.class)
     Map<String, Integer> maps;
 
     @Override

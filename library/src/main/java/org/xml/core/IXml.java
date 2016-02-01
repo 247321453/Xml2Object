@@ -1,15 +1,20 @@
 package org.xml.core;
 
+import com.uutils.xml2object.BuildConfig;
+
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlIgnore;
-import org.xml.annotation.XmlTag;
-import org.xml.annotation.XmlValue;
+import org.xml.annotation.XmlElement;
+import org.xml.annotation.XmlElementText;
 
 import java.lang.reflect.AnnotatedElement;
 
 abstract class IXml {
     public static final String MAP_KEY = "key";
     public static final String MAP_VALUE = "text";
+    public static final String DEF_ENCODING = "UTF-8";
+
+    public final static boolean DEBUG = BuildConfig.DEBUG;
 
     protected boolean isXmlAttribute(AnnotatedElement field) {
         XmlAttribute xmlAttr = field.getAnnotation(XmlAttribute.class);
@@ -17,13 +22,13 @@ abstract class IXml {
     }
 
     protected boolean isXmlTag(AnnotatedElement field) {
-        XmlTag xmlTag = field.getAnnotation(XmlTag.class);
-        return xmlTag != null;
+        XmlElement xmlElement = field.getAnnotation(XmlElement.class);
+        return xmlElement != null;
     }
 
     protected boolean isXmlValue(AnnotatedElement field) {
-        XmlValue xmlValue = field.getAnnotation(XmlValue.class);
-        return xmlValue != null;
+        XmlElementText xmlElementText = field.getAnnotation(XmlElementText.class);
+        return xmlElementText != null;
     }
 
     protected boolean isXmlIgnore(AnnotatedElement field) {
@@ -47,10 +52,10 @@ abstract class IXml {
     }
 
     protected String getTagName(AnnotatedElement cls, String def) {
-        XmlTag xmlTag = cls.getAnnotation(XmlTag.class);
-        if (xmlTag != null) {
+        XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
+        if (xmlElement != null) {
             //text
-            return xmlTag.value();
+            return xmlElement.value();
         }
         return def;
     }

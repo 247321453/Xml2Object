@@ -2,10 +2,7 @@ package org.xml.core;
 
 import android.util.Log;
 
-import com.uutils.xml2object.BuildConfig;
-
-import org.xml.annotation.XmlTag;
-import org.xml.bean.Tag;
+import org.xml.annotation.XmlElement;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -18,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class XmlConvert extends IXml {
+class XmlConvert extends IXml {
     //region to tag
 
     /**
@@ -28,14 +25,14 @@ public class XmlConvert extends IXml {
      * @param inputStream 输入流
      * @return tag对象
      */
-    public Tag toTag(Class<?> tClass, InputStream inputStream) {
+    public Element toTag(Class<?> tClass, InputStream inputStream) {
         if (inputStream == null) return null;
         XmlPullParser xmlParser = android.util.Xml.newPullParser();
-        Map<Integer, Tag> tagMap = new HashMap<>();
+        Map<Integer, Element> tagMap = new HashMap<>();
         int depth = -1;
-        Tag mTag = new Tag(getTagName(tClass, tClass.getSimpleName()));
-        mTag.setClass(tClass);
-        tagMap.put(1, mTag);
+        Element mElement = new Element(getTagName(tClass, tClass.getSimpleName()));
+        mElement.setClass(tClass);
+        tagMap.put(1, mElement);
 
         try {
             xmlParser.setInput(inputStream, "utf-8");
@@ -50,26 +47,26 @@ public class XmlConvert extends IXml {
                         if (depth < 0) {
                             //
                         } else {
-                            Tag p = tagMap.get(d - 1);
-                            mTag = new Tag(tag);
-                            mTag.setClass(findClass(p, tag));
+                            Element p = tagMap.get(d - 1);
+                            mElement = new Element(tag);
+                            mElement.setClass(findClass(p, tag));
                             if (p != null) {
-                                p.add(mTag);
+                                p.add(mElement);
                             } else {
                             }
-                            tagMap.put(d, mTag);
+                            tagMap.put(d, mElement);
                         }
                         depth = d;
                         int count = xmlParser.getAttributeCount();
                         for (int i = 0; i < count; i++) {
                             String k = xmlParser.getAttributeName(i);
                             String v = xmlParser.getAttributeValue(i);
-                            mTag.attributes.put(k, v);
+                            mElement.attributes.put(k, v);
                         }
                         break;
                     case XmlPullParser.TEXT:
-                        if (mTag != null) {
-                            mTag.setText(xmlParser.getText());
+                        if (mElement != null) {
+                            mElement.setText(xmlParser.getText());
                         }
                         break;
                     case XmlPullParser.END_TAG:
@@ -95,14 +92,14 @@ public class XmlConvert extends IXml {
     }
 
     //ednregion
-    private Class<?> findClass(Tag p, String name) {
+    private Class<?> findClass(Element p, String name) {
         if (p == null || p.getTClass() == null) return Object.class;
         Field[] fields = Reflect.getFileds(p.getTClass());
         Field tfield = null;
         for (Field field : fields) {
             if (!isXmlTag(field))
                 continue;
-            XmlTag xmltag = field.getAnnotation(XmlTag.class);
+            XmlElement xmltag = field.getAnnotation(XmlElement.class);
             if (xmltag != null) {
                 if (name.equals(xmltag.value())) {
                     tfield = field;
@@ -123,8 +120,8 @@ public class XmlConvert extends IXml {
      * @param name   元素名
      * @return tag对象
      */
-    public Tag toTag(Object object, String name) throws IllegalAccessException {
-        Tag root = new Tag(name);
+    public Element toTag(Object object, String name) throws IllegalAccessException {
+        Element root = new Element(name);
         if (object == null) return root;
         Class<?> cls = object.getClass();
         root.setClass(cls);
@@ -149,28 +146,28 @@ public class XmlConvert extends IXml {
     }
 
     @SuppressWarnings("unchecked")
-    private ArrayList<Tag> map(Object object, String name) throws IllegalAccessException {
-        ArrayList<Tag> list = new ArrayList<>();
+    private ArrayList<Element> map(Object object, String name) throws IllegalAccessException {
+        ArrayList<Element> list = new ArrayList<>();
         if (object == null) {
             return list;
         }
-        Object set = Reflect.call(object, "entrySet");
+        Object set = Reflect.call(object.getClass(), object, "entrySet");
         if (set instanceof Set) {
             Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
             for (Map.Entry<?, ?> e : sets) {
-                if (BuildConfig.DEBUG)
+                if (IXml.DEBUG)
                     Log.v("xml", "map " + e);
-                Tag tag = new Tag(name);
-                tag.add(toTag(e.getKey(), MAP_KEY));
-                tag.add(toTag(e.getValue(), MAP_VALUE));
-                list.add(tag);
+                Element element = new Element(name);
+                element.add(toTag(e.getKey(), MAP_KEY));
+                element.add(toTag(e.getValue(), MAP_VALUE));
+                list.add(element);
             }
         }
         return list;
     }
 
-    private ArrayList<Tag> array(Object object, String name) throws IllegalAccessException {
-        ArrayList<Tag> list = new ArrayList<>();
+    private ArrayList<Element> array(Object object, String name) throws IllegalAccessException {
+        ArrayList<Element> list = new ArrayList<>();
         if (object != null) {
             int count = Array.getLength(object);
             for (int i = 0; i < count; i++) {
@@ -180,10 +177,10 @@ public class XmlConvert extends IXml {
         return list;
     }
 
-    private ArrayList<Tag> list(Object object, String name) throws IllegalAccessException {
-        ArrayList<Tag> list = new ArrayList<>();
+    private ArrayList<Element> list(Object object, String name) throws IllegalAccessException {
+        ArrayList<Element> list = new ArrayList<>();
         if (object != null) {
-            Object[] objs = (Object[]) Reflect.call(object, "toArray");
+            Object[] objs = (Object[]) Reflect.call(object.getClass(), object, "toArray");
             if (objs != null) {
                 for (Object o : objs) {
                     list.add(toTag(o, name));
@@ -194,8 +191,8 @@ public class XmlConvert extends IXml {
     }
 
     //region write
-    private void writeAttributes(Object object, Tag tag) throws IllegalAccessException {
-        if (object == null || tag == null) return;
+    private void writeAttributes(Object object, Element element) throws IllegalAccessException {
+        if (object == null || element == null) return;
         Class<?> cls = object.getClass();
         Field[] fields = Reflect.getFileds(cls);
         for (Field field : fields) {
@@ -204,13 +201,13 @@ public class XmlConvert extends IXml {
             String subTag = getAttributeName(field, field.getName());
             Reflect.accessible(field);
             Object val = field.get(object);
-            if (BuildConfig.DEBUG)
+            if (IXml.DEBUG)
                 Log.v("xml", subTag + "=" + val);
-            tag.attributes.put(subTag, toString(val));
+            element.attributes.put(subTag, toString(val));
         }
     }
 
-    private void writeSubTag(Object object, Tag tag) throws IllegalAccessException {
+    private void writeSubTag(Object object, Element element) throws IllegalAccessException {
         if (object == null) return;
         Field[] fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
@@ -226,25 +223,25 @@ public class XmlConvert extends IXml {
             Object val = field.get(object);
             if (val != null) {
                 if (val instanceof Map) {
-                    tag.addAll(map(val, name));
+                    element.addAll(map(val, name));
                 } else if (val instanceof Collection) {
-                    tag.addAll(list(val, name));
+                    element.addAll(list(val, name));
                 } else {
-                    tag.add(toTag(val, name));
+                    element.add(toTag(val, name));
                 }
             }
         }
     }
 
-    private void writeText(Object object, Tag tag) throws IllegalAccessException {
-        if (object == null || tag == null) return;
+    private void writeText(Object object, Element element) throws IllegalAccessException {
+        if (object == null || element == null) return;
         Class<?> cls = object.getClass();
         Field[] fields = Reflect.getFileds(cls);
         for (Field field : fields) {
             if (isXmlValue(field)) {
                 Reflect.accessible(field);
                 Object val = field.get(object);
-                tag.setText(toString(val));
+                element.setText(toString(val));
                 break;
             }
         }

@@ -1,13 +1,13 @@
 package com.uutils.xml2object;
 
 import org.xml.annotation.XmlAttribute;
-import org.xml.annotation.XmlValue;
+import org.xml.annotation.XmlElementText;
 
 public class Fri {
     @XmlAttribute("name1")
     String name;
 
-    @XmlValue
+    @XmlElementText
     String address;
 
     @Override

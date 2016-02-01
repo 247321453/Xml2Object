@@ -1,8 +1,6 @@
-package org.xml.bean;
+package org.xml.core;
 
 import android.util.Log;
-
-import com.uutils.xml2object.BuildConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,14 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Tag {
-    public Tag() {
+class Element {
+    public Element() {
         super();
         attributes = new HashMap<>();
-        tags = new ArrayList<>();
+        mElements = new ArrayList<>();
     }
 
-    public Tag(String name) {
+    public Element(String name) {
         this();
         this.name = name;
     }
@@ -29,24 +27,24 @@ public class Tag {
     protected Class<?> tClass;
 
     public final Map<String, String> attributes;
-    protected final List<Tag> tags;
+    protected final List<Element> mElements;
 
-    public List<Tag> getTags() {
-        return tags;
+    public List<Element> getElements() {
+        return mElements;
     }
 
     public int size() {
-        return tags.size();
+        return mElements.size();
     }
 
-    public void add(Tag tag) {
-        if (tag != null)
-            tags.add(tag);
+    public void add(Element element) {
+        if (element != null)
+            mElements.add(element);
     }
 
-    public Tag get(int i) {
+    public Element get(int i) {
         if (i >= 0 && i < size()) {
-            return tags.get(i);
+            return mElements.get(i);
         }
         return null;
     }
@@ -83,14 +81,14 @@ public class Tag {
         return Map.class.isAssignableFrom(tClass);
     }
 
-    public void addAll(Collection<Tag> collection) {
+    public void addAll(Collection<Element> collection) {
         if (collection != null)
-            tags.addAll(collection);
+            mElements.addAll(collection);
     }
 
-    public Tag get(String name) {
+    public Element get(String name) {
         if (name == null) return null;
-        for (Tag t : tags) {
+        for (Element t : mElements) {
             if (name.equals(t.getName())) {
                 return t;
             }
@@ -98,19 +96,19 @@ public class Tag {
         return null;
     }
 
-    public ArrayList<Tag> getList(String name) {
-        ArrayList<Tag> tags = new ArrayList<>();
+    public ArrayList<Element> getElementList(String name) {
+        ArrayList<Element> elements = new ArrayList<>();
         if (name == null) {
-            if (BuildConfig.DEBUG)
+            if (IXml.DEBUG)
                 Log.w("xml", "name is null");
-            return tags;
+            return elements;
         }
-        for (Tag t : this.tags) {
+        for (Element t : this.mElements) {
             if (name.equals(t.getName())) {
-                tags.add(t);
+                elements.add(t);
             }
         }
-        return tags;
+        return elements;
     }
 
     public Class<?> getTClass() {
@@ -127,7 +125,7 @@ public class Tag {
                 "name='" + name + '\'' +
                 ", text='" + text + '\'' +
                 ", attributes=" + attributes +
-                ", tags=" + tags +
+                ", tags=" + mElements +
                 '}';
     }
 }
