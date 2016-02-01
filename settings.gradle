@@ -1,1 +1,1 @@
-include ':library'
+include ':xml2object'
