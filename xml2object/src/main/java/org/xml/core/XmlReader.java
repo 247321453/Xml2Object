@@ -132,49 +132,53 @@ public class XmlReader extends IXml {
         } else {
             if (IXml.DEBUG)
                 Log.d("xml", "create other " + element.getName() + " " + pClass);
-            T t = object == null ? Reflect.create(pClass) : (T) object;
-            //attr
-            for (Map.Entry<String, String> e : element.attributes.entrySet()) {
-                setAttribute(t, e.getKey(), e.getValue());
-            }
-            setText(t, element.getText());
-            int count = element.size();
-            List<String> oldtags = new ArrayList<>();
-            for (int i = 0; i < count; i++) {
-                Element _element = element.get(i);
-                if (_element.isArray()) {
-                    if (oldtags.contains(_element.getName()))
-                        continue;
-                    oldtags.add(_element.getName());
-                    Field field = Reflect.getFiled(pClass, _element.getName());
-                    if (field != null)
-                        Reflect.set(field, t, array(_element, field.getType(), Reflect.get(field, t)));
-                } else if (_element.isList()) {
-                    if (oldtags.contains(_element.getName()))
-                        continue;
-                    oldtags.add(_element.getName());
-                    Field field = Reflect.getFiled(pClass, _element.getName());
-                    Class<?> subClass = getListClass(field);
-                    if (field != null)
-                        Reflect.set(field, t, list(element.getElementList(_element.getName()), field.getType(), Reflect.get(field, t), subClass));
-                } else if (_element.isMap()) {
-                    if (oldtags.contains(_element.getName()))
-                        continue;
-                    oldtags.add(_element.getName());
-                    Field field = Reflect.getFiled(pClass, _element.getName());
-                    if (field != null)
-                        Reflect.set(field, t, map(element.getElementList(_element.getName()), field.getType(), Reflect.get(field, t), getMapClass(field)));
-                } else {
-                    if (oldtags.contains(_element.getName()))
-                        continue;
-                    oldtags.add(_element.getName());
-                    Field field = Reflect.getFiled(pClass, _element.getName());
-                    if (field != null)
-                        Reflect.set(field, t, any(_element, field.getType(), Reflect.get(field, t)));
-                }
-            }
-            return t;
+            return object(element, pClass, object);
         }
+    }
+
+    private <T> T  object(Element element, Class<T> pClass, Object object) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+        T t = object == null ? Reflect.create(pClass) : (T) object;
+        //attr
+        for (Map.Entry<String, String> e : element.attributes.entrySet()) {
+            setAttribute(t, e.getKey(), e.getValue());
+        }
+        setText(t, element.getText());
+        int count = element.size();
+        List<String> oldtags = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            Element _element = element.get(i);
+            if (_element.isArray()) {
+                if (oldtags.contains(_element.getName()))
+                    continue;
+                oldtags.add(_element.getName());
+                Field field = Reflect.getFiled(pClass, _element.getName());
+                if (field != null)
+                    Reflect.set(field, t, array(_element, field.getType(), Reflect.get(field, t)));
+            } else if (_element.isList()) {
+                if (oldtags.contains(_element.getName()))
+                    continue;
+                oldtags.add(_element.getName());
+                Field field = Reflect.getFiled(pClass, _element.getName());
+                Class<?> subClass = getListClass(field);
+                if (field != null)
+                    Reflect.set(field, t, list(element.getElementList(_element.getName()), field.getType(), Reflect.get(field, t), subClass));
+            } else if (_element.isMap()) {
+                if (oldtags.contains(_element.getName()))
+                    continue;
+                oldtags.add(_element.getName());
+                Field field = Reflect.getFiled(pClass, _element.getName());
+                if (field != null)
+                    Reflect.set(field, t, map(element.getElementList(_element.getName()), field.getType(), Reflect.get(field, t), getMapClass(field)));
+            } else {
+                if (oldtags.contains(_element.getName()))
+                    continue;
+                oldtags.add(_element.getName());
+                Field field = Reflect.getFiled(pClass, _element.getName());
+                if (field != null)
+                    Reflect.set(field, t, any(_element, field.getType(), Reflect.get(field, t)));
+            }
+        }
+        return t;
     }
 
 

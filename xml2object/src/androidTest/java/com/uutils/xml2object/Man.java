@@ -3,17 +3,15 @@ package com.uutils.xml2object;
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlElement;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @XmlElement("man")
 public class Man {
     public Man() {
-        maps = new HashMap<>();
-        sons = new ArrayList<>();
+       // maps = new HashMap<>();
+       // sons = new ArrayList<>();
     }
 
     @XmlAttribute("name1")

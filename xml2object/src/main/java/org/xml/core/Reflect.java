@@ -12,8 +12,11 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class Reflect {
@@ -322,15 +325,21 @@ class Reflect {
         if (tClass.isArray()) {
             return (T) Array.newInstance(tClass.getComponentType(), 0);
         }
-        //list
-        //map
+        if (tClass.isInterface()) {
+            if (Collection.class.isAssignableFrom(tClass)) {
+                if(args.length<1){
+                    throw  new RuntimeException("create(Class<T>, Class<E>)");
+                }
+                return (T) createList(tClass);
+            }
+            if (Map.class.isAssignableFrom(tClass)) {
+                if(args.length<2){
+                    throw  new RuntimeException("create(Class<T>, Class<K> Class<V>)");
+                }
+                return (T)createMap(args[0], args[1]);
+            }
+        }
         Constructor<T> constructor = null;
-        if (Collection.class.isAssignableFrom(tClass)) {
-            //TODO:
-        }
-        if (Map.class.isAssignableFrom(tClass)) {
-            //TODO:
-        }
         try {
             constructor = tClass.getDeclaredConstructor(args);
         }
@@ -351,11 +360,19 @@ class Reflect {
         return null;
     }
 
+
+    public static <T> List<T> createList(Class<T> type) {
+        return new ArrayList<T>();
+    }
+
+    public static <K, V> Map<K, V> createMap(Class<K> key, Class<V> value) {
+        return new HashMap<K, V>();
+    }
+
     public static class NULL {
         public NULL(Class<?> cls) {
             this.clsName = cls;
         }
-
         public Class<?> clsName;
     }
 
