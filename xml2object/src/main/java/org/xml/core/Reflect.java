@@ -325,7 +325,7 @@ class Reflect {
         if (tClass.isArray()) {
             return (T) Array.newInstance(tClass.getComponentType(), 0);
         }
-        if (tClass.isInterface()) {
+        if (tClass.isInterface()||Modifier.isAbstract(tClass.getModifiers())) {
             if (Collection.class.isAssignableFrom(tClass)) {
                 if(args.length<1){
                     throw  new RuntimeException("create(Class<T>, Class<E>)");

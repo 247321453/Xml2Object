@@ -8,22 +8,30 @@ import java.util.List;
 import java.util.Map;
 
 @XmlElement("man")
-public class Man {
+public class Man implements IPeople {
     public Man() {
-       // maps = new HashMap<>();
-       // sons = new ArrayList<>();
+        // maps = new HashMap<>();
+        // sons = new ArrayList<>();
+    }
+
+    public Man(String pName, int pAge) {
+        age = pAge;
+        name = pName;
     }
 
     @XmlAttribute("name1")
     String name;
 
-    @XmlAttribute("date1")
-    String date;
+    @XmlAttribute("sex")
+    String sex="man";
 
-    @XmlElement("text")
-    String text;
+    @XmlAttribute("age")
+    int age;
 
     int[] as = new int[2];
+
+    @XmlElement(value = "child", type = PeopleCreator.class)
+    List<IPeople> childs;
 
     @XmlAttribute("type")
     PeopleType type = PeopleType.Man;
@@ -37,13 +45,29 @@ public class Man {
     @Override
     public String toString() {
         return "Man{" +
-                "as=" + Arrays.toString(as) +
-                ", name='" + name + '\'' +
-                ", date='" + date + '\'' +
-                ", text='" + text + '\'' +
+                "name='" + name + '\'' +
+                ", sex='" + sex + '\'' +
+                ", age=" + age +
+                ", as=" + Arrays.toString(as) +
+                ", childs=" + childs +
                 ", type=" + type +
                 ", sons=" + sons +
                 ", maps=" + maps +
                 '}';
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getSex() {
+        return sex;
+    }
+
+    @Override
+    public int getAge() {
+        return 0;
     }
 }

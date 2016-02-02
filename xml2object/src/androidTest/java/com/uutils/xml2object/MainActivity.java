@@ -25,10 +25,9 @@ public class MainActivity extends Activity {
         man1.sons = new ArrayList<>();
         man1.maps = new HashMap<>();
         man1.name = "man1";
-        man1.date = "20160130";
         man1.maps.put("encrypt", 1);
         man1.maps.put("decrypt", 2);
-        man1.text = "hello";
+        man1.age = 20;
         man1.sons = new ArrayList<>();
         Son son = new Son();
         son.name = "son name";
@@ -40,6 +39,9 @@ public class MainActivity extends Activity {
         man1.as[1] = -1;
         man1.sons.add(son);
         man1.sons.add(new Son());
+        man1.childs=new ArrayList<>();
+        man1.childs.add(new Man("join", 16));
+        man1.childs.add(new Woman("lily", 18));
         XmlReader xmlReader = new XmlReader();
         XmlWriter xmlWriter = new XmlWriter();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

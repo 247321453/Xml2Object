@@ -52,7 +52,9 @@ public class XmlReader extends IXml {
             t = (T) object;
         } else {
             t = (T) Array.newInstance(pClass, count);
+            Log.d("xml", "create array " + pClass.getName());
         }
+
         for (int i = 0; i < count; i++) {
             Array.set(t, i, any(element.get(i), pClass.getComponentType(), null));
         }
@@ -65,15 +67,36 @@ public class XmlReader extends IXml {
         if (elements == null || subClass == null || subClass.length < 2) {
             return null;
         }
-        T t = object == null ? Reflect.create(pClass, subClass) : (T) object;
+        T t;
+        if (object == null) {
+            t = Reflect.create(pClass, subClass);
+            if (IXml.DEBUG)
+                Log.d("xml", "create map " + pClass.getName());
+        } else {
+            t = (T) object;
+        }
         if (t == null) return t;
         if (IXml.DEBUG)
             Log.v("xml", " put " + subClass[0] + "," + subClass[1] + " size=" + elements.size());
+        boolean dkey = XmlClassSearcher.class.isAssignableFrom(subClass[0]);
+        boolean dval = XmlClassSearcher.class.isAssignableFrom(subClass[1]);
         for (Element element : elements) {
+            Class<?> kc;
+            if (dkey) {
+                kc = ((XmlClassSearcher) Reflect.create(subClass[0])).getSubClass(element.getTagNames());
+            } else {
+                kc = subClass[0];
+            }
             Element tk = element.get(MAP_KEY);
-            Object k = any(tk, subClass[0], null);
+            Object k = any(tk, kc, null);
+            Class<?> vc;
+            if (dval) {
+                vc = ((XmlClassSearcher) Reflect.create(subClass[1])).getSubClass(element.getTagNames());
+            } else {
+                vc = subClass[0];
+            }
             Element tv = element.get(MAP_VALUE);
-            Object v = any(tv, subClass[1], null);
+            Object v = any(tv, vc, null);
             if (IXml.DEBUG) {
                 Log.v("xml", element.getName() + " put " + (tk != null) + "=" + (tv != null));
                 Log.v("xml", element.getName() + " put " + k + "=" + v);
@@ -91,11 +114,28 @@ public class XmlReader extends IXml {
         }
         if (IXml.DEBUG)
             Log.d("xml", "list " + subClass.getName());
-        T t = object == null ? Reflect.create(pClass, subClass) : (T) object;
+        T t;
+        if (object == null) {
+            t = Reflect.create(pClass, subClass);
+            if (IXml.DEBUG)
+                Log.d("xml", "create list " + pClass.getName());
+        } else {
+            t = (T) object;
+        }
         if (t != null) {
+            //多种派生类
+            boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
             for (Element element : elements) {
-                element.setClass(subClass);
-                Reflect.call(t.getClass(), t, "add", any(element, subClass, null));
+                Class<?> sc;
+                if (d) {
+                    sc = ((XmlClassSearcher) Reflect.create(subClass)).getSubClass(element.getTagNames());
+                    if(IXml.DEBUG)
+                        Log.d("xml", "child = "+sc);
+                } else {
+                    sc = subClass;
+                }
+                element.setClass(sc);
+                Reflect.call(t.getClass(), t, "add", any(element, sc, null));
             }
         }
         return t;
@@ -136,10 +176,11 @@ public class XmlReader extends IXml {
         }
     }
 
-    private <T> T  object(Element element, Class<T> pClass, Object object) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    @SuppressWarnings("unchecked")
+    private <T> T object(Element element, Class<T> pClass, Object object) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         T t = object == null ? Reflect.create(pClass) : (T) object;
         //attr
-        for (Map.Entry<String, String> e : element.attributes.entrySet()) {
+        for (Map.Entry<String, String> e : element.getAttributes().entrySet()) {
             setAttribute(t, e.getKey(), e.getValue());
         }
         setText(t, element.getText());

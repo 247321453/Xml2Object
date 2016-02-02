@@ -51,7 +51,7 @@ public class XmlWriter {
             throws IOException {
         if (element == null || serializer == null) return;
         serializer.startTag(null, element.getName());
-        for (Map.Entry<String, String> e : element.attributes.entrySet()) {
+        for (Map.Entry<String, String> e : element.getAttributes().entrySet()) {
             serializer.attribute(null, e.getKey(), e.getValue());
         }
         serializer.text(element.getText());

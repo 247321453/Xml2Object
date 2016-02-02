@@ -61,7 +61,7 @@ class XmlConvert extends IXml {
                         for (int i = 0; i < count; i++) {
                             String k = xmlParser.getAttributeName(i);
                             String v = xmlParser.getAttributeValue(i);
-                            mElement.attributes.put(k, v);
+                            mElement.addAttribute(k, v);
                         }
                         break;
                     case XmlPullParser.TEXT:
@@ -203,7 +203,7 @@ class XmlConvert extends IXml {
             Object val = field.get(object);
             if (IXml.DEBUG)
                 Log.v("xml", subTag + "=" + val);
-            element.attributes.put(subTag, toString(val));
+            element.addAttribute(subTag, toString(val));
         }
     }
 

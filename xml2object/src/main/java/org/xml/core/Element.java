@@ -20,14 +20,16 @@ class Element {
         this.name = name;
     }
 
-    protected String text;
+    private String text;
 
-    protected String name;
+    private String name;
 
-    protected Class<?> tClass;
+    private Class<?> tClass;
 
-    public final Map<String, String> attributes;
-    protected final List<Element> mElements;
+    private final Map<String, String> attributes;
+    private final List<Element> mElements;
+
+    private final List<String> xmlnames = new ArrayList<>();
 
     public List<Element> getElements() {
         return mElements;
@@ -37,9 +39,35 @@ class Element {
         return mElements.size();
     }
 
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void addAttribute(String name, String value) {
+        if (name == null) return;
+        if (!xmlnames.contains(name)) {
+            xmlnames.add(name);
+        }
+        attributes.put(name, value);
+    }
+
+    public String getAttribute(String name) {
+        return attributes.get(name);
+    }
+
     public void add(Element element) {
-        if (element != null)
+        if (element != null) {
+            if (!xmlnames.contains(element.getName())) {
+                xmlnames.add(element.getName());
+            }
             mElements.add(element);
+        }
+    }
+
+    public List<String> getTagNames() {
+        if (IXml.DEBUG)
+            Log.d("xml", "size=" + mElements.size());
+        return xmlnames;
     }
 
     public Element get(int i) {
@@ -82,8 +110,11 @@ class Element {
     }
 
     public void addAll(Collection<Element> collection) {
-        if (collection != null)
-            mElements.addAll(collection);
+        if (collection != null) {
+            for (Element e : collection) {
+                add(e);
+            }
+        }
     }
 
     public Element get(String name) {
