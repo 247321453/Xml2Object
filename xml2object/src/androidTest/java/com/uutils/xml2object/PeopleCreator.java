@@ -12,7 +12,7 @@ import java.util.List;
 public class PeopleCreator implements XmlClassSearcher {
     @Override
     public Class<?> getSubClass(List<String> tags) {
-        Log.i("xml", "get = " + tags);
+        Log.v("xml", "get = " + tags);
         if(tags.contains("as")){
             return Man.class;
         }

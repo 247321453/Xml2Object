@@ -289,7 +289,10 @@ class Reflect {
             return Float.parseFloat(value);
         } else if (char.class == type || Character.class == type) {
             return value.toCharArray()[0];
-        } else if (type.isEnum()) {
+        }else if(String.class==type){
+            return value;
+        }
+        else if (type.isEnum()) {
             Object[] vals = (Object[]) Reflect.call(type, null, "values");
             for (Object o : vals) {
                 if (value.equals(String.valueOf(o))) {

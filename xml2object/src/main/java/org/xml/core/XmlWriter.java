@@ -35,7 +35,7 @@ public class XmlWriter {
             throws IOException {
         if (outputStream == null) return;
         if (IXml.DEBUG)
-            Log.d("xml", "to " + element);
+            Log.v("xml", "to " + element);
         XmlSerializer serializer = Xml.newSerializer();
         if (encoding == null) {
             encoding = IXml.DEF_ENCODING;

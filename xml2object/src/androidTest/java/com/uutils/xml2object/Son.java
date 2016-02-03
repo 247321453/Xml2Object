@@ -24,7 +24,7 @@ public class Son {
     public String toString() {
         return "Son{" +
                 "mFri=" + mFri +
-                ", name='" + name + '\'' +
+                ", name='" + (name == null ? "" : name) + '\'' +
                 ", phone='" + phone + '\'' +
                 '}';
     }

@@ -6,6 +6,9 @@ import org.xml.annotation.XmlAttribute;
  * Created by Hasee on 2016/2/2.
  */
 public class Woman implements IPeople {
+    public Woman(){
+
+    }
     public Woman(String pName,int pAge) {
         age = pAge;
         name = pName;
@@ -31,5 +34,14 @@ public class Woman implements IPeople {
     @Override
     public int getAge() {
         return age;
+    }
+
+    @Override
+    public String toString() {
+        return "Woman{" +
+                "name='" + name + '\'' +
+                ", sex='" + sex + '\'' +
+                ", age=" + age +
+                '}';
     }
 }

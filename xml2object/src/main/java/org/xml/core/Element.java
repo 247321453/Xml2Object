@@ -2,6 +2,8 @@ package org.xml.core;
 
 import android.util.Log;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +25,8 @@ class Element {
     private String text;
 
     private String name;
+
+    private Field tField;
 
     private Class<?> tClass;
 
@@ -64,9 +68,11 @@ class Element {
         }
     }
 
+    public void setTClass(Class<?> pTClass) {
+        tClass = pTClass;
+    }
+
     public List<String> getTagNames() {
-        if (IXml.DEBUG)
-            Log.d("xml", "size=" + mElements.size());
         return xmlnames;
     }
 
@@ -146,17 +152,47 @@ class Element {
         return tClass;
     }
 
-    public void setClass(Class<?> tClass) {
-        this.tClass = tClass;
+    public AnnotatedElement getType() {
+        return this.tField == null ? this.tClass : this.tField;
+    }
+
+    public void setType(AnnotatedElement pType) {
+        if (pType instanceof Field) {
+            this.tField = (Field) pType;
+            this.tClass = this.tField.getType();
+        } else {
+            this.tField = null;
+            this.tClass = (Class<?>) pType;
+        }
+    }
+
+    public String toString(int start) {
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append(name + ":");
+        stringBuffer.append("" + (tClass == null ? "" : tClass.getName()));
+        stringBuffer.append("{text='" + (text == null ? "" : text));
+        stringBuffer.append("', attributes=" + attributes);
+        stringBuffer.append(", tags=");
+        if (mElements.size() == 0) {
+            stringBuffer.append("[]}\n");
+        } else {
+            stringBuffer.append("\n");
+            for (Element element : mElements) {
+                for (int i = 0; i < start + 1; i++) {
+                    stringBuffer.append("\t");
+                }
+                stringBuffer.append(element.toString(start + 1));
+            }
+            for (int i = 0; i < start; i++) {
+                stringBuffer.append("\t");
+            }
+            stringBuffer.append("}\n");
+        }
+        return stringBuffer.toString();
     }
 
     @Override
     public String toString() {
-        return "Tag{" +
-                "name='" + name + '\'' +
-                ", text='" + text + '\'' +
-                ", attributes=" + attributes +
-                ", tags=" + mElements +
-                '}';
+        return toString(0);
     }
 }

@@ -1,5 +1,7 @@
 package org.xml.core;
 
+import android.util.Log;
+
 import com.uutils.xml2object.BuildConfig;
 
 import org.xml.annotation.XmlAttribute;
@@ -8,6 +10,7 @@ import org.xml.annotation.XmlElement;
 import org.xml.annotation.XmlElementText;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 
 abstract class IXml {
     public static final String MAP_KEY = "key";
@@ -49,6 +52,55 @@ abstract class IXml {
             return value.value();
         }
         return def;
+    }
+    protected Class<?> getArrayClass(AnnotatedElement cls) {
+        if (cls == null) return Object.class;
+        XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
+        if (xmlElement != null) {
+            if (xmlElement.type() != null) {
+                return xmlElement.type();
+            }
+        } else {
+            if(cls instanceof  Class){
+                return ((Class<?>)cls).getComponentType();
+            }else if(cls instanceof Field) {
+                return ((Field)cls).getType().getComponentType();
+            }else{
+                if (IXml.DEBUG)
+                    Log.w("xml", cls + " not's xmltag");
+            }
+        }
+        return Object.class;
+    }
+    protected Class<?> getListClass(AnnotatedElement cls) {
+        if (cls == null) return Object.class;
+        XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
+        if (xmlElement != null) {
+            if (xmlElement.type() != null) {
+                return xmlElement.type();
+            }
+        } else {
+            if (IXml.DEBUG)
+                Log.w("xml", cls + " not's xmltag");
+        }
+        return Object.class;
+    }
+
+    protected Class<?>[] getMapClass(AnnotatedElement cls) {
+        if (cls == null)
+            return new Class[]{Object.class, Object.class};
+        XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
+        Class<?> kclass = Object.class;
+        Class<?> vclass = Object.class;
+        if (xmlElement != null) {
+            if (xmlElement.keyType() != null) {
+                kclass = xmlElement.keyType();
+            }
+            if (xmlElement.valueType() != null) {
+                vclass = xmlElement.valueType();
+            }
+        }
+        return new Class[]{kclass, vclass};
     }
 
     protected String getTagName(AnnotatedElement cls, String def) {
