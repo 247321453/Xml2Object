@@ -74,8 +74,11 @@ class XmlConvert extends IXml {
                             parent = tagMap.get(d - 1);
                             mElement = new Element(xmlTag);
                             mElement.setType(findClass(parent, xmlTag, mElement));
+                            if (IXml.DEBUG)
+                                Log.d("xml", xmlTag + "@" + mElement.getTClass().getName());
                             if (parent != null) {
                                 parent.add(mElement);
+                                Log.d("xml", parent.getName() + " add " + mElement.getName());
                             } else {
                             }
                             tagMap.put(d, mElement);
@@ -92,7 +95,7 @@ class XmlConvert extends IXml {
                         mElement.setText(xmlParser.getText());
                         break;
                     case XmlPullParser.END_TAG:
-                        updateClass(mElement);
+                     //   updateClass(mElement);
                         break;
                 }
                 // 如果xml没有结束，则导航到下一个river节点
@@ -134,7 +137,7 @@ class XmlConvert extends IXml {
             pClass = getSubClass(getListClass(type), pElement);
         }
         if (pClass != null)
-            pElement.setTClass(pClass);
+            pElement.updateTClass(pClass);
     }
 
     private AnnotatedElement findClass(Element p, String name, Element obj)
@@ -184,45 +187,65 @@ class XmlConvert extends IXml {
         if (tfield == null) {
             tfield = Reflect.getFiled(pClass, name);
         }
-        return tfield != null ? tfield : Object.class;
+        if(tfield==null){
+            return Object.class;
+        }
+        return tfield;
     }
 
     /**
      * 从java对象转换为tag对象
      *
      * @param object java对象
-     * @param name   元素名
      * @return tag对象
      */
-    public Element toTag(Object object, String name) throws IllegalAccessException {
+    public Element toTag(Object object) throws IllegalAccessException {
+        if (object == null) return new Element("null");
+        Class<?> pClass = object.getClass();
+        String name = getTagName(pClass);
         Element root = new Element(name);
-        if (object == null) {
-            return root;
-        }
-        Class<?> cls = object.getClass();
-        root.setType(cls);
-        if (name == null) {
-            name = getTagName(cls, cls.getSimpleName());
-            root.setName(name);
-        }
-        if (Reflect.isNormal(cls)) {
-            root.setText(toString(object));
-        } else if (cls.isArray()) {
-            root.addAll(array(object, name));
-        } else if (object instanceof Map) {
-            root.addAll(map(object, name));
-        } else if (object instanceof Collection) {
-            root.addAll(list(object, name));
-        } else {
-            writeAttributes(object, root);
-            writeText(object, root);
-            writeSubTag(object, root);
-        }
+        root.setType(pClass);
+        writeAttributes(object, root);
+        writeText(object, root);
+        writeSubTag(object, root);
         return root;
     }
 
+    private void any(Element parent, Object object, Class<?> pClass, String name)
+            throws IllegalAccessException {
+        if (pClass == null) {
+            if (object == null) {
+                parent.add(new Element(name));
+                return;
+            }
+            pClass = object.getClass();
+        }
+        if (name == null) {
+            name = getTagName(pClass);
+        }
+        if (Reflect.isNormal(pClass)) {
+            Element element = new Element(name);
+            element.setType(pClass);
+            element.setText(toString(object));
+            parent.add(element);
+        } else if (pClass.isArray()) {
+            array(object, name, parent);
+        } else if (object instanceof Map) {
+            parent.addAll(map(object, pClass, name));
+        } else if (object instanceof Collection) {
+            list(object, name, parent);
+        } else {
+            Element element = new Element(name);
+            element.setType(pClass);
+            writeAttributes(object, element);
+            writeText(object, element);
+            writeSubTag(object, element);
+            parent.add(element);
+        }
+    }
+
     @SuppressWarnings("unchecked")
-    private ArrayList<Element> map(Object object, String name) throws IllegalAccessException {
+    private ArrayList<Element> map(Object object, Class<?> pClass, String name) throws IllegalAccessException {
         ArrayList<Element> list = new ArrayList<>();
         if (object == null) {
             return list;
@@ -233,45 +256,47 @@ class XmlConvert extends IXml {
             for (Map.Entry<?, ?> e : sets) {
                 if (IXml.DEBUG)
                     Log.v("xml", "map " + e);
+                Object k = e.getKey();
+                if (k == null) {
+                    continue;
+                }
+                Object v = e.getValue();
                 Element element = new Element(name);
-                element.add(toTag(e.getKey(), MAP_KEY));
-                element.add(toTag(e.getValue(), MAP_VALUE));
+                element.setType(pClass);
+                any(element, k, k.getClass(), MAP_KEY);
+                any(element, v, v == null ? null : v.getClass(), MAP_VALUE);
                 list.add(element);
             }
         }
         return list;
     }
 
-    private ArrayList<Element> array(Object object, String name) throws IllegalAccessException {
-        ArrayList<Element> list = new ArrayList<>();
+    private void array(Object object, String name, Element parent) throws IllegalAccessException {
         if (object != null) {
             int count = Array.getLength(object);
             for (int i = 0; i < count; i++) {
-                list.add(toTag(Array.get(object, i), name));
+                Object obj = Array.get(object, i);
+                if (obj != null)
+                    any(parent, obj, obj.getClass(), name);
             }
-            if (count > 0)
-                return list;
         }
-        list.add(new Element(name));
-        return list;
     }
 
-    private ArrayList<Element> list(Object object, String name) throws IllegalAccessException {
-        ArrayList<Element> list = new ArrayList<>();
+    private void list(Object object, String name, Element parent) throws IllegalAccessException {
         if (object != null) {
             Object[] objs = (Object[]) Reflect.call(object.getClass(), object, "toArray");
             if (objs != null) {
                 for (Object o : objs) {
-                    list.add(toTag(o, name));
+                    if (o != null)
+                        any(parent, o, o.getClass(), name);
                 }
             }
         }
-        return list;
     }
 
     //region write
-    private void writeAttributes(Object object, Element element) throws IllegalAccessException {
-        if (object == null || element == null) return;
+    private void writeAttributes(Object object, Element parent) throws IllegalAccessException {
+        if (object == null || parent == null) return;
         Class<?> cls = object.getClass();
         Field[] fields = Reflect.getFileds(cls);
         for (Field field : fields) {
@@ -282,11 +307,11 @@ class XmlConvert extends IXml {
             Object val = field.get(object);
             if (IXml.DEBUG)
                 Log.v("xml", subTag + "=" + val);
-            element.addAttribute(subTag, toString(val));
+            parent.addAttribute(subTag, toString(val));
         }
     }
 
-    private void writeSubTag(Object object, Element element) throws IllegalAccessException {
+    private void writeSubTag(Object object, Element parent) throws IllegalAccessException {
         if (object == null) return;
         Field[] fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
@@ -301,17 +326,7 @@ class XmlConvert extends IXml {
             Reflect.accessible(field);
             Object val = field.get(object);
             if (val != null) {
-                if (val instanceof Map) {
-                    element.addAll(map(val, name));
-                } else if (val instanceof Collection) {
-                    element.addAll(list(val, name));
-                } else {
-                    element.add(toTag(val, name));
-                }
-            } else {
-//                Element e = new Element(name);
-//                e.setType(field);
-//                element.add(e);
+                any(parent, val, cls, name);
             }
         }
     }

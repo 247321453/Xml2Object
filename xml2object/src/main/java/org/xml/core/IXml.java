@@ -53,6 +53,7 @@ abstract class IXml {
         }
         return def;
     }
+
     protected Class<?> getArrayClass(AnnotatedElement cls) {
         if (cls == null) return Object.class;
         XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
@@ -61,17 +62,18 @@ abstract class IXml {
                 return xmlElement.type();
             }
         } else {
-            if(cls instanceof  Class){
-                return ((Class<?>)cls).getComponentType();
-            }else if(cls instanceof Field) {
-                return ((Field)cls).getType().getComponentType();
-            }else{
+            if (cls instanceof Class) {
+                return ((Class<?>) cls).getComponentType();
+            } else if (cls instanceof Field) {
+                return ((Field) cls).getType().getComponentType();
+            } else {
                 if (IXml.DEBUG)
                     Log.w("xml", cls + " not's xmltag");
             }
         }
         return Object.class;
     }
+
     protected Class<?> getListClass(AnnotatedElement cls) {
         if (cls == null) return Object.class;
         XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
@@ -101,6 +103,16 @@ abstract class IXml {
             }
         }
         return new Class[]{kclass, vclass};
+    }
+
+    protected String getTagName(AnnotatedElement cls) {
+        String name;
+        if (cls instanceof Class) {
+            name = ((Class<?>) cls).getSimpleName();
+        } else {
+            name = ((Field) cls).getName();
+        }
+        return getTagName(cls, name);
     }
 
     protected String getTagName(AnnotatedElement cls, String def) {

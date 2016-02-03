@@ -28,14 +28,14 @@ public class XmlWriter {
      */
     public void toXml(Object object, OutputStream outputStream, String encoding)
             throws IOException, IllegalAccessException {
-        toXml(mXmlConvert.toTag(object, null), outputStream, encoding);
+        toXml(mXmlConvert.toTag(object), outputStream, encoding);
     }
 
     private void toXml(Element element, OutputStream outputStream, String encoding)
             throws IOException {
         if (outputStream == null) return;
         if (IXml.DEBUG)
-            Log.v("xml", "to " + element);
+            Log.d("xml", "to " + element);
         XmlSerializer serializer = Xml.newSerializer();
         if (encoding == null) {
             encoding = IXml.DEF_ENCODING;

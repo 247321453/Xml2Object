@@ -68,7 +68,7 @@ class Element {
         }
     }
 
-    public void setTClass(Class<?> pTClass) {
+    public void updateTClass(Class<?> pTClass) {
         tClass = pTClass;
     }
 
