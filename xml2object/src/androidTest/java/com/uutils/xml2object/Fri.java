@@ -1,6 +1,7 @@
 package com.uutils.xml2object;
 
 import org.xml.annotation.XmlAttribute;
+import org.xml.annotation.XmlElement;
 import org.xml.annotation.XmlElementText;
 
 public class Fri {
@@ -10,11 +11,15 @@ public class Fri {
     @XmlElementText
     String address;
 
+    @XmlElement ("man")
+    public Man mMan;
+
     @Override
     public String toString() {
         return "Fri{" +
-                "address='" + address + '\'' +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", mMan=" + mMan +
                 '}';
     }
 }

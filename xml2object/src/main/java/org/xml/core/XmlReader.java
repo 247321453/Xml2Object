@@ -50,22 +50,26 @@ public class XmlReader extends IXml {
             t = (T) object;
         } else {
             t = (T) Array.newInstance(pClass, count);
-            Log.d("xml", "create array " + pClass.getName());
         }
-        boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
-        Class<?> sc;
+        Log.v("xml", "create array " + pClass.getName());
+//        boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
+        Class<?> sc= subClass;
         for (int i = 0; i < count; i++) {
             Element element = elements.get(i);
-            if (d) {
-                sc = mXmlConvert.getSubClass(subClass, element);
-                if (IXml.DEBUG)
-                    Log.v("xml", "child = " + sc);
-            } else {
-                sc = subClass;
-            }
-            Object o = any(element.get(i), sc, null);
+//            if (d) {
+//                sc = mXmlConvert.getSubClass(subClass, element);
+//            } else {
+//                sc = subClass;
+//            }
+            if (IXml.DEBUG)
+                Log.v("xml", "child = " + sc);
+            Object o = any(element, sc, null);
             if (o != null)
                 Array.set(t, i, o);
+            else {
+                if (IXml.DEBUG)
+                    Log.w("xml", "child is null " + element.getName());
+            }
         }
         return t;
     }
@@ -80,30 +84,30 @@ public class XmlReader extends IXml {
         if (object == null) {
             t = Reflect.create(pClass, subClass);
             if (IXml.DEBUG)
-                Log.d("xml", "create map " + pClass.getName());
+                Log.v("xml", "create map " + pClass.getName());
         } else {
             t = (T) object;
         }
         if (t == null) return t;
         if (IXml.DEBUG)
             Log.v("xml", " put " + subClass[0] + "," + subClass[1] + " size=" + elements.size());
-        boolean dkey = XmlClassSearcher.class.isAssignableFrom(subClass[0]);
-        boolean dval = XmlClassSearcher.class.isAssignableFrom(subClass[1]);
+//        boolean dkey = XmlClassSearcher.class.isAssignableFrom(subClass[0]);
+//        boolean dval = XmlClassSearcher.class.isAssignableFrom(subClass[1]);
         for (Element element : elements) {
-            Class<?> kc;
-            if (dkey) {
-                kc = mXmlConvert.getSubClass(subClass[0], element);
-            } else {
-                kc = subClass[0];
-            }
+            Class<?> kc = subClass[0];
+//            if (dkey) {
+//                kc = mXmlConvert.getSubClass(subClass[0], element);
+//            } else {
+//                kc = subClass[0];
+//            }
             Element tk = element.get(MAP_KEY);
             Object k = any(tk, kc, null);
-            Class<?> vc;
-            if (dval) {
-                vc = mXmlConvert.getSubClass(subClass[1], element);
-            } else {
-                vc = subClass[0];
-            }
+            Class<?> vc = subClass[1];
+//            if (dval) {
+//                vc = mXmlConvert.getSubClass(subClass[1], element);
+//            } else {
+//                vc = subClass[0];
+//            }
             Element tv = element.get(MAP_VALUE);
             Object v = any(tv, vc, null);
             if (IXml.DEBUG) {
@@ -134,16 +138,16 @@ public class XmlReader extends IXml {
         }
         if (t != null) {
             //多种派生类
-            boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
+//            boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
             for (Element element : elements) {
-                Class<?> sc;
-                if (d) {
-                    sc = mXmlConvert.getSubClass(subClass, element);
-                    if (IXml.DEBUG)
-                        Log.v("xml", "child = " + sc);
-                } else {
-                    sc = subClass;
-                }
+                Class<?> sc = subClass;
+//                if (d) {
+//                    sc = mXmlConvert.getSubClass(subClass, element);
+//                    if (IXml.DEBUG)
+//                        Log.v("xml", "child = " + sc);
+//                } else {
+//                    sc = subClass;
+//                }
                 element.setType(sc);
                 Object sub = any(element, sc, null);
                 if (sub != null)
@@ -162,6 +166,8 @@ public class XmlReader extends IXml {
         if (element == null) {
             return null;
         } else if (element.getType() == null) {
+            if (IXml.DEBUG)
+                Log.w("xml", element.getName() + " 's type is null ");
             return null;
         }
         if (Reflect.isNormal(pClass)) {

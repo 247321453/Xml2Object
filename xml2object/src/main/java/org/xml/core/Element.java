@@ -176,7 +176,7 @@ class Element {
         if (mElements.size() == 0) {
             stringBuffer.append("[]}\n");
         } else {
-            stringBuffer.append("\n");
+            stringBuffer.append("[\n");
             for (Element element : mElements) {
                 for (int i = 0; i < start + 1; i++) {
                     stringBuffer.append("\t");
@@ -186,7 +186,7 @@ class Element {
             for (int i = 0; i < start; i++) {
                 stringBuffer.append("\t");
             }
-            stringBuffer.append("}\n");
+            stringBuffer.append("]\n");
         }
         return stringBuffer.toString();
     }

@@ -30,8 +30,8 @@ public class Man implements IPeople {
 
     int[] as = new int[2];
 
-    @XmlElement(value = "child", type = PeopleCreator.class)
-    List<IPeople> childs;
+//    @XmlElement(value = "child", type = PeopleCreator.class)
+//    List<Man> childs;
 
     @XmlAttribute("type")
     PeopleType type = PeopleType.Man;
@@ -49,7 +49,7 @@ public class Man implements IPeople {
                 ", sex='" + sex + '\'' +
                 ", age=" + age +
                 ", as=" + Arrays.toString(as) +
-                ", childs=" + childs +
+//                ", childs=" + childs +
                 ", type=" + type +
                 ", sons=" + sons +
                 ", maps=" + maps +

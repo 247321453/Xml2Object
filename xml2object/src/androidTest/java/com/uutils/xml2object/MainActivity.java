@@ -35,13 +35,14 @@ public class MainActivity extends Activity {
         son.mFri = new Fri();
         son.mFri.name = "fri name<>";
         son.mFri.address = "地址";
+        son.mFri.mMan = new Man("a", 21);
         man1.as[0] = 999;
         man1.as[1] = -1;
         man1.sons.add(son);
         man1.sons.add(new Son());
-        man1.childs=new ArrayList<>();
-        man1.childs.add(new Man("join", 16));
-        man1.childs.add(new Woman("lily", 18));
+//        man1.childs=new ArrayList<>();
+//        man1.childs.add(new Man("join", 16));
+//        man1.childs.add(new Woman("lily", 18));
         XmlReader xmlReader = new XmlReader();
         XmlWriter xmlWriter = new XmlWriter();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

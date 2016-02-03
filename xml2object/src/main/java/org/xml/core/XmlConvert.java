@@ -20,26 +20,26 @@ import java.util.Set;
 class XmlConvert extends IXml {
     //region to tag
 
-    final Map<Class<?>, XmlClassSearcher> mXmlClassSearcherMap = new HashMap<>();
+//    final Map<Class<?>, XmlClassSearcher> mXmlClassSearcherMap = new HashMap<>();
 
-    /**
-     * @param tClass  XmlClassSearcher的派生类
-     * @param element xml元素
-     * @return 类型
-     * @throws IllegalAccessException    异常1
-     * @throws InstantiationException    异常2
-     * @throws InvocationTargetException 异常3
-     */
-    public Class<?> getSubClass(Class<?> tClass, Element element)
-            throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        XmlClassSearcher searcher = mXmlClassSearcherMap.get(tClass);
-        if (searcher == null) {
-            searcher = (XmlClassSearcher) Reflect.create(tClass);
-            mXmlClassSearcherMap.put(tClass, searcher);
-        }
-        if (searcher == null) return Object.class;
-        return searcher.getSubClass(element.getTagNames());
-    }
+//    /**
+//     * @param tClass  XmlClassSearcher的派生类
+//     * @param element xml元素
+//     * @return 类型
+//     * @throws IllegalAccessException    异常1
+//     * @throws InstantiationException    异常2
+//     * @throws InvocationTargetException 异常3
+//     */
+//    public Class<?> getSubClass(Class<?> tClass, Element element)
+//            throws IllegalAccessException, InstantiationException, InvocationTargetException {
+//        XmlClassSearcher searcher = mXmlClassSearcherMap.get(tClass);
+//        if (searcher == null) {
+//            searcher = (XmlClassSearcher) Reflect.create(tClass);
+//            mXmlClassSearcherMap.put(tClass, searcher);
+//        }
+//        if (searcher == null) return Object.class;
+//        return searcher.getSubClass(element.getTagNames());
+//    }
 
     /**
      * 从流转换为tag对象
@@ -73,12 +73,12 @@ class XmlConvert extends IXml {
                         } else {
                             parent = tagMap.get(d - 1);
                             mElement = new Element(xmlTag);
-                            mElement.setType(findClass(parent, xmlTag, mElement));
+                            mElement.setType(findClass(parent, xmlTag));
                             if (IXml.DEBUG)
-                                Log.d("xml", xmlTag + "@" + mElement.getTClass().getName());
+                                Log.v("xml", xmlTag + "@" + mElement.getTClass().getName());
                             if (parent != null) {
                                 parent.add(mElement);
-                                Log.d("xml", parent.getName() + " add " + mElement.getName());
+                                Log.v("xml", parent.getName() + " add " + mElement.getName());
                             } else {
                             }
                             tagMap.put(d, mElement);
@@ -95,7 +95,7 @@ class XmlConvert extends IXml {
                         mElement.setText(xmlParser.getText());
                         break;
                     case XmlPullParser.END_TAG:
-                     //   updateClass(mElement);
+                        // mElement.setType(findClass(parent, xmlTag, mElement));
                         break;
                 }
                 // 如果xml没有结束，则导航到下一个river节点
@@ -119,49 +119,48 @@ class XmlConvert extends IXml {
 
     //ednregion
 
-    private void updateClass(Element pElement)
-            throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        if (pElement == null) return;
-        AnnotatedElement type = pElement.getType();
-        String name = pElement.getName();
-        Class<?> pClass = null;
-        if (pElement.isArray()) {
-            pClass = getSubClass(getArrayClass(type), pElement);
-        } else if (pElement.isMap()) {
-            if (MAP_KEY.equals(name)) {
-                pClass = getSubClass(getMapClass(type)[0], pElement);
-            } else {
-                pClass = getSubClass(getMapClass(type)[1], pElement);
-            }
-        } else if (pElement.isList()) {
-            pClass = getSubClass(getListClass(type), pElement);
-        }
-        if (pClass != null)
-            pElement.updateTClass(pClass);
-    }
+//    private void updateClass(Element pElement)
+//            throws IllegalAccessException, InvocationTargetException, InstantiationException {
+//        if (pElement == null) return;
+//        AnnotatedElement type = pElement.getType();
+//        String name = pElement.getName();
+//        Class<?> pClass = null;
+//        if (pElement.isArray()) {
+//            pClass = getSubClass(getArrayClass(type), pElement);
+//        } else if (pElement.isMap()) {
+//            if (MAP_KEY.equals(name)) {
+//                pClass = getSubClass(getMapClass(type)[0], pElement);
+//            } else {
+//                pClass = getSubClass(getMapClass(type)[1], pElement);
+//            }
+//        } else if (pElement.isList()) {
+//            pClass = getSubClass(getListClass(type), pElement);
+//        }
+//        if (pClass != null)
+//            pElement.updateTClass(pClass);
+//    }
 
-    private AnnotatedElement findClass(Element p, String name, Element obj)
+    private AnnotatedElement findClass(Element p, String name)
             throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        if (p == null) {
+        if (p == null || name == null) {
             return Object.class;
         }
         Class<?> pClass = p.getTClass();
-//        AnnotatedElement type = p.getAnnotatedElement();
-//        if (pClass == null) {
-//            if (IXml.DEBUG)
-//                Log.w("xml", "class == null" + p.getName());
-//            return Object.class;
-//        }
-//        //TODO:field
-//        if (pClass.isArray() || Collection.class.isAssignableFrom(pClass)) {
-//            pClass = getSubClass(getListClass(type), obj);
-//        } else if (Map.class.isAssignableFrom(pClass)) {
-//            if (MAP_KEY.equals(name)) {
-//                pClass = getSubClass(getMapClass(type)[0], obj);
-//            } else {
-//                pClass = getSubClass(getMapClass(type)[1], obj);
-//            }
-//        }
+
+        if (MAP_KEY.equals(name)) {
+            return getMapClass(p.getType())[0];
+        }
+        if (MAP_VALUE.equals(name)) {
+            return getMapClass(p.getType())[1];
+        }
+        if (pClass.isArray()) {
+            pClass = getArrayClass(p.getType());
+            if (IXml.DEBUG)
+                Log.d("xml", name + " is " + pClass.getName());
+        }
+        if (Collection.class.isAssignableFrom(pClass)) {
+            pClass = getListClass(p.getType());
+        }
         Field[] fields = Reflect.getFileds(pClass);
         Field tfield = null;
         for (Field field : fields) {
@@ -178,16 +177,15 @@ class XmlConvert extends IXml {
                     break;
                 }
             } else {
-                if (field.getName().equals(name)) {
+                if (name.equals(field.getName())) {
                     tfield = field;
                     break;
                 }
             }
         }
         if (tfield == null) {
-            tfield = Reflect.getFiled(pClass, name);
-        }
-        if(tfield==null){
+            if (IXml.DEBUG)
+                Log.w("xml", "no find " + name + " form " + pClass.getName());
             return Object.class;
         }
         return tfield;
