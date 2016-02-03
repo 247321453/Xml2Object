@@ -14,6 +14,8 @@ import java.util.Map;
  */
 public class XmlWriter {
     protected XmlConvert mXmlConvert;
+    private static final boolean SPACE = false;
+    private static final String NEW_LINE = System.getProperty("line.separator", "\n");
 
     public XmlWriter() {
         mXmlConvert = new XmlConvert();
@@ -42,14 +44,20 @@ public class XmlWriter {
         }
         serializer.setOutput(outputStream, encoding);
         serializer.startDocument(encoding, null);
-        writeTag(element, serializer);
+        if (SPACE)
+            serializer.text(NEW_LINE);
+        writeTag(element, serializer, 1);
         serializer.endDocument();
     }
 
     @SuppressWarnings("unchecked")
-    private void writeTag(Element element, XmlSerializer serializer)
+    private void writeTag(Element element, XmlSerializer serializer, int depth)
             throws IOException {
         if (element == null || serializer == null) return;
+        if (SPACE) {
+            serializer.text(NEW_LINE);
+            writeTab(serializer, depth);
+        }
         serializer.startTag(null, element.getName());
         for (Map.Entry<String, String> e : element.getAttributes().entrySet()) {
             serializer.attribute(null, e.getKey(), e.getValue());
@@ -57,8 +65,14 @@ public class XmlWriter {
         serializer.text(element.getText());
         int count = element.size();
         for (int i = 0; i < count; i++) {
-            writeTag(element.get(i), serializer);
+            writeTag(element.get(i), serializer, depth + 1);
         }
         serializer.endTag(null, element.getName());
+    }
+
+    private void writeTab(XmlSerializer pXmlSerializer, int depth) throws IOException {
+        for (int i = 0; i < depth; i++) {
+            pXmlSerializer.text("\t");
+        }
     }
 }

@@ -267,6 +267,7 @@ class Reflect {
 
     public static Object wrapper(Class<?> type, Object object) throws IllegalAccessException {
         String value = object == null ? "" : String.valueOf(object);
+        value=value.replace("\t","").replace("\r","").replace("\n","");
         if (type == null) {
             return object;
         }
@@ -290,7 +291,7 @@ class Reflect {
         } else if (char.class == type || Character.class == type) {
             return value.toCharArray()[0];
         }else if(String.class==type){
-            return value;
+            return object == null ? "" : String.valueOf(object);
         }
         else if (type.isEnum()) {
             Object[] vals = (Object[]) Reflect.call(type, null, "values");

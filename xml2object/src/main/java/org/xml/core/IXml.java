@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 
 abstract class IXml {
     public static final String MAP_KEY = "key";
-    public static final String MAP_VALUE = "text";
+    public static final String MAP_VALUE = "value";
     public static final String DEF_ENCODING = "UTF-8";
 
     public final static boolean DEBUG = BuildConfig.DEBUG;
