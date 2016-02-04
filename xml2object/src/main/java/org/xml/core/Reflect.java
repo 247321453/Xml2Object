@@ -296,7 +296,7 @@ class Reflect {
         else if (type.isEnum()) {
             Object[] vals = (Object[]) Reflect.call(type, null, "values");
             for (Object o : vals) {
-                if (value.equals(String.valueOf(o))) {
+                if (value.equalsIgnoreCase(String.valueOf(o))) {
                     return o;
                 }
             }
