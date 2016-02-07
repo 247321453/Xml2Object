@@ -2,6 +2,8 @@ package com.uutils.xml2object;
 
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlElement;
+import org.xml.annotation.XmlElementArray;
+import org.xml.annotation.XmlElementMap;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,10 +38,10 @@ public class Man implements IPeople {
     @XmlAttribute("type")
     PeopleType type = PeopleType.Man;
 
-    @XmlElement(value = "son1", type = Son.class)
+    @XmlElementArray(value = "son1", type = Son.class)
     List<Son> sons;
 
-    @XmlElement(value = "maps", keyType = String.class, valueType = Integer.class)
+    @XmlElementMap(value = "maps", keyType = String.class, valueType = Integer.class)
     Map<String, Integer> maps;
 
     @Override

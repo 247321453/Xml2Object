@@ -1,7 +1,6 @@
 package org.xml.core;
 
 import org.xml.annotation.XmlAttribute;
-import org.xml.annotation.XmlElement;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
@@ -49,8 +48,8 @@ class Reflect {
         if (name == null) return null;
         Field[] fields = getFileds(cls);
         for (Field f : fields) {
-            XmlElement xmlElement = f.getAnnotation(XmlElement.class);
-            if (xmlElement != null && name.equals(xmlElement.value())) {
+            String tagname = IXml.getTagName(f);
+            if (name.equals(tagname)) {
                 return f;
             }
             XmlAttribute xmlAttribute = f.getAnnotation(XmlAttribute.class);

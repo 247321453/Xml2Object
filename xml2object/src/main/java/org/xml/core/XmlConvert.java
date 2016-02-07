@@ -2,7 +2,6 @@ package org.xml.core;
 
 import android.util.Log;
 
-import org.xml.annotation.XmlElement;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -171,17 +170,10 @@ class XmlConvert extends IXml {
                 continue;
             if (isXmlAttribute(field))
                 continue;
-            XmlElement xmltag = field.getAnnotation(XmlElement.class);
-            if (xmltag != null) {
-                if (name.equals(xmltag.value())) {
-                    tfield = field;
-                    break;
-                }
-            } else {
-                if (name.equals(field.getName())) {
-                    tfield = field;
-                    break;
-                }
+            String tagname = getTagName(field);
+            if (name.equals(tagname)) {
+                tfield = field;
+                break;
             }
         }
         if (tfield == null) {
@@ -191,6 +183,7 @@ class XmlConvert extends IXml {
         }
         return tfield;
     }
+
 
     /**
      * 从java对象转换为tag对象

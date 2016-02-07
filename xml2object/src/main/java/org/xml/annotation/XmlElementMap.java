@@ -25,6 +25,15 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface XmlElement {
+public @interface XmlElementMap {
     String value();
+    /**
+     * @return Map的value元素类型
+     */
+    Class<?> valueType();
+
+    /**
+     * @return Map的key元素类型
+     */
+    Class<?> keyType();
 }

@@ -5,6 +5,8 @@ import android.util.Log;
 import com.uutils.xml2object.BuildConfig;
 
 import org.xml.annotation.XmlAttribute;
+import org.xml.annotation.XmlElementArray;
+import org.xml.annotation.XmlElementMap;
 import org.xml.annotation.XmlIgnore;
 import org.xml.annotation.XmlElement;
 import org.xml.annotation.XmlElementText;
@@ -22,11 +24,6 @@ abstract class IXml {
     protected boolean isXmlAttribute(AnnotatedElement field) {
         XmlAttribute xmlAttr = field.getAnnotation(XmlAttribute.class);
         return xmlAttr != null;
-    }
-
-    protected boolean isXmlTag(AnnotatedElement field) {
-        XmlElement xmlElement = field.getAnnotation(XmlElement.class);
-        return xmlElement != null;
     }
 
     protected boolean isXmlValue(AnnotatedElement field) {
@@ -56,7 +53,7 @@ abstract class IXml {
 
     protected Class<?> getArrayClass(AnnotatedElement cls) {
         if (cls == null) return Object.class;
-        XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
+        XmlElementArray xmlElement = cls.getAnnotation(XmlElementArray.class);
         if (xmlElement != null) {
             if (xmlElement.type() != null) {
                 return xmlElement.type();
@@ -76,7 +73,7 @@ abstract class IXml {
 
     protected Class<?> getListClass(AnnotatedElement cls) {
         if (cls == null) return Object.class;
-        XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
+        XmlElementArray xmlElement = cls.getAnnotation(XmlElementArray.class);
         if (xmlElement != null) {
             if (xmlElement.type() != null) {
                 return xmlElement.type();
@@ -91,7 +88,7 @@ abstract class IXml {
     protected Class<?>[] getMapClass(AnnotatedElement cls) {
         if (cls == null)
             return new Class[]{Object.class, Object.class};
-        XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
+        XmlElementMap xmlElement = cls.getAnnotation(XmlElementMap.class);
         Class<?> kclass = Object.class;
         Class<?> vclass = Object.class;
         if (xmlElement != null) {
@@ -105,7 +102,7 @@ abstract class IXml {
         return new Class[]{kclass, vclass};
     }
 
-    protected String getTagName(AnnotatedElement cls) {
+    public static String getTagName(AnnotatedElement cls) {
         String name;
         if (cls instanceof Class) {
             name = ((Class<?>) cls).getSimpleName();
@@ -115,11 +112,21 @@ abstract class IXml {
         return getTagName(cls, name);
     }
 
-    protected String getTagName(AnnotatedElement cls, String def) {
+    public static String getTagName(AnnotatedElement cls, String def) {
         XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
         if (xmlElement != null) {
             //text
             return xmlElement.value();
+        }
+        XmlElementArray xmlElementArray = cls.getAnnotation(XmlElementArray.class);
+        if (xmlElementArray != null) {
+            //text
+            return xmlElementArray.value();
+        }
+        XmlElementMap xmlElementMap = cls.getAnnotation(XmlElementMap.class);
+        if (xmlElementMap != null) {
+            //text
+            return xmlElementMap.value();
         }
         return def;
     }

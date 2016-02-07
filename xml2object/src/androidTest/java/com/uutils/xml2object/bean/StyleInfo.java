@@ -1,6 +1,7 @@
 package com.uutils.xml2object.bean;
 
 import org.xml.annotation.XmlElement;
+import org.xml.annotation.XmlElementArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class StyleInfo {
     private int version = 0;
     @XmlElement("url")
     private String url;
-    @XmlElement(value = "font", type = FontElement.class)
+    @XmlElementArray(value = "font", type = FontElement.class)
     private final List<FontElement> mFontElements;
 
     public StyleInfo() {
