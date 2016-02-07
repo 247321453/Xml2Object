@@ -62,7 +62,7 @@ public class XmlWriter {
         for (Map.Entry<String, String> e : element.getAttributes().entrySet()) {
             serializer.attribute(null, e.getKey(), e.getValue());
         }
-        serializer.text(element.getText());
+        serializer.text(element.getText() == null ? "" : element.getText());
         int count = element.size();
         for (int i = 0; i < count; i++) {
             writeTag(element.get(i), serializer, depth + 1);

@@ -7,7 +7,6 @@ import com.uutils.xml2object.BuildConfig;
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlElementArray;
 import org.xml.annotation.XmlElementMap;
-import org.xml.annotation.XmlIgnore;
 import org.xml.annotation.XmlElement;
 import org.xml.annotation.XmlElementText;
 
@@ -31,11 +30,6 @@ abstract class IXml {
         return xmlElementText != null;
     }
 
-    protected boolean isXmlIgnore(AnnotatedElement field) {
-        XmlIgnore value = field.getAnnotation(XmlIgnore.class);
-        return value != null;
-    }
-
     protected String toString(Object obj) {
         if (obj == null) {
             return "";
@@ -43,12 +37,12 @@ abstract class IXml {
         return obj.toString();
     }
 
-    protected String getAttributeName(AnnotatedElement cls, String def) {
+    public static String getAttributeName(AnnotatedElement cls) {
         XmlAttribute value = cls.getAnnotation(XmlAttribute.class);
         if (value != null) {
             return value.value();
         }
-        return def;
+        return null;
     }
 
     protected Class<?> getArrayClass(AnnotatedElement cls) {
@@ -103,16 +97,6 @@ abstract class IXml {
     }
 
     public static String getTagName(AnnotatedElement cls) {
-        String name;
-        if (cls instanceof Class) {
-            name = ((Class<?>) cls).getSimpleName();
-        } else {
-            name = ((Field) cls).getName();
-        }
-        return getTagName(cls, name);
-    }
-
-    public static String getTagName(AnnotatedElement cls, String def) {
         XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
         if (xmlElement != null) {
             //text
@@ -128,6 +112,6 @@ abstract class IXml {
             //text
             return xmlElementMap.value();
         }
-        return def;
+        return null;
     }
 }

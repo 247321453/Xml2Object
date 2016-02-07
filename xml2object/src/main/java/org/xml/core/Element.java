@@ -88,7 +88,6 @@ class Element {
     }
 
     public String getText() {
-        if (text == null) return "";
         return text;
     }
 
@@ -170,7 +169,15 @@ class Element {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(name + ":");
         stringBuffer.append("" + (tClass == null ? "" : tClass.getName()));
-        stringBuffer.append("{text='" + (text == null || "\n".equals(text) ? "" : text));
+        try {
+            if (Reflect.isNormal(tClass)) {
+                stringBuffer.append(" = " + text+"\n");
+                return stringBuffer.toString();
+            }
+        } catch (Exception e) {
+
+        }
+        stringBuffer.append("{text='" + (text == null ? "" : text));
         stringBuffer.append("', attributes=" + attributes);
         stringBuffer.append(", tags=");
         if (mElements.size() == 0) {

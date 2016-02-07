@@ -18,6 +18,11 @@ public class StyleInfo {
     private int version = 0;
     @XmlElement("url")
     private String url;
+    @XmlElement("icon")
+    private String icon;
+    @XmlElement("data")
+    private String data;
+
     @XmlElementArray(value = "font", type = FontElement.class)
     private final List<FontElement> mFontElements;
 

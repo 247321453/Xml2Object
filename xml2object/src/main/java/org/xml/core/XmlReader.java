@@ -195,6 +195,9 @@ public class XmlReader extends IXml {
         }
         T t = (parent == null) ? Reflect.create(pClass) : (T) parent;
         //attr
+        if (IXml.DEBUG) {
+            Log.d("xml", element.getName() + " attr = " + element.getAttributes().size());
+        }
         for (Map.Entry<String, String> e : element.getAttributes().entrySet()) {
             setAttribute(t, e.getKey(), e.getValue());
         }
@@ -206,7 +209,7 @@ public class XmlReader extends IXml {
             String name = el.getName();
             if (oldtags.contains(name))
                 continue;
-            Field field = Reflect.getFiled(pClass, name);
+            Field field = Reflect.getTagFiled(pClass, name);
             if (field == null) {
                 Log.w("xml", "no find field " + name);
                 continue;
@@ -224,7 +227,7 @@ public class XmlReader extends IXml {
             } else {
                 obj = any(el, cls, val);
             }
-            if(!Modifier.isFinal(field.getModifiers())){
+            if (!Modifier.isFinal(field.getModifiers())) {
                 Reflect.set(field, t, obj);
             }
         }
@@ -234,14 +237,14 @@ public class XmlReader extends IXml {
     private void setAttribute(Object object, String tag, Object value)
             throws IllegalAccessException {
         if (object == null || tag == null) return;
-        Field[] fields = Reflect.getFileds(object.getClass());
+        Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
-            if (isXmlAttribute(field)) {
-                String name = getAttributeName(field, field.getName());
-                if (tag.equals(name)) {
-                    Reflect.set(field, object, value);
-                    break;
-                }
+            String name = getAttributeName(field);
+            if (tag.equals(name)) {
+                Reflect.set(field, object, value);
+                if (IXml.DEBUG)
+                    Log.v("xml", tag + " set " + value);
+                break;
             }
         }
     }
@@ -249,7 +252,7 @@ public class XmlReader extends IXml {
     private void setText(Object object, Object value)
             throws IllegalAccessException {
         if (object == null) return;
-        Field[] fields = Reflect.getFileds(object.getClass());
+        Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
             if (isXmlValue(field)) {
                 Reflect.set(field, object, value);

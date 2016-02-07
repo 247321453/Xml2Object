@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                byte[] data = OnlineUtils.get("http://192.168.1.80/style-list-debug.xml");
+                byte[] data = OnlineUtils.get("http://192.168.56.1/style-list-debug.xml");
                 StyleList styleList = null;
                 try {
                     styleList = new XmlReader().from(new ByteArrayInputStream(data), StyleList.class);

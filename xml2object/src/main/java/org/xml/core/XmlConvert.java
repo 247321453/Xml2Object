@@ -52,7 +52,11 @@ class XmlConvert extends IXml {
         XmlPullParser xmlParser = android.util.Xml.newPullParser();
         Map<Integer, Element> tagMap = new HashMap<>();
         int depth = -1;
-        Element mElement = new Element(getTagName(tClass, tClass.getSimpleName()));
+        String name = getTagName(tClass);
+        if (name == null) {
+            name = tClass.getSimpleName();
+        }
+        Element mElement = new Element(name);
         mElement.setType(tClass);
         tagMap.put(1, mElement);
         Element parent = null;
@@ -72,7 +76,7 @@ class XmlConvert extends IXml {
                         } else {
                             parent = tagMap.get(d - 1);
                             mElement = new Element(xmlTag);
-                            mElement.setType(findClass(parent, xmlTag));
+                            mElement.setType(findTagClass(parent, xmlTag));
                             if (IXml.DEBUG)
                                 Log.v("xml", xmlTag + "@" + mElement.getTClass().getName());
                             if (parent != null) {
@@ -92,10 +96,14 @@ class XmlConvert extends IXml {
                         }
                         break;
                     case XmlPullParser.TEXT:
-                        mElement.setText(xmlParser.getText());
+                        String text = xmlParser.getText();
+                        if (IXml.DEBUG)
+                            Log.d("xml", xmlTag + " text = " + text);
+                        if (mElement.getText() == null)
+                            mElement.setText(text);
                         break;
                     case XmlPullParser.END_TAG:
-                        // mElement.setType(findClass(parent, xmlTag, mElement));
+                        // mElement.setType(findTagClass(parent, xmlTag, mElement));
                         break;
                 }
                 // 如果xml没有结束，则导航到下一个river节点
@@ -140,7 +148,7 @@ class XmlConvert extends IXml {
 //            pElement.updateTClass(pClass);
 //    }
 
-    private AnnotatedElement findClass(Element p, String name)
+    private AnnotatedElement findTagClass(Element p, String name)
             throws IllegalAccessException, InvocationTargetException, InstantiationException {
         if (p == null || name == null) {
             return Object.class;
@@ -161,15 +169,9 @@ class XmlConvert extends IXml {
         if (Collection.class.isAssignableFrom(pClass)) {
             pClass = getListClass(p.getType());
         }
-        Field[] fields = Reflect.getFileds(pClass);
+        Collection<Field> fields = Reflect.getFileds(pClass);
         Field tfield = null;
         for (Field field : fields) {
-            if (isXmlIgnore(field))
-                continue;
-            if (isXmlValue(field))
-                continue;
-            if (isXmlAttribute(field))
-                continue;
             String tagname = getTagName(field);
             if (name.equals(tagname)) {
                 tfield = field;
@@ -290,11 +292,11 @@ class XmlConvert extends IXml {
     private void writeAttributes(Object object, Element parent) throws IllegalAccessException {
         if (object == null || parent == null) return;
         Class<?> cls = object.getClass();
-        Field[] fields = Reflect.getFileds(cls);
+        Collection<Field> fields = Reflect.getFileds(cls);
         for (Field field : fields) {
-            if (!isXmlAttribute(field))
+            String subTag = getAttributeName(field);
+            if (subTag == null)
                 continue;
-            String subTag = getAttributeName(field, field.getName());
             Reflect.accessible(field);
             Object val = field.get(object);
             if (IXml.DEBUG)
@@ -305,15 +307,11 @@ class XmlConvert extends IXml {
 
     private void writeSubTag(Object object, Element parent) throws IllegalAccessException {
         if (object == null) return;
-        Field[] fields = Reflect.getFileds(object.getClass());
+        Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
-            if (isXmlIgnore(field))
+            String name = getTagName(field);
+            if (name == null)
                 continue;
-            if (isXmlAttribute(field))
-                continue;
-            if (isXmlValue(field))
-                continue;
-            String name = getTagName(field, field.getName());
             Class<?> cls = field.getType();
             Reflect.accessible(field);
             Object val = field.get(object);
@@ -326,7 +324,7 @@ class XmlConvert extends IXml {
     private void writeText(Object object, Element element) throws IllegalAccessException {
         if (object == null || element == null) return;
         Class<?> cls = object.getClass();
-        Field[] fields = Reflect.getFileds(cls);
+        Collection<Field> fields = Reflect.getFileds(cls);
         for (Field field : fields) {
             if (isXmlValue(field)) {
                 Reflect.accessible(field);

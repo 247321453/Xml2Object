@@ -25,8 +25,6 @@ public class Value<T> extends When<T> {
 
     @Override
     public String toString() {
-        return "Value{" +
-                "value=" + value +
-                '}';
+        return ""+value;
     }
 }

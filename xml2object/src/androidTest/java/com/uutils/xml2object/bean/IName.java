@@ -5,7 +5,7 @@ import org.xml.annotation.XmlAttribute;
 public  class IName {
 
     @XmlAttribute("name")
-    protected String name = "no name";
+    protected String name;
 
     public String getName() {
         return name;

@@ -1,7 +1,5 @@
 package org.xml.core;
 
-import org.xml.annotation.XmlAttribute;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -15,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,26 +39,31 @@ class Reflect {
         return null;
     }
 
-    public static Field[] getFileds(Class<?> cls) {
-        return cls.getDeclaredFields();
+    public static Collection<Field> getFileds(Class<?> type) {
+        Map<String, Field> result = new LinkedHashMap<>();
+        do {
+            for (Field field : type.getDeclaredFields()) {
+                String name = field.getName();
+                if (!result.containsKey(name))
+                    result.put(name, field);
+            }
+            type = type.getSuperclass();
+        } while (type != null);
+        return result.values();
     }
 
-    public static Field getFiled(Class<?> cls, String name) {
-        if (name == null) return null;
-        Field[] fields = getFileds(cls);
-        for (Field f : fields) {
-            String tagname = IXml.getTagName(f);
-            if (name.equals(tagname)) {
-                return f;
+    public static Field getTagFiled(Class<?> type, String name) {
+        // 尝试作为公有字段处理
+        do {
+            Field[] fields = type.getDeclaredFields();
+            for (Field f : fields) {
+                String xmltag = IXml.getTagName(f);
+                if (name.equals(xmltag)) {
+                    return f;
+                }
             }
-            XmlAttribute xmlAttribute = f.getAnnotation(XmlAttribute.class);
-            if (xmlAttribute != null && name.equals(xmlAttribute.value())) {
-                return f;
-            }
-            if (name.equals(f.getName())) {
-                return f;
-            }
-        }
+            type = type.getSuperclass();
+        } while (type != null);
         return null;
     }
 
@@ -266,7 +270,7 @@ class Reflect {
 
     public static Object wrapper(Class<?> type, Object object) throws IllegalAccessException {
         String value = object == null ? "" : String.valueOf(object);
-        value=value.replace("\t","").replace("\r","").replace("\n","");
+        value = value.replace("\t", "").replace("\r", "").replace("\n", "");
         if (type == null) {
             return object;
         }
@@ -289,10 +293,9 @@ class Reflect {
             return Float.parseFloat(value);
         } else if (char.class == type || Character.class == type) {
             return value.toCharArray()[0];
-        }else if(String.class==type){
+        } else if (String.class == type) {
             return object == null ? "" : String.valueOf(object);
-        }
-        else if (type.isEnum()) {
+        } else if (type.isEnum()) {
             Object[] vals = (Object[]) Reflect.call(type, null, "values");
             for (Object o : vals) {
                 if (value.equalsIgnoreCase(String.valueOf(o))) {
@@ -328,18 +331,18 @@ class Reflect {
         if (tClass.isArray()) {
             return (T) Array.newInstance(tClass.getComponentType(), 0);
         }
-        if (tClass.isInterface()||Modifier.isAbstract(tClass.getModifiers())) {
+        if (tClass.isInterface() || Modifier.isAbstract(tClass.getModifiers())) {
             if (Collection.class.isAssignableFrom(tClass)) {
-                if(args.length<1){
-                    throw  new RuntimeException("create(Class<T>, Class<E>)");
+                if (args.length < 1) {
+                    throw new RuntimeException("create(Class<T>, Class<E>)");
                 }
                 return (T) createList(tClass);
             }
             if (Map.class.isAssignableFrom(tClass)) {
-                if(args.length<2){
-                    throw  new RuntimeException("create(Class<T>, Class<K> Class<V>)");
+                if (args.length < 2) {
+                    throw new RuntimeException("create(Class<T>, Class<K> Class<V>)");
                 }
-                return (T)createMap(args[0], args[1]);
+                return (T) createMap(args[0], args[1]);
             }
         }
         Constructor<T> constructor = null;
@@ -376,6 +379,7 @@ class Reflect {
         public NULL(Class<?> cls) {
             this.clsName = cls;
         }
+
         public Class<?> clsName;
     }
 

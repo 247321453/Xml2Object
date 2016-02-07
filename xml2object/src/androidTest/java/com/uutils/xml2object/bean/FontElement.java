@@ -13,4 +13,11 @@ public class FontElement extends IName {
         return src;
     }
 
+    @Override
+    public String toString() {
+        return "FontElement{" +
+                "src='" + src + '\'' +
+                ", name='" + name + "'" +
+                '}';
+    }
 }
