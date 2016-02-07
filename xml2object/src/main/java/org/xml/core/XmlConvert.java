@@ -78,7 +78,8 @@ class XmlConvert extends IXml {
                                 Log.v("xml", xmlTag + "@" + mElement.getTClass().getName());
                             if (parent != null) {
                                 parent.add(mElement);
-                                Log.v("xml", parent.getName() + " add " + mElement.getName());
+                                if (IXml.DEBUG)
+                                    Log.v("xml", parent.getName() + " add " + mElement.getName());
                             } else {
                             }
                             tagMap.put(d, mElement);

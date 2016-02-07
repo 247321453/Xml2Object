@@ -2,6 +2,7 @@
     package="com.uutils.xml2object.test"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <application
         android:label="xml demo"
         >

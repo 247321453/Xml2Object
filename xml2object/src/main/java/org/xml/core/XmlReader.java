@@ -53,7 +53,7 @@ public class XmlReader extends IXml {
         }
         Log.v("xml", "create array " + pClass.getName());
 //        boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
-        Class<?> sc= subClass;
+        Class<?> sc = subClass;
         for (int i = 0; i < count; i++) {
             Element element = elements.get(i);
 //            if (d) {
@@ -215,15 +215,18 @@ public class XmlReader extends IXml {
             oldtags.add(name);
             Class<?> cls = field.getType();
             Object val = Reflect.get(field, t);
+            Object obj=null;
             if (cls.isArray()) {
-                Reflect.set(field, t, array(element.getElementList(name), cls, val, getArrayClass(field)));
+                obj = array(element.getElementList(name), cls, val, getArrayClass(field));
             } else if (Collection.class.isAssignableFrom(cls)) {
-                Reflect.set(field, t, list(element.getElementList(name), cls, val, getListClass(field)));
+                obj = list(element.getElementList(name), cls, val, getListClass(field));
             } else if (Map.class.isAssignableFrom(cls)) {
-                Reflect.set(field, t, map(element.getElementList(name), cls, val, getMapClass(field)));
+                obj =map(element.getElementList(name), cls, val, getMapClass(field));
             } else {
-                Reflect.set(field, t, any(el, cls, val));
+                obj =any(el, cls, val);
             }
+            if (val == null)
+                Reflect.set(field, t, obj);
         }
         return t;
     }

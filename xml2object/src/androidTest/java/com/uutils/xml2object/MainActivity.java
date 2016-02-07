@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.uutils.xml2object.bean.StyleList;
+
 import org.xml.core.XmlReader;
 import org.xml.core.XmlWriter;
 
@@ -17,7 +19,20 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        test();
+       // test();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                byte[] data = OnlineUtils.get("http://192.168.1.80/style-list-debug.xml");
+                StyleList styleList = null;
+                try {
+                    styleList = new XmlReader().from(new ByteArrayInputStream(data), StyleList.class);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Log.d("xml", ""+styleList);
+            }
+        }).start();
     }
 
     private void test() {

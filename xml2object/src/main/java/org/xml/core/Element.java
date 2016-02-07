@@ -170,7 +170,7 @@ class Element {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(name + ":");
         stringBuffer.append("" + (tClass == null ? "" : tClass.getName()));
-        stringBuffer.append("{text='" + (text == null ? "" : text));
+        stringBuffer.append("{text='" + (text == null || "\n".equals(text) ? "" : text));
         stringBuffer.append("', attributes=" + attributes);
         stringBuffer.append(", tags=");
         if (mElements.size() == 0) {
