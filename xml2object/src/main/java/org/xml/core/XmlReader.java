@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -173,11 +174,9 @@ public class XmlReader extends IXml {
         if (Reflect.isNormal(pClass)) {
             if (IXml.DEBUG)
                 Log.v("xml", "create normal " + element.getName() + " " + pClass);
-            if (object == null) {
-                try {
-                    object = Reflect.wrapper(pClass, element.getText());
-                } catch (Throwable e) {
-                }
+            try {
+                object = Reflect.wrapper(pClass, element.getText());
+            } catch (Throwable e) {
             }
             return (T) object;
         } else {
@@ -215,18 +214,19 @@ public class XmlReader extends IXml {
             oldtags.add(name);
             Class<?> cls = field.getType();
             Object val = Reflect.get(field, t);
-            Object obj=null;
+            Object obj = null;
             if (cls.isArray()) {
                 obj = array(element.getElementList(name), cls, val, getArrayClass(field));
             } else if (Collection.class.isAssignableFrom(cls)) {
                 obj = list(element.getElementList(name), cls, val, getListClass(field));
             } else if (Map.class.isAssignableFrom(cls)) {
-                obj =map(element.getElementList(name), cls, val, getMapClass(field));
+                obj = map(element.getElementList(name), cls, val, getMapClass(field));
             } else {
-                obj =any(el, cls, val);
+                obj = any(el, cls, val);
             }
-            if (val == null)
+            if(!Modifier.isFinal(field.getModifiers())){
                 Reflect.set(field, t, obj);
+            }
         }
         return t;
     }
