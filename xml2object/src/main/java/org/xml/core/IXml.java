@@ -5,13 +5,12 @@ import android.util.Log;
 import com.uutils.xml2object.BuildConfig;
 
 import org.xml.annotation.XmlAttribute;
-import org.xml.annotation.XmlElementArray;
-import org.xml.annotation.XmlElementMap;
 import org.xml.annotation.XmlElement;
+import org.xml.annotation.XmlElementList;
+import org.xml.annotation.XmlElementMap;
 import org.xml.annotation.XmlElementText;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
 
 abstract class IXml {
     public static final String MAP_KEY = "key";
@@ -45,29 +44,29 @@ abstract class IXml {
         return null;
     }
 
-    protected Class<?> getArrayClass(AnnotatedElement cls) {
-        if (cls == null) return Object.class;
-        XmlElementArray xmlElement = cls.getAnnotation(XmlElementArray.class);
-        if (xmlElement != null) {
-            if (xmlElement.type() != null) {
-                return xmlElement.type();
-            }
-        } else {
-            if (cls instanceof Class) {
-                return ((Class<?>) cls).getComponentType();
-            } else if (cls instanceof Field) {
-                return ((Field) cls).getType().getComponentType();
-            } else {
-                if (IXml.DEBUG)
-                    Log.w("xml", cls + " not's xmltag");
-            }
-        }
-        return Object.class;
-    }
+//    protected Class<?> getArrayClass(AnnotatedElement cls) {
+//        if (cls == null) return Object.class;
+//        XmlElementList xmlElement = cls.getAnnotation(XmlElementList.class);
+//        if (xmlElement != null) {
+//            if (xmlElement.type() != null) {
+//                return xmlElement.type();
+//            }
+//        } else {
+//            if (cls instanceof Class) {
+//                return ((Class<?>) cls).getComponentType();
+//            } else if (cls instanceof Field) {
+//                return ((Field) cls).getType().getComponentType();
+//            } else {
+//                if (IXml.DEBUG)
+//                    Log.w("xml", cls + " not's xmltag");
+//            }
+//        }
+//        return Object.class;
+//    }
 
     protected Class<?> getListClass(AnnotatedElement cls) {
         if (cls == null) return Object.class;
-        XmlElementArray xmlElement = cls.getAnnotation(XmlElementArray.class);
+        XmlElementList xmlElement = cls.getAnnotation(XmlElementList.class);
         if (xmlElement != null) {
             if (xmlElement.type() != null) {
                 return xmlElement.type();
@@ -102,10 +101,10 @@ abstract class IXml {
             //text
             return xmlElement.value();
         }
-        XmlElementArray xmlElementArray = cls.getAnnotation(XmlElementArray.class);
-        if (xmlElementArray != null) {
+        XmlElementList xmlElementList = cls.getAnnotation(XmlElementList.class);
+        if (xmlElementList != null) {
             //text
-            return xmlElementArray.value();
+            return xmlElementList.value();
         }
         XmlElementMap xmlElementMap = cls.getAnnotation(XmlElementMap.class);
         if (xmlElementMap != null) {

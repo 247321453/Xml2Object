@@ -2,7 +2,7 @@ package com.uutils.xml2object;
 
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlElement;
-import org.xml.annotation.XmlElementArray;
+import org.xml.annotation.XmlElementList;
 import org.xml.annotation.XmlElementMap;
 
 import java.util.Arrays;
@@ -38,7 +38,7 @@ public class Man implements IPeople {
     @XmlAttribute("type")
     PeopleType type = PeopleType.Man;
 
-    @XmlElementArray(value = "son1", type = Son.class)
+    @XmlElementList(value = "son1", type = Son.class)
     List<Son> sons;
 
     @XmlElementMap(value = "maps", keyType = String.class, valueType = Integer.class)

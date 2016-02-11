@@ -162,7 +162,7 @@ class XmlConvert extends IXml {
             return getMapClass(p.getType())[1];
         }
         if (pClass.isArray()) {
-            pClass = getArrayClass(p.getType());
+            pClass = pClass.getComponentType();
             if (IXml.DEBUG)
                 Log.d("xml", name + " is " + pClass.getName());
         }

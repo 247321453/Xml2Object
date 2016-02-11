@@ -1,5 +1,7 @@
 package org.xml.core;
 
+import android.util.Log;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -27,6 +29,7 @@ class Reflect {
             } catch (Throwable e) {
 
             }
+            Log.i("xml" , field.getName() + "=" + value);
             field.set(parent, value);
         }
     }
@@ -251,7 +254,7 @@ class Reflect {
     }
 
     public static boolean isNormal(Class<?> type) throws IllegalAccessException {
-        if (type == null) {
+        if (type == null||type.isEnum()) {
             return true;
         }
         if (boolean.class == type || Boolean.class == type

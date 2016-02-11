@@ -2,7 +2,7 @@ package com.uutils.xml2object.bean;
 
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlElement;
-import org.xml.annotation.XmlElementArray;
+import org.xml.annotation.XmlElementList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ public class StyleList {
     @XmlAttribute("date")
     public long date;
 
-    @XmlElementArray(value = "styleinfo", type = StyleInfo.class)
+    @XmlElementList(value = "styleinfo", type = StyleInfo.class)
     public final List<StyleInfo> mStyleInfos;
 
     @XmlElement("datetime")

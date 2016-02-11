@@ -40,21 +40,23 @@ public class XmlReader extends IXml {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T array(List<Element> elements, Class<T> pClass, Object object, Class<?> subClass)
+    private <T> T array(List<Element> elements, Class<T> pClass, Object object)
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
         if (elements == null) {
             return null;
         }
+        Class<?> sc = pClass.getComponentType();
         int count = elements.size();
         T t;
         if (object != null) {
             t = (T) object;
         } else {
-            t = (T) Array.newInstance(pClass, count);
+            t = (T) Array.newInstance(sc, count);
         }
-        Log.v("xml", "create array " + pClass.getName());
+        if (IXml.DEBUG)
+            Log.i("xml", "create array " + pClass.getName() + " sub=" + sc);
 //        boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
-        Class<?> sc = subClass;
+
         for (int i = 0; i < count; i++) {
             Element element = elements.get(i);
 //            if (d) {
@@ -62,12 +64,13 @@ public class XmlReader extends IXml {
 //            } else {
 //                sc = subClass;
 //            }
-            if (IXml.DEBUG)
-                Log.v("xml", "child = " + sc);
+
             Object o = any(element, sc, null);
-            if (o != null)
+            if (o != null) {
+                if (IXml.DEBUG)
+                    Log.v("xml", "child = " + sc + "/" + o.getClass());
                 Array.set(t, i, o);
-            else {
+            } else {
                 if (IXml.DEBUG)
                     Log.w("xml", "child is null " + element.getName());
             }
@@ -219,7 +222,7 @@ public class XmlReader extends IXml {
             Object val = Reflect.get(field, t);
             Object obj = null;
             if (cls.isArray()) {
-                obj = array(element.getElementList(name), cls, val, getArrayClass(field));
+                obj = array(element.getElementList(name), cls, val);
             } else if (Collection.class.isAssignableFrom(cls)) {
                 obj = list(element.getElementList(name), cls, val, getListClass(field));
             } else if (Map.class.isAssignableFrom(cls)) {
