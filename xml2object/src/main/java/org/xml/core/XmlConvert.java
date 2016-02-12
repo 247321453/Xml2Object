@@ -47,7 +47,7 @@ class XmlConvert extends IXml {
      * @param inputStream 输入流
      * @return tag对象
      */
-    public Element toTag(Class<?> tClass, InputStream inputStream) {
+    public Element toTag(Class<?> tClass, InputStream inputStream, String encoding) {
         if (inputStream == null) return null;
         XmlPullParser xmlParser = android.util.Xml.newPullParser();
         Map<Integer, Element> tagMap = new HashMap<>();
@@ -62,7 +62,7 @@ class XmlConvert extends IXml {
         Element parent = null;
         String xmlTag = null;
         try {
-            xmlParser.setInput(inputStream, "utf-8");
+            xmlParser.setInput(inputStream, encoding == null ? DEF_ENCODING : encoding);
             int evtType = xmlParser.getEventType();
             while (evtType != XmlPullParser.END_DOCUMENT) {
                 // 一直循环，直到文档结束

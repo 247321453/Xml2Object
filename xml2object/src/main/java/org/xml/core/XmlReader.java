@@ -31,9 +31,9 @@ public class XmlReader extends IXml {
      * @throws InstantiationException    异常2
      * @throws InvocationTargetException 异常3
      */
-    public <T> T from(InputStream inputStream, Class<T> pClass)
+    public <T> T from(InputStream inputStream, Class<T> pClass, String encoding)
             throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
-        Element tag = mXmlConvert.toTag(pClass, inputStream);
+        Element tag = mXmlConvert.toTag(pClass, inputStream, encoding);
         if (IXml.DEBUG)
             Log.d("xml", "form " + tag);
         return any(tag, pClass, null);
