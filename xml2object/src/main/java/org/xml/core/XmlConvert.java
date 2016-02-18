@@ -113,14 +113,6 @@ class XmlConvert extends IXml {
             e.printStackTrace();
         } catch (Throwable e) {
             e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Throwable e) {
-
-                }
-            }
         }
         return tagMap.get(1);
     }
