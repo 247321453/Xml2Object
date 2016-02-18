@@ -1,9 +1,5 @@
 package org.xml.core;
 
-import android.util.Log;
-
-import com.uutils.xml2object.BuildConfig;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -26,16 +22,24 @@ class Reflect {
     public static void set(Field field, Object parent, Object value) throws IllegalAccessException {
         if (field != null) {
             accessible(field);
+//            try {
+//                value = wrapper(field.getType(), value);
+//            } catch (Throwable e) {
+//
+//            }
+//            if (BuildConfig.DEBUG)
+//                Log.i("xml", field.getName() + "=" + value);
+//            field.set(parent, value);
+            String name = field.getName();
             try {
-                value = wrapper(field.getType(), value);
-            } catch (Throwable e) {
-
+                name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+                call(parent.getClass(), parent, name, value);
+            } catch (Exception e) {
+                setField(field, parent, value);
             }
-            if (BuildConfig.DEBUG)
-                Log.i("xml", field.getName() + "=" + value);
-            field.set(parent, value);
         }
     }
+
 
     public static Object get(Field field, Object parent) throws IllegalAccessException {
         if (field != null) {
@@ -187,33 +191,6 @@ class Reflect {
         }
     }
 
-    private static Class<?> wrapper(Class<?> type) {
-        if (type == null) {
-            return null;
-        } else if (type.isPrimitive()) {
-            if (boolean.class == type) {
-                return Boolean.class;
-            } else if (int.class == type) {
-                return Integer.class;
-            } else if (long.class == type) {
-                return Long.class;
-            } else if (short.class == type) {
-                return Short.class;
-            } else if (byte.class == type) {
-                return Byte.class;
-            } else if (double.class == type) {
-                return Double.class;
-            } else if (float.class == type) {
-                return Float.class;
-            } else if (char.class == type) {
-                return Character.class;
-            } else if (void.class == type) {
-                return Void.class;
-            }
-        }
-        return type;
-    }
-
     private static Class<?>[] types(Object... values) {
         if (values == null) {
             // 空
@@ -274,12 +251,87 @@ class Reflect {
         return false;
     }
 
+    //
+    private static boolean setField(Field field, Object parent, Object object) throws IllegalAccessException, NumberFormatException {
+        String value = object == null ? "" : String.valueOf(object);
+        value = value.replace("\t", "").replace("\r", "").replace("\n", "");
+        Class<?> type = field.getType();
+        if (type == null) {
+            return false;
+        }
+        if (boolean.class == type || Boolean.class == type) {
+            field.setBoolean(parent, Boolean.parseBoolean(value));
+        } else if (int.class == type || Integer.class == type) {
+            field.setInt(parent, (value.startsWith("0x")) ?
+                    Integer.parseInt(value.substring(2), 16) : Integer.parseInt(value));
+        } else if (long.class == type || Long.class == type) {
+            field.setLong(parent, (value.startsWith("0x")) ?
+                    Long.parseLong(value.substring(2), 16) : Long.parseLong(value));
+        } else if (short.class == type || Short.class == type) {
+            field.setShort(parent, (value.startsWith("0x")) ?
+                    Short.parseShort(value.substring(2), 16) : Short.parseShort(value));
+        } else if (double.class == type || Double.class == type) {
+            field.setDouble(parent, Double.parseDouble(value));
+        } else if (float.class == type || Float.class == type) {
+            field.setFloat(parent, Float.parseFloat(value));
+        } else if (byte.class == type || Byte.class == type) {
+            field.setByte(parent, value.getBytes()[0]);
+        } else if (char.class == type || Character.class == type) {
+            field.setChar(parent, value.toCharArray()[0]);
+        } else if (String.class == type) {
+            field.set(parent, object == null ? "" : String.valueOf(object));
+        } else if (type.isEnum()) {
+            Object[] vals = (Object[]) Reflect.call(type, null, "values");
+            for (Object o : vals) {
+                if (value.equalsIgnoreCase(String.valueOf(o))) {
+                    field.set(parent, o);
+                    break;
+                }
+            }
+        } else {
+            field.set(parent, object);
+        }
+        return true;
+    }
+
+    private static Class<?> wrapper(Class<?> type) {
+        if (type == null) {
+            return null;
+        } else if (type.isPrimitive()) {
+            if (boolean.class == type) {
+                return Boolean.class;
+            } else if (int.class == type) {
+                return Integer.class;
+            } else if (long.class == type) {
+                return Long.class;
+            } else if (short.class == type) {
+                return Short.class;
+            } else if (byte.class == type) {
+                return Byte.class;
+            } else if (double.class == type) {
+                return Double.class;
+            } else if (float.class == type) {
+                return Float.class;
+            } else if (char.class == type) {
+                return Character.class;
+            } else if (void.class == type) {
+                return Void.class;
+            }
+        }
+        return type;
+    }
+
     public static Object wrapper(Class<?> type, Object object) throws IllegalAccessException {
         String value = object == null ? "" : String.valueOf(object);
         value = value.replace("\t", "").replace("\r", "").replace("\n", "");
         if (type == null) {
             return object;
         }
+
+        if (type.isPrimitive()) {
+
+        }
+
         if (boolean.class == type || Boolean.class == type) {
             return Boolean.parseBoolean(value);
         } else if (int.class == type || Integer.class == type) {

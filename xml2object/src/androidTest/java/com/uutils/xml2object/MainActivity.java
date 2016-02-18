@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.uutils.xml2object.bean.StyleList;
-
 import org.xml.core.XmlReader;
 import org.xml.core.XmlWriter;
 
@@ -19,20 +17,20 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // test();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                byte[] data = OnlineUtils.get("http://192.168.56.1/style-list-debug.xml");
-                StyleList styleList = null;
-                try {
-                    styleList = new XmlReader().from(new ByteArrayInputStream(data), StyleList.class);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                Log.d("xml", ""+styleList);
-            }
-        }).start();
+        test();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                byte[] data = OnlineUtils.get("http://192.168.56.1/style-list-debug.xml");
+//                StyleList styleList = null;
+//                try {
+//                    styleList = new XmlReader().from(new ByteArrayInputStream(data), StyleList.class);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                Log.d("xml", ""+styleList);
+//            }
+//        }).start();
     }
 
     private void test() {
@@ -43,7 +41,7 @@ public class MainActivity extends Activity {
         man1.maps.put("encrypt", 1);
         man1.maps.put("decrypt", 2);
         man1.age = 20;
-        man1.sons = new ArrayList<>();
+        man1.setI(4L);
         Son son = new Son();
         son.name = "son name";
         son.phone = "13800138000";
@@ -66,7 +64,7 @@ public class MainActivity extends Activity {
             xmlWriter.toXml(man1, outputStream, null);
             String xmlStr = outputStream.toString();
             Log.i("xml", "" + xmlStr);
-            Man m = xmlReader.from(new ByteArrayInputStream(xmlStr.getBytes()), Man.class);
+            Man m = xmlReader.from(new ByteArrayInputStream(xmlStr.getBytes()), Man.class, null);
             Log.i("xml", "main=" + m);
         } catch (Throwable e) {
             e.printStackTrace();

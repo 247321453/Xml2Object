@@ -197,37 +197,28 @@ class XmlConvert extends IXml {
         return root;
     }
 
-    private void any(Element parent, Object object, Class<?> pClass, String name)
+    private Element any(Object object, Class<?> pClass, String name)
             throws IllegalAccessException {
+        Element element = new Element(name);
         if (pClass == null) {
             if (object == null) {
-                parent.add(new Element(name));
-                return;
+                return element;
             }
             pClass = object.getClass();
         }
+        element.setType(pClass);
         if (name == null) {
             name = getTagName(pClass);
+            element.setName(name);
         }
         if (Reflect.isNormal(pClass)) {
-            Element element = new Element(name);
-            element.setType(pClass);
             element.setText(toString(object));
-            parent.add(element);
-        } else if (pClass.isArray()) {
-            array(object, name, parent);
-        } else if (object instanceof Map) {
-            parent.addAll(map(object, pClass, name));
-        } else if (object instanceof Collection) {
-            list(object, name, parent);
         } else {
-            Element element = new Element(name);
-            element.setType(pClass);
             writeAttributes(object, element);
             writeText(object, element);
             writeSubTag(object, element);
-            parent.add(element);
         }
+        return element;
     }
 
     @SuppressWarnings("unchecked")
@@ -249,35 +240,40 @@ class XmlConvert extends IXml {
                 Object v = e.getValue();
                 Element element = new Element(name);
                 element.setType(pClass);
-                any(element, k, k.getClass(), MAP_KEY);
-                any(element, v, v == null ? null : v.getClass(), MAP_VALUE);
+                element.add(any(k, k.getClass(), MAP_KEY));
+                element.add(any(v, v == null ? null : v.getClass(), MAP_VALUE));
                 list.add(element);
             }
         }
         return list;
     }
 
-    private void array(Object object, String name, Element parent) throws IllegalAccessException {
+    private ArrayList<Element> array(Object object, String name) throws IllegalAccessException {
+        ArrayList<Element> list = new ArrayList<>();
         if (object != null) {
             int count = Array.getLength(object);
             for (int i = 0; i < count; i++) {
                 Object obj = Array.get(object, i);
-                if (obj != null)
-                    any(parent, obj, obj.getClass(), name);
+                if (obj != null) {
+                    list.add(any(obj, obj.getClass(), name));
+                }
             }
         }
+        return list;
     }
 
-    private void list(Object object, String name, Element parent) throws IllegalAccessException {
+    private ArrayList<Element> list(Object object, String name) throws IllegalAccessException {
+        ArrayList<Element> list = new ArrayList<>();
         if (object != null) {
             Object[] objs = (Object[]) Reflect.call(object.getClass(), object, "toArray");
             if (objs != null) {
                 for (Object o : objs) {
                     if (o != null)
-                        any(parent, o, o.getClass(), name);
+                        list.add(any(o, o.getClass(), name));
                 }
             }
         }
+        return list;
     }
 
     //region write
@@ -307,8 +303,27 @@ class XmlConvert extends IXml {
             Class<?> cls = field.getType();
             Reflect.accessible(field);
             Object val = field.get(object);
-            if (val != null) {
-                any(parent, val, cls, name);
+            if (Reflect.isNormal(cls)) {
+                Element element = new Element(name);
+                element.setType(cls);
+                element.setText(toString(val));
+                parent.add(element);
+            } else if (cls.isArray()) {
+                if (IXml.DEBUG)
+                    Log.d("xml", parent.getName() + " add array " + field.getName());
+                parent.addAll(array(val, name));
+            } else if (val instanceof Map) {
+                if (IXml.DEBUG)
+                    Log.d("xml", parent.getName() + " add map " + field.getName());
+                parent.addAll(map(val, cls, name));
+            } else if (val instanceof Collection) {
+                if (IXml.DEBUG)
+                    Log.d("xml", parent.getName() + " add list " + field.getName());
+                parent.addAll(list(val, name));
+            } else if (val != null) {
+                if (IXml.DEBUG)
+                    Log.d("xml", parent.getName() + " add any " + field.getName());
+                parent.add(any(val, cls, name));
             }
         }
     }

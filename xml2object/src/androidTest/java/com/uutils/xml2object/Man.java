@@ -25,13 +25,23 @@ public class Man implements IPeople {
     String name;
 
     @XmlAttribute("sex")
-    String sex="man";
+    String sex = "man";
 
     @XmlAttribute("age")
     int age;
 
+    @XmlElement("as")
     int[] as = new int[2];
+    @XmlElement("i")
+    private Long i = 2L;
 
+    public long getI() {
+        return i;
+    }
+
+    public void setI(Long i) {
+        this.i = 999L;
+    }
 //    @XmlElement(value = "child", type = PeopleCreator.class)
 //    List<Man> childs;
 
@@ -47,11 +57,11 @@ public class Man implements IPeople {
     @Override
     public String toString() {
         return "Man{" +
-                "name='" + name + '\'' +
+                "age=" + age +
+                ", name='" + name + '\'' +
                 ", sex='" + sex + '\'' +
-                ", age=" + age +
                 ", as=" + Arrays.toString(as) +
-//                ", childs=" + childs +
+                ", i=" + i +
                 ", type=" + type +
                 ", sons=" + sons +
                 ", maps=" + maps +

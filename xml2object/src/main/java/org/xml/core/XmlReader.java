@@ -237,14 +237,14 @@ public class XmlReader extends IXml {
         return t;
     }
 
-    private void setAttribute(Object object, String tag, Object value)
+    private void setAttribute(Object object, String tag, String value)
             throws IllegalAccessException {
         if (object == null || tag == null) return;
         Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
             String name = getAttributeName(field);
             if (tag.equals(name)) {
-                Reflect.set(field, object, value);
+                Reflect.set(field, object, Reflect.wrapper(field.getType(), value));
                 if (IXml.DEBUG)
                     Log.v("xml", tag + " set " + value);
                 break;
@@ -252,13 +252,13 @@ public class XmlReader extends IXml {
         }
     }
 
-    private void setText(Object object, Object value)
+    private void setText(Object object, String value)
             throws IllegalAccessException {
         if (object == null) return;
         Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
             if (isXmlValue(field)) {
-                Reflect.set(field, object, value);
+                Reflect.set(field, object, Reflect.wrapper(field.getType(), value));
                 break;
             }
         }
