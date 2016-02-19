@@ -8,14 +8,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 class Reflect {
 
@@ -394,13 +403,13 @@ class Reflect {
                 if (args.length < 1) {
                     throw new RuntimeException("create(Class<T>, Class<E>)");
                 }
-                return (T) createList(tClass);
+                return (T) createCollection(tClass);
             }
             if (Map.class.isAssignableFrom(tClass)) {
                 if (args.length < 2) {
                     throw new RuntimeException("create(Class<T>, Class<K> Class<V>)");
                 }
-                return (T) createMap(args[0], args[1]);
+                return (T) createMap(tClass, args[0], args[1]);
             }
         }
         Constructor<T> constructor = null;
@@ -425,12 +434,39 @@ class Reflect {
     }
 
 
-    public static <T> List<T> createList(Class<T> type) {
-        return new ArrayList<T>();
+    public static <T> Collection<T> createCollection(Class<T> rawType) {
+        if (SortedSet.class.isAssignableFrom(rawType)) {
+            return new TreeSet<T>();
+        } else if (EnumSet.class.isAssignableFrom(rawType)) {
+            Type type = rawType.getGenericSuperclass();
+            if (type instanceof ParameterizedType) {
+                Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
+                if (elementType instanceof Class) {
+                    return EnumSet.noneOf((Class) elementType);
+                } else {
+                    throw new RuntimeException("Invalid EnumSet type: " + type.toString());
+                }
+            } else {
+                throw new RuntimeException("Invalid EnumSet type: " + type.toString());
+            }
+        } else if (Set.class.isAssignableFrom(rawType)) {
+            return new LinkedHashSet<T>();
+        } else if (Queue.class.isAssignableFrom(rawType)) {
+            return new LinkedList<T>();
+        } else {
+            return new ArrayList<T>();
+        }
     }
 
-    public static <K, V> Map<K, V> createMap(Class<K> key, Class<V> value) {
-        return new HashMap<K, V>();
+    public static <K, V> Map<K, V> createMap(Class<?> rawType, Class<K> key, Class<V> value) {
+        if (SortedMap.class.isAssignableFrom(rawType)) {
+            return new TreeMap<K, V>();
+        } else if (LinkedHashMap.class.isAssignableFrom(rawType)) {
+            return new LinkedHashMap<K, V>();
+        } else {
+            return new HashMap<K, V>();
+        }
+
     }
 
     public static class NULL {
