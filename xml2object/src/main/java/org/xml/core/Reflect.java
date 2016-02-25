@@ -1,7 +1,6 @@
 package org.xml.core;
 
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -26,7 +25,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-class Reflect {
+public class Reflect {
 
     public static void set(Field field, Object parent, Object value) throws IllegalAccessException {
         if (field != null) {
@@ -76,7 +75,7 @@ class Reflect {
         do {
             Field[] fields = type.getDeclaredFields();
             for (Field f : fields) {
-                String xmltag = IXml.getTagName(f);
+                String xmltag = KXml.getTagName(f);
                 if (name.equals(xmltag)) {
                     return f;
                 }
@@ -395,23 +394,23 @@ class Reflect {
             IllegalAccessException,
             InvocationTargetException,
             InstantiationException {
-        if (tClass.isArray()) {
-            return (T) Array.newInstance(tClass.getComponentType(), 0);
-        }
-        if (tClass.isInterface() || Modifier.isAbstract(tClass.getModifiers())) {
-            if (Collection.class.isAssignableFrom(tClass)) {
-                if (args.length < 1) {
-                    throw new RuntimeException("create(Class<T>, Class<E>)");
-                }
-                return (T) createCollection(tClass);
-            }
-            if (Map.class.isAssignableFrom(tClass)) {
-                if (args.length < 2) {
-                    throw new RuntimeException("create(Class<T>, Class<K> Class<V>)");
-                }
-                return (T) createMap(tClass, args[0], args[1]);
-            }
-        }
+//        if (tClass.isArray()) {
+//            return (T) Array.newInstance(tClass.getComponentType(), 0);
+//        }
+//        if (tClass.isInterface() || Modifier.isAbstract(tClass.getModifiers())) {
+//            if (Collection.class.isAssignableFrom(tClass)) {
+//                if (args.length < 1) {
+//                    throw new RuntimeException("create(Class<T>, Class<E>)");
+//                }
+//                return (T) createCollection(tClass);
+//            }
+//            if (Map.class.isAssignableFrom(tClass)) {
+//                if (args.length < 2) {
+//                    throw new RuntimeException("create(Class<T>, Class<K> Class<V>)");
+//                }
+//                return (T) createMap(tClass, args[0], args[1]);
+//            }
+//        }
         Constructor<T> constructor = null;
         try {
             constructor = tClass.getDeclaredConstructor(args);

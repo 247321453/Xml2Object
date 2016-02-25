@@ -2,6 +2,9 @@ package org.xml.core;
 
 import android.util.Log;
 
+import org.xml.annotation.XmlElementMap;
+import org.xml.convert.Reflect;
+import org.xml.convert.TypeToken;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -16,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class XmlConvert extends IXml {
+class XmlConvert{
     //region to tag
 
 //    final Map<Class<?>, XmlClassSearcher> mXmlClassSearcherMap = new HashMap<>();
@@ -47,22 +50,22 @@ class XmlConvert extends IXml {
      * @param inputStream 输入流
      * @return tag对象
      */
-    public Element toTag(Class<?> tClass, InputStream inputStream, String encoding) {
+    public TypeToken toTag(Class<?> tClass, InputStream inputStream, String encoding) {
         if (inputStream == null) return null;
         XmlPullParser xmlParser = android.util.Xml.newPullParser();
-        Map<Integer, Element> tagMap = new HashMap<>();
+        Map<Integer, TypeToken> tagMap = new HashMap<>();
         int depth = -1;
-        String name = getTagName(tClass);
+        String name = KXml.getTagName(tClass);
         if (name == null) {
             name = tClass.getSimpleName();
         }
-        Element mElement = new Element(name);
-        mElement.setType(tClass);
-        tagMap.put(1, mElement);
-        Element parent = null;
+        TypeToken mTypeToken = new TypeToken(name);
+        mTypeToken.setType(tClass);
+        tagMap.put(1, mTypeToken);
+        TypeToken parent = null;
         String xmlTag = null;
         try {
-            xmlParser.setInput(inputStream, encoding == null ? DEF_ENCODING : encoding);
+            xmlParser.setInput(inputStream, encoding == null ? KXml.DEF_ENCODING : encoding);
             int evtType = xmlParser.getEventType();
             while (evtType != XmlPullParser.END_DOCUMENT) {
                 // 一直循环，直到文档结束
@@ -75,32 +78,32 @@ class XmlConvert extends IXml {
                             //
                         } else {
                             parent = tagMap.get(d - 1);
-                            mElement = new Element(xmlTag);
-                            mElement.setType(findTagClass(parent, xmlTag));
-                            if (IXml.DEBUG)
-                                Log.v("xml", xmlTag + "@" + mElement.getTClass().getName());
+                            mTypeToken = new TypeToken(xmlTag);
+                            mTypeToken.setType(findTagClass(parent, xmlTag));
+                            if (KXml.DEBUG)
+                                Log.v("xml", xmlTag + "@" + mTypeToken.getTClass().getName());
                             if (parent != null) {
-                                parent.add(mElement);
-                                if (IXml.DEBUG)
-                                    Log.v("xml", parent.getName() + " add " + mElement.getName());
+                                parent.add(mTypeToken);
+                                if (KXml.DEBUG)
+                                    Log.v("xml", parent.getName() + " add " + mTypeToken.getName());
                             } else {
                             }
-                            tagMap.put(d, mElement);
+                            tagMap.put(d, mTypeToken);
                         }
                         depth = d;
                         int count = xmlParser.getAttributeCount();
                         for (int i = 0; i < count; i++) {
                             String k = xmlParser.getAttributeName(i);
                             String v = xmlParser.getAttributeValue(i);
-                            mElement.addAttribute(k, v);
+                            mTypeToken.addAttribute(k, v);
                         }
                         break;
                     case XmlPullParser.TEXT:
                         String text = xmlParser.getText();
-                        if (IXml.DEBUG)
+                        if (KXml.DEBUG)
                             Log.d("xml", xmlTag + " text = " + text);
-                        if (mElement.getText() == null)
-                            mElement.setText(text);
+                        if (mTypeToken.getText() == null)
+                            mTypeToken.setText(text);
                         break;
                     case XmlPullParser.END_TAG:
                         // mElement.setType(findTagClass(parent, xmlTag, mElement));
@@ -140,38 +143,49 @@ class XmlConvert extends IXml {
 //            pElement.updateTClass(pClass);
 //    }
 
-    private AnnotatedElement findTagClass(Element p, String name)
+    private AnnotatedElement findTagClass(TypeToken p, String name)
             throws IllegalAccessException, InvocationTargetException, InstantiationException {
         if (p == null || name == null) {
             return Object.class;
         }
         Class<?> pClass = p.getTClass();
-
-        if (MAP_KEY.equals(name)) {
-            return getMapClass(p.getType())[0];
+        AnnotatedElement type = p.getType();
+        XmlElementMap xmlElementMap = type.getAnnotation(XmlElementMap.class);
+        String keyName;
+        String valueName;
+        if (xmlElementMap == null) {
+            keyName = KXml.MAP_KEY_NAME;
+            valueName = KXml.MAP_VALUE_NAME;
+        } else {
+            keyName = xmlElementMap.keyName();
+            valueName = xmlElementMap.valueName();
         }
-        if (MAP_VALUE.equals(name)) {
-            return getMapClass(p.getType())[1];
+
+        if (keyName.equals(name)) {
+            return KXml.getMapClass(type)[0];
+        }
+        if (valueName.equals(name)) {
+            return KXml.getMapClass(type)[1];
         }
         if (pClass.isArray()) {
             pClass = pClass.getComponentType();
-            if (IXml.DEBUG)
+            if (KXml.DEBUG)
                 Log.d("xml", name + " is " + pClass.getName());
         }
         if (Collection.class.isAssignableFrom(pClass)) {
-            pClass = getListClass(p.getType());
+            pClass = KXml.getListClass(p.getType());
         }
         Collection<Field> fields = Reflect.getFileds(pClass);
         Field tfield = null;
         for (Field field : fields) {
-            String tagname = getTagName(field);
+            String tagname = KXml.getTagName(field);
             if (name.equals(tagname)) {
                 tfield = field;
                 break;
             }
         }
         if (tfield == null) {
-            if (IXml.DEBUG)
+            if (KXml.DEBUG)
                 Log.w("xml", "no find " + name + " form " + pClass.getName());
             return Object.class;
         }
@@ -185,11 +199,11 @@ class XmlConvert extends IXml {
      * @param object java对象
      * @return tag对象
      */
-    public Element toTag(Object object) throws IllegalAccessException {
-        if (object == null) return new Element("null");
+    public TypeToken toTag(Object object) throws IllegalAccessException {
+        if (object == null) return new TypeToken("null");
         Class<?> pClass = object.getClass();
-        String name = getTagName(pClass);
-        Element root = new Element(name);
+        String name = KXml.getTagName(pClass);
+        TypeToken root = new TypeToken(name);
         root.setType(pClass);
         writeAttributes(object, root);
         writeText(object, root);
@@ -197,59 +211,69 @@ class XmlConvert extends IXml {
         return root;
     }
 
-    private Element any(Object object, Class<?> pClass, String name)
+    private TypeToken any(Object object, Class<?> pClass, String name)
             throws IllegalAccessException {
-        Element element = new Element(name);
+        TypeToken typeToken = new TypeToken(name);
         if (pClass == null) {
             if (object == null) {
-                return element;
+                return typeToken;
             }
             pClass = object.getClass();
         }
-        element.setType(pClass);
+        typeToken.setType(pClass);
         if (name == null) {
-            name = getTagName(pClass);
-            element.setName(name);
+            name = KXml.getTagName(pClass);
+            typeToken.setName(name);
         }
         if (Reflect.isNormal(pClass)) {
-            element.setText(toString(object));
+            typeToken.setText(KXml.toString(object));
         } else {
-            writeAttributes(object, element);
-            writeText(object, element);
-            writeSubTag(object, element);
+            writeAttributes(object, typeToken);
+            writeText(object, typeToken);
+            writeSubTag(object, typeToken);
         }
-        return element;
+        return typeToken;
     }
 
     @SuppressWarnings("unchecked")
-    private ArrayList<Element> map(Object object, Class<?> pClass, String name) throws IllegalAccessException {
-        ArrayList<Element> list = new ArrayList<>();
+    private ArrayList<TypeToken> map(Object object,AnnotatedElement type, String name) throws IllegalAccessException {
+        ArrayList<TypeToken> list = new ArrayList<>();
         if (object == null) {
             return list;
+        }
+        String keyName;
+        String valueName;
+        XmlElementMap xmlElementMap = type.getAnnotation(XmlElementMap.class);
+        if (xmlElementMap == null) {
+            keyName = KXml.MAP_KEY_NAME;
+            valueName = KXml.MAP_VALUE_NAME;
+        } else {
+            keyName = xmlElementMap.keyName();
+            valueName = xmlElementMap.valueName();
         }
         Object set = Reflect.call(object.getClass(), object, "entrySet");
         if (set instanceof Set) {
             Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
             for (Map.Entry<?, ?> e : sets) {
-                if (IXml.DEBUG)
+                if (KXml.DEBUG)
                     Log.v("xml", "map " + e);
                 Object k = e.getKey();
                 if (k == null) {
                     continue;
                 }
                 Object v = e.getValue();
-                Element element = new Element(name);
-                element.setType(pClass);
-                element.add(any(k, k.getClass(), MAP_KEY));
-                element.add(any(v, v == null ? null : v.getClass(), MAP_VALUE));
-                list.add(element);
+                TypeToken typeToken = new TypeToken(name);
+                typeToken.setType(type);
+                typeToken.add(any(k, k.getClass(), keyName));
+                typeToken.add(any(v, v == null ? null : v.getClass(), valueName));
+                list.add(typeToken);
             }
         }
         return list;
     }
 
-    private ArrayList<Element> array(Object object, String name) throws IllegalAccessException {
-        ArrayList<Element> list = new ArrayList<>();
+    private ArrayList<TypeToken> array(Object object, String name) throws IllegalAccessException {
+        ArrayList<TypeToken> list = new ArrayList<>();
         if (object != null) {
             int count = Array.getLength(object);
             for (int i = 0; i < count; i++) {
@@ -262,8 +286,8 @@ class XmlConvert extends IXml {
         return list;
     }
 
-    private ArrayList<Element> list(Object object, String name) throws IllegalAccessException {
-        ArrayList<Element> list = new ArrayList<>();
+    private ArrayList<TypeToken> list(Object object, String name) throws IllegalAccessException {
+        ArrayList<TypeToken> list = new ArrayList<>();
         if (object != null) {
             Object[] objs = (Object[]) Reflect.call(object.getClass(), object, "toArray");
             if (objs != null) {
@@ -277,66 +301,65 @@ class XmlConvert extends IXml {
     }
 
     //region write
-    private void writeAttributes(Object object, Element parent) throws IllegalAccessException {
+    private void writeAttributes(Object object, TypeToken parent) throws IllegalAccessException {
         if (object == null || parent == null) return;
         Class<?> cls = object.getClass();
         Collection<Field> fields = Reflect.getFileds(cls);
         for (Field field : fields) {
-            String subTag = getAttributeName(field);
+            String subTag = KXml.getAttributeName(field);
             if (subTag == null)
                 continue;
             Reflect.accessible(field);
             Object val = field.get(object);
-            if (IXml.DEBUG)
+            if (KXml.DEBUG)
                 Log.v("xml", subTag + "=" + val);
-            parent.addAttribute(subTag, toString(val));
+            parent.addAttribute(subTag, KXml.toString(val));
         }
     }
 
-    private void writeSubTag(Object object, Element parent) throws IllegalAccessException {
+    private void writeSubTag(Object object, TypeToken parent) throws IllegalAccessException {
         if (object == null) return;
         Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
-            String name = getTagName(field);
+            String name = KXml.getTagName(field);
             if (name == null)
                 continue;
-            Class<?> cls = field.getType();
             Reflect.accessible(field);
             Object val = field.get(object);
-            if (Reflect.isNormal(cls)) {
-                Element element = new Element(name);
-                element.setType(cls);
-                element.setText(toString(val));
-                parent.add(element);
-            } else if (cls.isArray()) {
-                if (IXml.DEBUG)
+            if (Reflect.isNormal(field.getType())) {
+                TypeToken typeToken = new TypeToken(name);
+                typeToken.setType(field.getType());
+                typeToken.setText(KXml.toString(val));
+                parent.add(typeToken);
+            } else if (field.getType().isArray()) {
+                if (KXml.DEBUG)
                     Log.d("xml", parent.getName() + " add array " + field.getName());
                 parent.addAll(array(val, name));
             } else if (val instanceof Map) {
-                if (IXml.DEBUG)
+                if (KXml.DEBUG)
                     Log.d("xml", parent.getName() + " add map " + field.getName());
-                parent.addAll(map(val, cls, name));
+                parent.addAll(map(val, field, name));
             } else if (val instanceof Collection) {
-                if (IXml.DEBUG)
+                if (KXml.DEBUG)
                     Log.d("xml", parent.getName() + " add list " + field.getName());
                 parent.addAll(list(val, name));
             } else if (val != null) {
-                if (IXml.DEBUG)
+                if (KXml.DEBUG)
                     Log.d("xml", parent.getName() + " add any " + field.getName());
-                parent.add(any(val, cls, name));
+                parent.add(any(val, field.getType(), name));
             }
         }
     }
 
-    private void writeText(Object object, Element element) throws IllegalAccessException {
-        if (object == null || element == null) return;
+    private void writeText(Object object, TypeToken typeToken) throws IllegalAccessException {
+        if (object == null || typeToken == null) return;
         Class<?> cls = object.getClass();
         Collection<Field> fields = Reflect.getFileds(cls);
         for (Field field : fields) {
-            if (isXmlValue(field)) {
+            if (KXml.isXmlValue(field)) {
                 Reflect.accessible(field);
                 Object val = field.get(object);
-                element.setText(toString(val));
+                typeToken.setText(KXml.toString(val));
                 break;
             }
         }

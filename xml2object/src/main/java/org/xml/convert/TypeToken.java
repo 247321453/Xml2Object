@@ -1,6 +1,4 @@
-package org.xml.core;
-
-import android.util.Log;
+package org.xml.convert;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -10,14 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class Element {
-    public Element() {
+public class TypeToken {
+    public TypeToken() {
         super();
         attributes = new HashMap<>();
-        mElements = new ArrayList<>();
+        mTypeTokens = new ArrayList<>();
     }
 
-    public Element(String name) {
+    public TypeToken(String name) {
         this();
         this.name = name;
     }
@@ -31,16 +29,16 @@ class Element {
     private Class<?> tClass;
 
     private final Map<String, String> attributes;
-    private final List<Element> mElements;
+    private final List<TypeToken> mTypeTokens;
 
     private final List<String> xmlnames = new ArrayList<>();
 
-    public List<Element> getElements() {
-        return mElements;
+    public List<TypeToken> getTypeTokens() {
+        return mTypeTokens;
     }
 
     public int size() {
-        return mElements.size();
+        return mTypeTokens.size();
     }
 
     public Map<String, String> getAttributes() {
@@ -59,12 +57,12 @@ class Element {
         return attributes.get(name);
     }
 
-    public void add(Element element) {
-        if (element != null) {
-            if (!xmlnames.contains(element.getName())) {
-                xmlnames.add(element.getName());
+    public void add(TypeToken typeToken) {
+        if (typeToken != null) {
+            if (!xmlnames.contains(typeToken.getName())) {
+                xmlnames.add(typeToken.getName());
             }
-            mElements.add(element);
+            mTypeTokens.add(typeToken);
         }
     }
 
@@ -76,9 +74,9 @@ class Element {
         return xmlnames;
     }
 
-    public Element get(int i) {
+    public TypeToken get(int i) {
         if (i >= 0 && i < size()) {
-            return mElements.get(i);
+            return mTypeTokens.get(i);
         }
         return null;
     }
@@ -114,38 +112,38 @@ class Element {
         return Map.class.isAssignableFrom(tClass);
     }
 
-    public void addAll(Collection<Element> collection) {
+    public void addAll(Collection<TypeToken> collection) {
         if (collection != null) {
-            for (Element e : collection) {
+            for (TypeToken e : collection) {
                 add(e);
             }
         }
     }
 
-    public Element get(String name) {
+    public TypeToken get(String name) {
         if (name == null) return null;
-        for (Element t : mElements) {
+        for (TypeToken t : mTypeTokens) {
             if (name.equals(t.getName())) {
                 return t;
             }
         }
         return null;
     }
-
-    public ArrayList<Element> getElementList(String name) {
-        ArrayList<Element> elements = new ArrayList<>();
-        if (name == null) {
-            if (IXml.DEBUG)
-                Log.w("xml", "name is null");
-            return elements;
-        }
-        for (Element t : this.mElements) {
-            if (name.equals(t.getName())) {
-                elements.add(t);
-            }
-        }
-        return elements;
-    }
+//
+//    public ArrayList<TypeToken> getElementList(String name) {
+//        ArrayList<TypeToken> typeTokens = new ArrayList<>();
+//        if (name == null) {
+//            if (KXml.DEBUG)
+//                Log.w("xml", "name is null");
+//            return typeTokens;
+//        }
+//        for (TypeToken t : this.mTypeTokens) {
+//            if (name.equals(t.getName())) {
+//                typeTokens.add(t);
+//            }
+//        }
+//        return typeTokens;
+//    }
 
     public Class<?> getTClass() {
         return tClass;
@@ -169,26 +167,18 @@ class Element {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(name + ":");
         stringBuffer.append("" + (tClass == null ? "" : tClass.getName()));
-        try {
-            if (Reflect.isNormal(tClass)) {
-                stringBuffer.append(" = " + text+"\n");
-                return stringBuffer.toString();
-            }
-        } catch (Exception e) {
-
-        }
         stringBuffer.append("{text='" + (text == null ? "" : text));
         stringBuffer.append("', attributes=" + attributes);
         stringBuffer.append(", tags=");
-        if (mElements.size() == 0) {
+        if (mTypeTokens.size() == 0) {
             stringBuffer.append("[]}\n");
         } else {
             stringBuffer.append("[\n");
-            for (Element element : mElements) {
+            for (TypeToken typeToken : mTypeTokens) {
                 for (int i = 0; i < start + 1; i++) {
                     stringBuffer.append("\t");
                 }
-                stringBuffer.append(element.toString(start + 1));
+                stringBuffer.append(typeToken.toString(start + 1));
             }
             for (int i = 0; i < start; i++) {
                 stringBuffer.append("\t");

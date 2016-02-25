@@ -3,6 +3,7 @@ package org.xml.core;
 import android.util.Log;
 import android.util.Xml;
 
+import org.xml.convert.TypeToken;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.io.OutputStream;
 import java.util.Map;
 
 /**
- * {@link Element } 转文件
+ * {@link TypeToken } 转文件
  */
 public class XmlWriter {
     protected XmlConvert mXmlConvert;
@@ -33,41 +34,41 @@ public class XmlWriter {
         toXml(mXmlConvert.toTag(object), outputStream, encoding);
     }
 
-    private void toXml(Element element, OutputStream outputStream, String encoding)
+    private void toXml(TypeToken typeToken, OutputStream outputStream, String encoding)
             throws IOException {
         if (outputStream == null) return;
-        if (IXml.DEBUG)
-            Log.d("xml", "to " + element);
+        if (KXml.DEBUG)
+            Log.d("xml", "to " + typeToken);
         XmlSerializer serializer = Xml.newSerializer();
         if (encoding == null) {
-            encoding = IXml.DEF_ENCODING;
+            encoding = KXml.DEF_ENCODING;
         }
         serializer.setOutput(outputStream, encoding);
         serializer.startDocument(encoding, null);
         if (SPACE)
             serializer.text(NEW_LINE);
-        writeTag(element, serializer, 1);
+        writeTag(typeToken, serializer, 1);
         serializer.endDocument();
     }
 
     @SuppressWarnings("unchecked")
-    private void writeTag(Element element, XmlSerializer serializer, int depth)
+    private void writeTag(TypeToken typeToken, XmlSerializer serializer, int depth)
             throws IOException {
-        if (element == null || serializer == null) return;
+        if (typeToken == null || serializer == null) return;
         if (SPACE) {
             serializer.text(NEW_LINE);
             writeTab(serializer, depth);
         }
-        serializer.startTag(null, element.getName());
-        for (Map.Entry<String, String> e : element.getAttributes().entrySet()) {
+        serializer.startTag(null, typeToken.getName());
+        for (Map.Entry<String, String> e : typeToken.getAttributes().entrySet()) {
             serializer.attribute(null, e.getKey(), e.getValue());
         }
-        serializer.text(element.getText() == null ? "" : element.getText());
-        int count = element.size();
+        serializer.text(typeToken.getText() == null ? "" : typeToken.getText());
+        int count = typeToken.size();
         for (int i = 0; i < count; i++) {
-            writeTag(element.get(i), serializer, depth + 1);
+            writeTag(typeToken.get(i), serializer, depth + 1);
         }
-        serializer.endTag(null, element.getName());
+        serializer.endTag(null, typeToken.getName());
     }
 
     private void writeTab(XmlSerializer pXmlSerializer, int depth) throws IOException {

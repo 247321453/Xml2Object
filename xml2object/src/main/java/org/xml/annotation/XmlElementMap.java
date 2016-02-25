@@ -15,6 +15,8 @@
 
 package org.xml.annotation;
 
+import org.xml.core.KXml;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,6 +29,17 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface XmlElementMap {
     String value();
+    /**
+     *
+     * @return Map的key的元素名
+     */
+    String keyName() default KXml.MAP_KEY_NAME;
+
+    /**
+     *
+     * @return Map的value的元素名
+     */
+    String valueName() default KXml.MAP_VALUE_NAME;
     /**
      * @return Map的value元素类型
      */

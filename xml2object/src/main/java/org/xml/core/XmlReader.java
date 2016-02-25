@@ -2,7 +2,12 @@ package org.xml.core;
 
 import android.util.Log;
 
+import org.xml.annotation.XmlElementMap;
+import org.xml.convert.Reflect;
+import org.xml.convert.TypeToken;
+
 import java.io.InputStream;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -13,9 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 /***
- * {@link Element } 转对象
+ * {@link TypeToken } 转对象
  */
-public class XmlReader extends IXml {
+public class XmlReader {
     protected XmlConvert mXmlConvert;
 
     public XmlReader() {
@@ -33,78 +38,89 @@ public class XmlReader extends IXml {
      */
     public <T> T from(InputStream inputStream, Class<T> pClass, String encoding)
             throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
-        Element tag = mXmlConvert.toTag(pClass, inputStream, encoding);
-        if (IXml.DEBUG)
+        TypeToken tag = mXmlConvert.toTag(pClass, inputStream, encoding);
+        if (KXml.DEBUG)
             Log.d("xml", "form " + tag);
         return any(tag, pClass, null);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T array(List<Element> elements, Class<T> pClass, Object object)
+    private <T> T array(List<TypeToken> typeTokens, Class<T> pClass, Object object)
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        if (elements == null) {
+        if (typeTokens == null) {
             return null;
         }
         Class<?> sc = pClass.getComponentType();
-        int count = elements.size();
+        int count = typeTokens.size();
         T t;
         if (object != null) {
             t = (T) object;
         } else {
             t = (T) Array.newInstance(sc, count);
         }
-        if (IXml.DEBUG)
+        if (KXml.DEBUG)
             Log.i("xml", "create array " + pClass.getName() + " sub=" + sc);
 //        boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
 
         for (int i = 0; i < count; i++) {
-            Element element = elements.get(i);
+            TypeToken typeToken = typeTokens.get(i);
 //            if (d) {
 //                sc = mXmlConvert.getSubClass(subClass, element);
 //            } else {
 //                sc = subClass;
 //            }
 
-            Object o = any(element, sc, null);
+            Object o = any(typeToken, sc, null);
             if (o != null) {
-                if (IXml.DEBUG)
+                if (KXml.DEBUG)
                     Log.v("xml", "child = " + sc + "/" + o.getClass());
                 Array.set(t, i, o);
             } else {
-                if (IXml.DEBUG)
-                    Log.w("xml", "child is null " + element.getName());
+                if (KXml.DEBUG)
+                    Log.w("xml", "child is null " + typeToken.getName());
             }
         }
         return t;
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T map(List<Element> elements, Class<T> pClass, Object object, Class<?>[] subClass)
+    private <T> T map(List<TypeToken> typeTokens, Class<T> pClass, Object object, AnnotatedElement field)
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        if (elements == null || subClass == null || subClass.length < 2) {
+        if (typeTokens == null || field == null) {
             return null;
         }
+        Class<?>[] subClass = KXml.getMapClass(field);
         T t;
         if (object == null) {
             t = Reflect.create(pClass, subClass);
-            if (IXml.DEBUG)
+            if (KXml.DEBUG)
                 Log.v("xml", "create map " + pClass.getName());
         } else {
             t = (T) object;
         }
         if (t == null) return t;
-        if (IXml.DEBUG)
-            Log.v("xml", " put " + subClass[0] + "," + subClass[1] + " size=" + elements.size());
+        if (KXml.DEBUG)
+            Log.v("xml", " put " + subClass[0] + "," + subClass[1] + " size=" + typeTokens.size());
 //        boolean dkey = XmlClassSearcher.class.isAssignableFrom(subClass[0]);
 //        boolean dval = XmlClassSearcher.class.isAssignableFrom(subClass[1]);
-        for (Element element : elements) {
+        String keyName;
+        String valueName;
+        XmlElementMap xmlElementMap = field.getAnnotation(XmlElementMap.class);
+        if (xmlElementMap == null) {
+            keyName = KXml.MAP_KEY_NAME;
+            valueName = KXml.MAP_VALUE_NAME;
+        } else {
+            keyName = xmlElementMap.keyName();
+            valueName = xmlElementMap.valueName();
+        }
+        for (TypeToken typeToken : typeTokens) {
             Class<?> kc = subClass[0];
 //            if (dkey) {
 //                kc = mXmlConvert.getSubClass(subClass[0], element);
 //            } else {
 //                kc = subClass[0];
 //            }
-            Element tk = element.get(MAP_KEY);
+            TypeToken tk = typeToken.get(keyName);
             Object k = any(tk, kc, null);
             Class<?> vc = subClass[1];
 //            if (dval) {
@@ -112,11 +128,11 @@ public class XmlReader extends IXml {
 //            } else {
 //                vc = subClass[0];
 //            }
-            Element tv = element.get(MAP_VALUE);
+            TypeToken tv = typeToken.get(valueName);
             Object v = any(tv, vc, null);
-            if (IXml.DEBUG) {
-                Log.v("xml", element.getName() + " put " + (tk != null) + "=" + (tv != null));
-                Log.v("xml", element.getName() + " put " + k + "=" + v);
+            if (KXml.DEBUG) {
+                Log.v("xml", typeToken.getName() + " put " + (tk != null) + "=" + (tv != null));
+                Log.v("xml", typeToken.getName() + " put " + k + "=" + v);
             }
             if (k != null)
                 Reflect.call(t.getClass(), t, "put", k, v);
@@ -125,17 +141,17 @@ public class XmlReader extends IXml {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T list(List<Element> elements, Class<T> pClass, Object object, Class<?> subClass)
+    private <T> T list(List<TypeToken> typeTokens, Class<T> pClass, Object object, Class<?> subClass)
             throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        if (elements == null) {
+        if (typeTokens == null) {
             return null;
         }
-        if (IXml.DEBUG)
+        if (KXml.DEBUG)
             Log.v("xml", "list " + subClass.getName());
         T t;
         if (object == null) {
             t = Reflect.create(pClass, subClass);
-            if (IXml.DEBUG)
+            if (KXml.DEBUG)
                 Log.v("xml", "create list " + pClass.getName());
         } else {
             t = (T) object;
@@ -143,7 +159,7 @@ public class XmlReader extends IXml {
         if (t != null) {
             //多种派生类
 //            boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
-            for (Element element : elements) {
+            for (TypeToken typeToken : typeTokens) {
                 Class<?> sc = subClass;
 //                if (d) {
 //                    sc = mXmlConvert.getSubClass(subClass, element);
@@ -152,12 +168,12 @@ public class XmlReader extends IXml {
 //                } else {
 //                    sc = subClass;
 //                }
-                element.setType(sc);
-                Object sub = any(element, sc, null);
+                typeToken.setType(sc);
+                Object sub = any(typeToken, sc, null);
                 if (sub != null)
                     Reflect.call(t.getClass(), t, "add", sub);
                 else {
-                    Log.w("xml", element.getName() + "@" + sc.getName() + " is null");
+                    Log.w("xml", typeToken.getName() + "@" + sc.getName() + " is null");
                 }
             }
         }
@@ -165,50 +181,50 @@ public class XmlReader extends IXml {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T any(Element element, Class<T> pClass, Object object)
+    private <T> T any(TypeToken typeToken, Class<T> pClass, Object object)
             throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        if (element == null) {
+        if (typeToken == null) {
             return null;
-        } else if (element.getType() == null) {
-            if (IXml.DEBUG)
-                Log.w("xml", element.getName() + " 's type is null ");
+        } else if (typeToken.getType() == null) {
+            if (KXml.DEBUG)
+                Log.w("xml", typeToken.getName() + " 's type is null ");
             return null;
         }
         if (Reflect.isNormal(pClass)) {
-            if (IXml.DEBUG)
-                Log.v("xml", "create normal " + element.getName() + " " + pClass);
+            if (KXml.DEBUG)
+                Log.v("xml", "create normal " + typeToken.getName() + " " + pClass);
             try {
-                object = Reflect.wrapper(pClass, element.getText());
+                object = Reflect.wrapper(pClass, typeToken.getText());
             } catch (Throwable e) {
             }
             return (T) object;
         } else {
-            if (IXml.DEBUG)
-                Log.v("xml", "create other " + element.getName() + " " + pClass);
-            return object(element, pClass, object);
+            if (KXml.DEBUG)
+                Log.v("xml", "create other " + typeToken.getName() + " " + pClass);
+            return object(typeToken, pClass, object);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T object(Element element, Class<T> pClass, Object parent) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    private <T> T object(TypeToken typeToken, Class<T> pClass, Object parent) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         if (Reflect.isNormal(pClass)) {
-            if (IXml.DEBUG)
-                Log.v("xml", "create normal " + element.getName() + " " + pClass);
-            return (T) Reflect.wrapper(pClass, element.getText());
+            if (KXml.DEBUG)
+                Log.v("xml", "create normal " + typeToken.getName() + " " + pClass);
+            return (T) Reflect.wrapper(pClass, typeToken.getText());
         }
         T t = (parent == null) ? Reflect.create(pClass) : (T) parent;
         //attr
-        if (IXml.DEBUG) {
-            Log.d("xml", element.getName() + " attr = " + element.getAttributes().size());
+        if (KXml.DEBUG) {
+            Log.d("xml", typeToken.getName() + " attr = " + typeToken.getAttributes().size());
         }
-        for (Map.Entry<String, String> e : element.getAttributes().entrySet()) {
+        for (Map.Entry<String, String> e : typeToken.getAttributes().entrySet()) {
             setAttribute(t, e.getKey(), e.getValue());
         }
-        setText(t, element.getText());
-        int count = element.size();
+        setText(t, typeToken.getText());
+        int count = typeToken.size();
         List<String> oldtags = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Element el = element.get(i);
+            TypeToken el = typeToken.get(i);
             String name = el.getName();
             if (oldtags.contains(name))
                 continue;
@@ -222,11 +238,11 @@ public class XmlReader extends IXml {
             Object val = Reflect.get(field, t);
             Object obj = null;
             if (cls.isArray()) {
-                obj = array(element.getElementList(name), cls, val);
+                obj = array(typeToken.getElementList(name), cls, val);
             } else if (Collection.class.isAssignableFrom(cls)) {
-                obj = list(element.getElementList(name), cls, val, getListClass(field));
+                obj = list(typeToken.getElementList(name), cls, val, KXml.getListClass(field));
             } else if (Map.class.isAssignableFrom(cls)) {
-                obj = map(element.getElementList(name), cls, val, getMapClass(field));
+                obj = map(typeToken.getElementList(name), cls, val, field);
             } else {
                 obj = any(el, cls, val);
             }
@@ -242,10 +258,10 @@ public class XmlReader extends IXml {
         if (object == null || tag == null) return;
         Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
-            String name = getAttributeName(field);
+            String name = KXml.getAttributeName(field);
             if (tag.equals(name)) {
                 Reflect.set(field, object, Reflect.wrapper(field.getType(), value));
-                if (IXml.DEBUG)
+                if (KXml.DEBUG)
                     Log.v("xml", tag + " set " + value);
                 break;
             }
@@ -257,7 +273,7 @@ public class XmlReader extends IXml {
         if (object == null) return;
         Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
-            if (isXmlValue(field)) {
+            if (KXml.isXmlValue(field)) {
                 Reflect.set(field, object, Reflect.wrapper(field.getType(), value));
                 break;
             }

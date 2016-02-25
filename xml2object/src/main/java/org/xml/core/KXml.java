@@ -12,24 +12,24 @@ import org.xml.annotation.XmlElementText;
 
 import java.lang.reflect.AnnotatedElement;
 
-abstract class IXml {
-    public static final String MAP_KEY = "key";
-    public static final String MAP_VALUE = "value";
+public final class KXml {
+    public static final String MAP_KEY_NAME = "key";
+    public static final String MAP_VALUE_NAME = "value";
     public static final String DEF_ENCODING = "UTF-8";
 
     public final static boolean DEBUG = BuildConfig.DEBUG;
 
-    protected boolean isXmlAttribute(AnnotatedElement field) {
+    public static  boolean isXmlAttribute(AnnotatedElement field) {
         XmlAttribute xmlAttr = field.getAnnotation(XmlAttribute.class);
         return xmlAttr != null;
     }
 
-    protected boolean isXmlValue(AnnotatedElement field) {
+    public static  boolean isXmlValue(AnnotatedElement field) {
         XmlElementText xmlElementText = field.getAnnotation(XmlElementText.class);
         return xmlElementText != null;
     }
 
-    protected String toString(Object obj) {
+    public static  String toString(Object obj) {
         if (obj == null) {
             return "";
         }
@@ -64,7 +64,7 @@ abstract class IXml {
 //        return Object.class;
 //    }
 
-    protected Class<?> getListClass(AnnotatedElement cls) {
+    public static  Class<?> getListClass(AnnotatedElement cls) {
         if (cls == null) return Object.class;
         XmlElementList xmlElement = cls.getAnnotation(XmlElementList.class);
         if (xmlElement != null) {
@@ -72,13 +72,13 @@ abstract class IXml {
                 return xmlElement.type();
             }
         } else {
-            if (IXml.DEBUG)
+            if (KXml.DEBUG)
                 Log.w("xml", cls + " not's xmltag");
         }
         return Object.class;
     }
 
-    protected Class<?>[] getMapClass(AnnotatedElement cls) {
+    public static  Class<?>[] getMapClass(AnnotatedElement cls) {
         if (cls == null)
             return new Class[]{Object.class, Object.class};
         XmlElementMap xmlElement = cls.getAnnotation(XmlElementMap.class);
