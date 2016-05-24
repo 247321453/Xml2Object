@@ -2,6 +2,8 @@ package org.xml.core;
 
 import android.util.Log;
 
+import org.xmlpull.v1.XmlPullParser;
+
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -18,8 +20,8 @@ import java.util.Map;
 public class XmlReader extends IXml {
     protected XmlConvert mXmlConvert;
 
-    public XmlReader() {
-        mXmlConvert = new XmlConvert();
+    public XmlReader(XmlPullParser xmlParser) {
+        mXmlConvert = new XmlConvert(xmlParser);
     }
 
     /***
@@ -53,8 +55,8 @@ public class XmlReader extends IXml {
         } else {
             t = (T) Array.newInstance(sc, count);
         }
-        if (IXml.DEBUG)
-            Log.i("xml", "create array " + pClass.getName() + " sub=" + sc);
+//        if (IXml.DEBUG)
+//            Log.i("xml", "create array " + pClass.getName() + " sub=" + sc);
 //        boolean d = XmlClassSearcher.class.isAssignableFrom(subClass);
 
         for (int i = 0; i < count; i++) {
@@ -67,12 +69,12 @@ public class XmlReader extends IXml {
 
             Object o = any(element, sc, null);
             if (o != null) {
-                if (IXml.DEBUG)
-                    Log.v("xml", "child = " + sc + "/" + o.getClass());
+//                if (IXml.DEBUG)
+//                    Log.v("xml", "child = " + sc + "/" + o.getClass());
                 Array.set(t, i, o);
-            } else {
-                if (IXml.DEBUG)
-                    Log.w("xml", "child is null " + element.getName());
+//            } else {
+//                if (IXml.DEBUG)
+//                    Log.w("xml", "child is null " + element.getName());
             }
         }
         return t;
@@ -157,7 +159,8 @@ public class XmlReader extends IXml {
                 if (sub != null)
                     Reflect.call(t.getClass(), t, "add", sub);
                 else {
-                    Log.w("xml", element.getName() + "@" + sc.getName() + " is null");
+                    if (IXml.DEBUG)
+                        Log.w("xml", element.getName() + "@" + sc.getName() + " is null");
                 }
             }
         }
@@ -214,7 +217,8 @@ public class XmlReader extends IXml {
                 continue;
             Field field = Reflect.getTagFiled(pClass, name);
             if (field == null) {
-                Log.w("xml", "no find field " + name);
+                if (IXml.DEBUG)
+                    Log.w("xml", "no find field " + name);
                 continue;
             }
             oldtags.add(name);

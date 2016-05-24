@@ -1,9 +1,5 @@
 package org.xml.core;
 
-import android.util.Log;
-
-import com.uutils.xml2object.BuildConfig;
-
 import org.xml.annotation.XmlAttribute;
 import org.xml.annotation.XmlElement;
 import org.xml.annotation.XmlElementList;
@@ -17,7 +13,7 @@ abstract class IXml {
     public static final String MAP_VALUE = "value";
     public static final String DEF_ENCODING = "UTF-8";
 
-    public final static boolean DEBUG = BuildConfig.DEBUG;
+    public final static boolean DEBUG = false;
 
     protected boolean isXmlAttribute(AnnotatedElement field) {
         XmlAttribute xmlAttr = field.getAnnotation(XmlAttribute.class);
@@ -71,9 +67,6 @@ abstract class IXml {
             if (xmlElement.type() != null) {
                 return xmlElement.type();
             }
-        } else {
-            if (IXml.DEBUG)
-                Log.w("xml", cls + " not's xmltag");
         }
         return Object.class;
     }

@@ -1,7 +1,5 @@
 package org.xml.core;
 
-import android.util.Log;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -17,6 +15,11 @@ import java.util.Map;
 import java.util.Set;
 
 class XmlConvert extends IXml {
+    XmlPullParser xmlParser;
+
+    public XmlConvert(XmlPullParser xmlParser) {
+        this.xmlParser = xmlParser;
+    }
     //region to tag
 
 //    final Map<Class<?>, XmlClassSearcher> mXmlClassSearcherMap = new HashMap<>();
@@ -49,7 +52,6 @@ class XmlConvert extends IXml {
      */
     public Element toTag(Class<?> tClass, InputStream inputStream, String encoding) {
         if (inputStream == null) return null;
-        XmlPullParser xmlParser = android.util.Xml.newPullParser();
         Map<Integer, Element> tagMap = new HashMap<>();
         int depth = -1;
         String name = getTagName(tClass);
@@ -77,13 +79,13 @@ class XmlConvert extends IXml {
                             parent = tagMap.get(d - 1);
                             mElement = new Element(xmlTag);
                             mElement.setType(findTagClass(parent, xmlTag));
-                            if (IXml.DEBUG)
-                                Log.v("xml", xmlTag + "@" + mElement.getTClass().getName());
+//                            if (IXml.DEBUG)
+//                                Log.v("xml", xmlTag + "@" + mElement.getTClass().getName());
                             if (parent != null) {
                                 parent.add(mElement);
-                                if (IXml.DEBUG)
-                                    Log.v("xml", parent.getName() + " add " + mElement.getName());
-                            } else {
+//                                if (IXml.DEBUG)
+//                                    Log.v("xml", parent.getName() + " add " + mElement.getName());
+//                            } else {
                             }
                             tagMap.put(d, mElement);
                         }
@@ -97,10 +99,14 @@ class XmlConvert extends IXml {
                         break;
                     case XmlPullParser.TEXT:
                         String text = xmlParser.getText();
-                        if (IXml.DEBUG)
-                            Log.d("xml", xmlTag + " text = " + text);
-                        if (mElement.getText() == null)
+//                        if (IXml.DEBUG)
+//                            Log.d("xml", xmlTag + " text = " + text);
+                        if (mElement.getText() == null) {
+                            if (text != null) {
+                                text = text.trim();
+                            }
                             mElement.setText(text);
+                        }
                         break;
                     case XmlPullParser.END_TAG:
                         // mElement.setType(findTagClass(parent, xmlTag, mElement));
@@ -116,7 +122,6 @@ class XmlConvert extends IXml {
         }
         return tagMap.get(1);
     }
-
     //ednregion
 
 //    private void updateClass(Element pElement)
@@ -155,8 +160,8 @@ class XmlConvert extends IXml {
         }
         if (pClass.isArray()) {
             pClass = pClass.getComponentType();
-            if (IXml.DEBUG)
-                Log.d("xml", name + " is " + pClass.getName());
+//            if (IXml.DEBUG)
+//                Log.d("xml", name + " is " + pClass.getName());
         }
         if (Collection.class.isAssignableFrom(pClass)) {
             pClass = getListClass(p.getType());
@@ -171,8 +176,8 @@ class XmlConvert extends IXml {
             }
         }
         if (tfield == null) {
-            if (IXml.DEBUG)
-                Log.w("xml", "no find " + name + " form " + pClass.getName());
+//            if (IXml.DEBUG)
+//                Log.w("xml", "no find " + name + " form " + pClass.getName());
             return Object.class;
         }
         return tfield;
@@ -231,8 +236,8 @@ class XmlConvert extends IXml {
         if (set instanceof Set) {
             Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
             for (Map.Entry<?, ?> e : sets) {
-                if (IXml.DEBUG)
-                    Log.v("xml", "map " + e);
+//                if (IXml.DEBUG)
+//                    Log.v("xml", "map " + e);
                 Object k = e.getKey();
                 if (k == null) {
                     continue;
@@ -287,8 +292,8 @@ class XmlConvert extends IXml {
                 continue;
             Reflect.accessible(field);
             Object val = field.get(object);
-            if (IXml.DEBUG)
-                Log.v("xml", subTag + "=" + val);
+//            if (IXml.DEBUG)
+//                Log.v("xml", subTag + "=" + val);
             parent.addAttribute(subTag, toString(val));
         }
     }
@@ -309,20 +314,20 @@ class XmlConvert extends IXml {
                 element.setText(toString(val));
                 parent.add(element);
             } else if (cls.isArray()) {
-                if (IXml.DEBUG)
-                    Log.d("xml", parent.getName() + " add array " + field.getName());
+//                if (IXml.DEBUG)
+//                    Log.d("xml", parent.getName() + " add array " + field.getName());
                 parent.addAll(array(val, name));
             } else if (val instanceof Map) {
-                if (IXml.DEBUG)
-                    Log.d("xml", parent.getName() + " add map " + field.getName());
+//                if (IXml.DEBUG)
+//                    Log.d("xml", parent.getName() + " add map " + field.getName());
                 parent.addAll(map(val, cls, name));
             } else if (val instanceof Collection) {
-                if (IXml.DEBUG)
-                    Log.d("xml", parent.getName() + " add list " + field.getName());
+//                if (IXml.DEBUG)
+//                    Log.d("xml", parent.getName() + " add list " + field.getName());
                 parent.addAll(list(val, name));
             } else if (val != null) {
-                if (IXml.DEBUG)
-                    Log.d("xml", parent.getName() + " add any " + field.getName());
+//                if (IXml.DEBUG)
+//                    Log.d("xml", parent.getName() + " add any " + field.getName());
                 parent.add(any(val, cls, name));
             }
         }

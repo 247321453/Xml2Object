@@ -1,6 +1,5 @@
 package org.xml.core;
 
-import android.util.Log;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -135,8 +134,6 @@ class Element {
     public ArrayList<Element> getElementList(String name) {
         ArrayList<Element> elements = new ArrayList<>();
         if (name == null) {
-            if (IXml.DEBUG)
-                Log.w("xml", "name is null");
             return elements;
         }
         for (Element t : this.mElements) {

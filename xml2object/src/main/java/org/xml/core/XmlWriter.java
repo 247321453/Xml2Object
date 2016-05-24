@@ -1,8 +1,5 @@
 package org.xml.core;
 
-import android.util.Log;
-import android.util.Xml;
-
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
@@ -16,9 +13,11 @@ public class XmlWriter {
     protected XmlConvert mXmlConvert;
     private static final boolean SPACE = false;
     private static final String NEW_LINE = System.getProperty("line.separator", "\n");
+    private XmlSerializer serializer;
 
-    public XmlWriter() {
-        mXmlConvert = new XmlConvert();
+    public XmlWriter(XmlSerializer serializer) {
+        mXmlConvert = new XmlConvert(null);
+        this.serializer = serializer;
     }
 
     /***
@@ -36,9 +35,8 @@ public class XmlWriter {
     private void toXml(Element element, OutputStream outputStream, String encoding)
             throws IOException {
         if (outputStream == null) return;
-        if (IXml.DEBUG)
-            Log.d("xml", "to " + element);
-        XmlSerializer serializer = Xml.newSerializer();
+//        if (IXml.DEBUG)
+//            Log.d("xml", "to " + element);
         if (encoding == null) {
             encoding = IXml.DEF_ENCODING;
         }
