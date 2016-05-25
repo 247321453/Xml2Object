@@ -209,7 +209,7 @@ public class XmlReader extends IXml {
         }
         setText(t, element.getText());
         int count = element.size();
-        List<String> oldtags = new ArrayList<>();
+        List<String> oldtags = new ArrayList<String>();
         for (int i = 0; i < count; i++) {
             Element el = element.get(i);
             String name = el.getName();

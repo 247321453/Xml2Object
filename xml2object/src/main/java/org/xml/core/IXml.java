@@ -92,18 +92,23 @@ abstract class IXml {
         XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
         if (xmlElement != null) {
             //text
-            return xmlElement.value();
+            return trim(xmlElement.value());
         }
         XmlElementList xmlElementList = cls.getAnnotation(XmlElementList.class);
         if (xmlElementList != null) {
             //text
-            return xmlElementList.value();
+            return trim(xmlElementList.value());
         }
         XmlElementMap xmlElementMap = cls.getAnnotation(XmlElementMap.class);
         if (xmlElementMap != null) {
             //text
-            return xmlElementMap.value();
+            return trim(xmlElementMap.value());
         }
         return null;
+    }
+
+    static String trim(String str) {
+        if (str == null) return null;
+        return str.trim();
     }
 }

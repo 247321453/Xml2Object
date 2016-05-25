@@ -6,14 +6,17 @@ def libName = 'xml2object'
 def siteUrl = 'https://github.com/247321453/KXml'
 def gitUrl = 'https://github.com/247321453/KXml.git'
 group = "com.github.247321453"
-version = '1.3.8'
+version = '1.4.0'
 android {
-    compileSdkVersion 23
+    compileSdkVersion 19
     buildToolsVersion "23.0.2"
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 23
+        targetSdkVersion 19
         versionCode 20160201
         versionName version
     }

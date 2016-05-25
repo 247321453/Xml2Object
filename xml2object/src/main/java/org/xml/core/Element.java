@@ -12,8 +12,8 @@ import java.util.Map;
 class Element {
     public Element() {
         super();
-        attributes = new HashMap<>();
-        mElements = new ArrayList<>();
+        attributes = new HashMap<String, String>();
+        mElements = new ArrayList<Element>();
     }
 
     public Element(String name) {
@@ -32,7 +32,7 @@ class Element {
     private final Map<String, String> attributes;
     private final List<Element> mElements;
 
-    private final List<String> xmlnames = new ArrayList<>();
+    private final List<String> xmlnames = new ArrayList<String>();
 
     public List<Element> getElements() {
         return mElements;
@@ -132,7 +132,7 @@ class Element {
     }
 
     public ArrayList<Element> getElementList(String name) {
-        ArrayList<Element> elements = new ArrayList<>();
+        ArrayList<Element> elements = new ArrayList<Element>();
         if (name == null) {
             return elements;
         }

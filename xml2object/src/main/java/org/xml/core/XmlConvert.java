@@ -52,7 +52,7 @@ class XmlConvert extends IXml {
      */
     public Element toTag(Class<?> tClass, InputStream inputStream, String encoding) {
         if (inputStream == null) return null;
-        Map<Integer, Element> tagMap = new HashMap<>();
+        Map<Integer, Element> tagMap = new HashMap<Integer, Element>();
         int depth = -1;
         String name = getTagName(tClass);
         if (name == null) {
@@ -228,7 +228,7 @@ class XmlConvert extends IXml {
 
     @SuppressWarnings("unchecked")
     private ArrayList<Element> map(Object object, Class<?> pClass, String name) throws IllegalAccessException {
-        ArrayList<Element> list = new ArrayList<>();
+        ArrayList<Element> list = new ArrayList<Element>();
         if (object == null) {
             return list;
         }
@@ -254,7 +254,7 @@ class XmlConvert extends IXml {
     }
 
     private ArrayList<Element> array(Object object, String name) throws IllegalAccessException {
-        ArrayList<Element> list = new ArrayList<>();
+        ArrayList<Element> list = new ArrayList<Element>();
         if (object != null) {
             int count = Array.getLength(object);
             for (int i = 0; i < count; i++) {
@@ -268,7 +268,7 @@ class XmlConvert extends IXml {
     }
 
     private ArrayList<Element> list(Object object, String name) throws IllegalAccessException {
-        ArrayList<Element> list = new ArrayList<>();
+        ArrayList<Element> list = new ArrayList<Element>();
         if (object != null) {
             Object[] objs = (Object[]) Reflect.call(object.getClass(), object, "toArray");
             if (objs != null) {

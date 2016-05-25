@@ -59,7 +59,7 @@ class Reflect {
     }
 
     public static Collection<Field> getFileds(Class<?> type) {
-        Map<String, Field> result = new LinkedHashMap<>();
+        Map<String, Field> result = new LinkedHashMap<String, Field>();
         do {
             for (Field field : type.getDeclaredFields()) {
                 String name = field.getName();
