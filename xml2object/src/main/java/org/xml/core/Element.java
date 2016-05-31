@@ -130,7 +130,17 @@ class Element {
         }
         return null;
     }
-
+    public Element getElement(String name) {
+        if (name == null) {
+            return null;
+        }
+        for (Element t : this.mElements) {
+            if (name.equals(t.getName())) {
+                return t;
+            }
+        }
+        return null;
+    }
     public ArrayList<Element> getElementList(String name) {
         ArrayList<Element> elements = new ArrayList<Element>();
         if (name == null) {

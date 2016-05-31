@@ -14,12 +14,13 @@ public class XmlWriter {
     private static final boolean SPACE = false;
     private static final String NEW_LINE = System.getProperty("line.separator", "\n");
     private XmlSerializer serializer;
-
     public XmlWriter(XmlSerializer serializer) {
         mXmlConvert = new XmlConvert(null);
         this.serializer = serializer;
     }
-
+    public void setSameAsList(boolean sameAsList) {
+        mXmlConvert.setSameAsList(sameAsList);
+    }
     /***
      * @param object       java对象
      * @param outputStream 输出流

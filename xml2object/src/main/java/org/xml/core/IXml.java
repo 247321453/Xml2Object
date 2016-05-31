@@ -88,6 +88,20 @@ abstract class IXml {
         return new Class[]{kclass, vclass};
     }
 
+    public String getItemTagName(AnnotatedElement cls) {
+        XmlElementList xmlElementList = cls.getAnnotation(XmlElementList.class);
+        if (xmlElementList != null) {
+            //text
+            return trim(xmlElementList.item());
+        }
+        XmlElementMap xmlElementMap = cls.getAnnotation(XmlElementMap.class);
+        if (xmlElementMap != null) {
+            //text
+            return trim(xmlElementMap.item());
+        }
+        return "item";
+    }
+
     public static String getTagName(AnnotatedElement cls) {
         XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
         if (xmlElement != null) {

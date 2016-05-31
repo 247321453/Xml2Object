@@ -24,6 +24,10 @@ public class XmlReader extends IXml {
         mXmlConvert = new XmlConvert(xmlParser);
     }
 
+    public void setSameAsList(boolean sameAsList) {
+        mXmlConvert.setSameAsList(sameAsList);
+    }
+
     /***
      * @param inputStream 输入流
      * @param pClass      类
@@ -226,11 +230,20 @@ public class XmlReader extends IXml {
             Object val = Reflect.get(field, t);
             Object obj = null;
             if (cls.isArray()) {
-                obj = array(element.getElementList(name), cls, val);
+                List<Element> elements = getItems(element, field, name);
+                if (elements != null) {
+                    obj = array(elements, cls, val);
+                }
             } else if (Collection.class.isAssignableFrom(cls)) {
-                obj = list(element.getElementList(name), cls, val, getListClass(field));
+                List<Element> elements = getItems(element, field, name);
+                if (elements != null) {
+                    obj = list(elements, cls, val, getListClass(field));
+                }
             } else if (Map.class.isAssignableFrom(cls)) {
-                obj = map(element.getElementList(name), cls, val, getMapClass(field));
+                List<Element> elements = getItems(element, field, name);
+                if (elements != null) {
+                    obj =  map(element.getElementList(name), cls, val, getMapClass(field));
+                }
             } else {
                 obj = any(el, cls, val);
             }
@@ -239,6 +252,22 @@ public class XmlReader extends IXml {
             }
         }
         return t;
+    }
+
+    private List<Element> getItems(Element element, Field field, String name) {
+        List<Element> elements;
+        if (mXmlConvert.isSameAsList()) {
+            elements = element.getElementList(name);
+        } else {
+            String subtag = getItemTagName(field);
+            Element tmp = element.getElement(name);
+            if (tmp != null) {
+                elements = tmp.getElementList(subtag);
+            } else {
+                elements = null;
+            }
+        }
+        return elements;
     }
 
     private void setAttribute(Object object, String tag, String value)

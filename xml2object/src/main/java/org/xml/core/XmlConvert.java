@@ -16,6 +16,23 @@ import java.util.Set;
 
 class XmlConvert extends IXml {
     XmlPullParser xmlParser;
+    /***
+     * true
+     * <pre>
+     *     list
+     *     list
+     *
+     *     list
+     *     list
+     * </pre>
+     * <pre>
+     * lists
+     *     list
+     *     list
+     * lists
+     * </pre>
+     */
+    private boolean sameAsList = true;
 
     public XmlConvert(XmlPullParser xmlParser) {
         this.xmlParser = xmlParser;
@@ -42,6 +59,14 @@ class XmlConvert extends IXml {
 //        if (searcher == null) return Object.class;
 //        return searcher.getSubClass(element.getTagNames());
 //    }
+
+    public void setSameAsList(boolean sameAsList) {
+        this.sameAsList = sameAsList;
+    }
+
+    public boolean isSameAsList() {
+        return sameAsList;
+    }
 
     /**
      * 从流转换为tag对象

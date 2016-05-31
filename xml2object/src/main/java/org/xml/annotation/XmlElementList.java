@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
 public @interface XmlElementList {
     String value();
 
+    String item() default "item";
     /**
      * @return List的元素类型
      */
