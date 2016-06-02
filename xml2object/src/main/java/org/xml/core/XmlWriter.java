@@ -19,15 +19,26 @@ public class XmlWriter {
         mXmlConvert = new XmlConvert(null);
         this.serializer = serializer;
     }
-
+    /***
+     * 一样的元素，不需要根元素，作为List
+     * @param sameAsList 是否开启
+     */
     public void setSameAsList(boolean sameAsList) {
         mXmlConvert.setSameAsList(sameAsList);
     }
 
+    /***
+     *
+     * @return 使用空白字符
+     */
     public boolean isUseSpace() {
         return useSpace;
     }
 
+    /***
+     *
+     * @param useSpace 使用空白字符
+     */
     public void setUseSpace(boolean useSpace) {
         this.useSpace = useSpace;
     }

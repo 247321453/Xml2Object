@@ -26,8 +26,16 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface XmlElementList {
+    /***
+     *
+     * @return 名字
+     */
     String value();
 
+    /***
+     *
+     * @return List的item名字
+     */
     String item() default "item";
     /**
      * @return List的元素类型

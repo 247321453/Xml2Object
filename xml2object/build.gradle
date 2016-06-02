@@ -28,7 +28,7 @@ install {
             project {
                 packaging 'aar'
                 name libName
-                description 'android xml to object , object to xml'
+                description 'java xml to object , object to xml'
                 // #CONFIG# // project title
                 url siteUrl
                 // Set your license

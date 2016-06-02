@@ -16,6 +16,7 @@ import java.util.Map;
 
 /***
  * {@link Element } 转对象
+ * 支持enum，enum的值为名字（混淆前)
  */
 public class XmlReader extends IXml {
     protected XmlConvert mXmlConvert;
@@ -26,6 +27,10 @@ public class XmlReader extends IXml {
         mXmlConvert = new XmlConvert(xmlParser);
     }
 
+    /***
+     * 一样的元素，不需要根元素，作为List
+     * @param sameAsList 是否开启
+     */
     public void setSameAsList(boolean sameAsList) {
         mXmlConvert.setSameAsList(sameAsList);
     }
@@ -34,6 +39,10 @@ public class XmlReader extends IXml {
         return useSetMethod;
     }
 
+    /***
+     * 使用set变量方法
+     * @param useSetMethod 是否使用
+     */
     public void setUseSetMethod(boolean useSetMethod) {
         this.useSetMethod = useSetMethod;
     }

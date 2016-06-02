@@ -32,6 +32,10 @@ public @interface XmlElementMap {
      */
     Class<?> valueType();
 
+    /***
+     *
+     * @return Map的子名字
+     */
     String item() default "item";
     /**
      * @return Map的key元素类型
