@@ -29,7 +29,8 @@ public class Man implements IPeople {
 
     @XmlAttribute("age")
     int age;
-
+    @XmlAttribute("hello")
+    Boolean hello;
     @XmlElement("as")
     int[] as = new int[2];
     @XmlElement("i")
@@ -40,6 +41,7 @@ public class Man implements IPeople {
     }
 
     public void setI(Long i) {
+        System.out.println("set " + i);
         this.i = 999L;
     }
 //    @XmlElement(value = "child", type = PeopleCreator.class)
@@ -48,7 +50,7 @@ public class Man implements IPeople {
     @XmlAttribute("type")
     PeopleType type = PeopleType.Man;
 
-    @XmlElementList(value = "son1", type = Son.class)
+    @XmlElementList(value = "son1",item = "son" ,type = Son.class)
     List<Son> sons;
 
     @XmlElementMap(value = "maps", keyType = String.class, valueType = Integer.class)

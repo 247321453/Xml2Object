@@ -28,7 +28,7 @@ import java.util.TreeSet;
 
 class Reflect {
 
-    public static void set(Field field, Object parent, Object value) throws IllegalAccessException {
+    public static void set(Field field, Object parent, Object value, boolean useMethod) throws IllegalAccessException {
         if (field != null) {
             accessible(field);
 //            try {
@@ -40,10 +40,14 @@ class Reflect {
 //                Log.i("xml", field.getName() + "=" + value);
 //            field.set(parent, value);
             String name = field.getName();
-            try {
-                name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
-                call(parent.getClass(), parent, name, value);
-            } catch (Exception e) {
+            if (useMethod) {
+                try {
+                    name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+                    call(parent.getClass(), parent, name, value);
+                } catch (Exception e) {
+                    setField(field, parent, value);
+                }
+            } else {
                 setField(field, parent, value);
             }
         }
@@ -269,24 +273,24 @@ class Reflect {
             return false;
         }
         if (boolean.class == type || Boolean.class == type) {
-            field.setBoolean(parent, Boolean.parseBoolean(value));
+            field.set(parent, Boolean.parseBoolean(value));
         } else if (int.class == type || Integer.class == type) {
-            field.setInt(parent, (value.startsWith("0x")) ?
+            field.set(parent, (value.startsWith("0x")) ?
                     Integer.parseInt(value.substring(2), 16) : Integer.parseInt(value));
         } else if (long.class == type || Long.class == type) {
-            field.setLong(parent, (value.startsWith("0x")) ?
+            field.set(parent, (value.startsWith("0x")) ?
                     Long.parseLong(value.substring(2), 16) : Long.parseLong(value));
         } else if (short.class == type || Short.class == type) {
-            field.setShort(parent, (value.startsWith("0x")) ?
+            field.set(parent, (value.startsWith("0x")) ?
                     Short.parseShort(value.substring(2), 16) : Short.parseShort(value));
         } else if (double.class == type || Double.class == type) {
-            field.setDouble(parent, Double.parseDouble(value));
+            field.set(parent, Double.parseDouble(value));
         } else if (float.class == type || Float.class == type) {
-            field.setFloat(parent, Float.parseFloat(value));
+            field.set(parent, Float.parseFloat(value));
         } else if (byte.class == type || Byte.class == type) {
-            field.setByte(parent, value.getBytes()[0]);
+            field.set(parent, value.getBytes()[0]);
         } else if (char.class == type || Character.class == type) {
-            field.setChar(parent, value.toCharArray()[0]);
+            field.set(parent, value.toCharArray()[0]);
         } else if (String.class == type) {
             field.set(parent, object == null ? "" : String.valueOf(object));
         } else if (type.isEnum()) {
@@ -365,7 +369,11 @@ class Reflect {
         } else if (type.isEnum()) {
             Object[] vals = (Object[]) Reflect.call(type, null, "values");
             for (Object o : vals) {
-                if (value.equalsIgnoreCase(String.valueOf(o))) {
+                //string
+                String v = String.valueOf(o);
+                //value
+                String i = String.valueOf(Reflect.call(o.getClass(), o, "ordinal"));
+                if (value.equalsIgnoreCase(v) || value.equals(i)) {
                     return o;
                 }
             }

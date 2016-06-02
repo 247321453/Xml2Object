@@ -20,12 +20,22 @@ import java.util.Map;
 public class XmlReader extends IXml {
     protected XmlConvert mXmlConvert;
 
+    private boolean useSetMethod = true;
+
     public XmlReader(XmlPullParser xmlParser) {
         mXmlConvert = new XmlConvert(xmlParser);
     }
 
     public void setSameAsList(boolean sameAsList) {
         mXmlConvert.setSameAsList(sameAsList);
+    }
+
+    public boolean isUseSetMethod() {
+        return useSetMethod;
+    }
+
+    public void setUseSetMethod(boolean useSetMethod) {
+        this.useSetMethod = useSetMethod;
     }
 
     /***
@@ -242,13 +252,13 @@ public class XmlReader extends IXml {
             } else if (Map.class.isAssignableFrom(cls)) {
                 List<Element> elements = getItems(element, field, name);
                 if (elements != null) {
-                    obj =  map(element.getElementList(name), cls, val, getMapClass(field));
+                    obj = map(elements, cls, val, getMapClass(field));
                 }
             } else {
                 obj = any(el, cls, val);
             }
             if (!Modifier.isFinal(field.getModifiers())) {
-                Reflect.set(field, t, obj);
+                Reflect.set(field, t, obj, useSetMethod);
             }
         }
         return t;
@@ -277,7 +287,7 @@ public class XmlReader extends IXml {
         for (Field field : fields) {
             String name = getAttributeName(field);
             if (tag.equals(name)) {
-                Reflect.set(field, object, Reflect.wrapper(field.getType(), value));
+                Reflect.set(field, object, Reflect.wrapper(field.getType(), value), useSetMethod);
                 if (IXml.DEBUG)
                     Log.v("xml", tag + " set " + value);
                 break;
@@ -291,7 +301,7 @@ public class XmlReader extends IXml {
         Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
             if (isXmlValue(field)) {
-                Reflect.set(field, object, Reflect.wrapper(field.getType(), value));
+                Reflect.set(field, object, Reflect.wrapper(field.getType(), value), useSetMethod);
                 break;
             }
         }

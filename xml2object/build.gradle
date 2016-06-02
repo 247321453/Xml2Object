@@ -6,7 +6,7 @@ def libName = 'xml2object'
 def siteUrl = 'https://github.com/247321453/KXml'
 def gitUrl = 'https://github.com/247321453/KXml.git'
 group = "com.github.247321453"
-version = '1.4.0'
+version = '1.5.0'
 android {
     compileSdkVersion 19
     buildToolsVersion "23.0.2"
@@ -98,4 +98,7 @@ bintray {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    testCompile 'xmlpull:xmlpull:1.1.3.1'
+    testCompile 'net.sf.kxml:kxml2:2.3.0'
 }

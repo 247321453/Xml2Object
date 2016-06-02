@@ -341,15 +341,36 @@ class XmlConvert extends IXml {
             } else if (cls.isArray()) {
 //                if (IXml.DEBUG)
 //                    Log.d("xml", parent.getName() + " add array " + field.getName());
-                parent.addAll(array(val, name));
+                if(isSameAsList()){
+                    parent.addAll(array(val, name));
+                }else{
+                    String subtag = getItemTagName(field);
+                    Element element=new Element(name);
+                    element.addAll(array(val, subtag));
+                    parent.add(element);
+                }
             } else if (val instanceof Map) {
 //                if (IXml.DEBUG)
 //                    Log.d("xml", parent.getName() + " add map " + field.getName());
-                parent.addAll(map(val, cls, name));
+                if(isSameAsList()){
+                    parent.addAll(map(val, cls, name));
+                }else{
+                    String subtag = getItemTagName(field);
+                    Element element=new Element(name);
+                    element.addAll(map(val, cls, subtag));
+                    parent.add(element);
+                }
             } else if (val instanceof Collection) {
 //                if (IXml.DEBUG)
 //                    Log.d("xml", parent.getName() + " add list " + field.getName());
-                parent.addAll(list(val, name));
+                if(isSameAsList()){
+                    parent.addAll(list(val, name));
+                }else{
+                    String subtag = getItemTagName(field);
+                    Element element=new Element(name);
+                    element.addAll(list(val, subtag));
+                    parent.add(element);
+                }
             } else if (val != null) {
 //                if (IXml.DEBUG)
 //                    Log.d("xml", parent.getName() + " add any " + field.getName());

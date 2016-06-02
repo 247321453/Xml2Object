@@ -1,43 +1,25 @@
 package com.uutils.xml2object;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.util.Log;
-
+import org.junit.Test;
 import org.xml.core.XmlReader;
 import org.xml.core.XmlWriter;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MainActivity extends Activity {
+public class Tests {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        test();
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                byte[] data = OnlineUtils.get("http://192.168.56.1/style-list-debug.xml");
-//                StyleList styleList = null;
-//                try {
-//                    styleList = new XmlReader().from(new ByteArrayInputStream(data), StyleList.class);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                Log.d("xml", ""+styleList);
-//            }
-//        }).start();
-    }
-
-    private void test() {
+    @Test
+    public void test() throws XmlPullParserException {
         Man man1 = new Man();
-        man1.sons = new ArrayList<>();
-        man1.maps = new HashMap<>();
+        man1.sons = new ArrayList<Son>();
+        man1.maps = new HashMap<String, Integer>();
         man1.name = "man1";
+        man1.hello = true;
         man1.maps.put("encrypt", 1);
         man1.maps.put("decrypt", 2);
         man1.age = 20;
@@ -49,26 +31,29 @@ public class MainActivity extends Activity {
         son.mFri.name = "fri name<>";
         son.mFri.address = "地址";
         son.mFri.mMan = new Man("a", 21);
-        man1.as[0] = 999;
+        man1.as[0] = 998;
         man1.as[1] = -1;
         man1.sons.add(son);
         man1.sons.add(new Son());
 //        man1.childs=new ArrayList<>();
 //        man1.childs.add(new Man("join", 16));
 //        man1.childs.add(new Woman("lily", 18));
-        XmlReader xmlReader = new XmlReader();
-        XmlWriter xmlWriter = new XmlWriter();
+        XmlReader xmlReader = new XmlReader(XmlPullParserFactory.newInstance().newPullParser());
+        xmlReader.setSameAsList(false);
+        xmlReader.setUseSetMethod(false);
+        XmlWriter xmlWriter = new XmlWriter(XmlPullParserFactory.newInstance().newSerializer());
+        xmlWriter.setSameAsList(false);
+        xmlWriter.setUseSpace(true);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-            Log.i("xml", "main=" + man1);
+            System.out.println("main=" + man1 + "\n");
             xmlWriter.toXml(man1, outputStream, null);
             String xmlStr = outputStream.toString();
-            Log.i("xml", "" + xmlStr);
+            System.out.println("" + xmlStr + "\n");
             Man m = xmlReader.from(new ByteArrayInputStream(xmlStr.getBytes()), Man.class, null);
-            Log.i("xml", "main=" + m);
+            System.out.println("main=" + m + "\n");
         } catch (Throwable e) {
             e.printStackTrace();
-            Log.e("xml", "" + e.getCause());
         }
     }
 }

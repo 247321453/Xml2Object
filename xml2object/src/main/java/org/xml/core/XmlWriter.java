@@ -11,16 +11,27 @@ import java.util.Map;
  */
 public class XmlWriter {
     protected XmlConvert mXmlConvert;
-    private static final boolean SPACE = false;
     private static final String NEW_LINE = System.getProperty("line.separator", "\n");
     private XmlSerializer serializer;
+    private boolean useSpace = false;
+
     public XmlWriter(XmlSerializer serializer) {
         mXmlConvert = new XmlConvert(null);
         this.serializer = serializer;
     }
+
     public void setSameAsList(boolean sameAsList) {
         mXmlConvert.setSameAsList(sameAsList);
     }
+
+    public boolean isUseSpace() {
+        return useSpace;
+    }
+
+    public void setUseSpace(boolean useSpace) {
+        this.useSpace = useSpace;
+    }
+
     /***
      * @param object       java对象
      * @param outputStream 输出流
@@ -43,8 +54,6 @@ public class XmlWriter {
         }
         serializer.setOutput(outputStream, encoding);
         serializer.startDocument(encoding, null);
-        if (SPACE)
-            serializer.text(NEW_LINE);
         writeTag(element, serializer, 1);
         serializer.endDocument();
     }
@@ -53,7 +62,7 @@ public class XmlWriter {
     private void writeTag(Element element, XmlSerializer serializer, int depth)
             throws IOException {
         if (element == null || serializer == null) return;
-        if (SPACE) {
+        if (isUseSpace()) {
             serializer.text(NEW_LINE);
             writeTab(serializer, depth);
         }
@@ -66,11 +75,15 @@ public class XmlWriter {
         for (int i = 0; i < count; i++) {
             writeTag(element.get(i), serializer, depth + 1);
         }
+        if (count > 0 && isUseSpace()) {
+            serializer.text(NEW_LINE);
+            writeTab(serializer, depth);
+        }
         serializer.endTag(null, element.getName());
     }
 
     private void writeTab(XmlSerializer pXmlSerializer, int depth) throws IOException {
-        for (int i = 0; i < depth; i++) {
+        for (int i = 0; i < depth - 1; i++) {
             pXmlSerializer.text("\t");
         }
     }
