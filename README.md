@@ -17,3 +17,4 @@
 	new XmlWriter(XmlSerializer).toXml(Object object, OutputStream outputStream, String encoding);
 	xml转对象
 	T t = new XmlReader(XmlPullParser).from(InputStream inputStream, Class<T> pClass, String encoding);
+    [Demo](https://github.com/247321453/KXml/blob/master/xml2object/src/test/java/com/uutils/xml2object/Tests.java)
