@@ -13,17 +13,39 @@
  * limitations under the License.
  */
 
-package org.xml.annotation;
+package net.kk.xml.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/***
- * xml元素的中间文字
+/**
+ * xml map tag
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface XmlElementText {
+public @interface XmlElementMap {
+    public static final String ITEM = "item";
+    public static final String KEY = "key";
+    public static final String VALUE = "value";
+    /***
+     *
+     * @return tab name
+     */
+    String value();
+    /**
+     * @return name of map's value
+     */
+    Class<?> valueType();
+
+    /***
+     *
+     * @return sub tag name
+     */
+    String item() default ITEM;
+    /**
+     * @return name of map's key
+     */
+    Class<?> keyType();
 }

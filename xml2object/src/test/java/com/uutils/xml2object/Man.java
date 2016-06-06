@@ -1,9 +1,9 @@
 package com.uutils.xml2object;
 
-import org.xml.annotation.XmlAttribute;
-import org.xml.annotation.XmlElement;
-import org.xml.annotation.XmlElementList;
-import org.xml.annotation.XmlElementMap;
+import net.kk.xml.annotations.XmlAttribute;
+import net.kk.xml.annotations.XmlElement;
+import net.kk.xml.annotations.XmlElementList;
+import net.kk.xml.annotations.XmlElementMap;
 
 import java.util.Arrays;
 import java.util.List;

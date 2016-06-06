@@ -1,7 +1,7 @@
 package com.uutils.xml2object;
 
-import org.xml.annotation.XmlAttribute;
-import org.xml.annotation.XmlElement;
+import net.kk.xml.annotations.XmlAttribute;
+import net.kk.xml.annotations.XmlElement;
 
 public class Son {
     public Son() {
@@ -21,7 +21,7 @@ public class Son {
         return "Son{" +
                 "mFri=" + mFri +
                 ", name='" + (name == null ? "" : name) + '\'' +
-                ", phone='" + phone + '\'' +
+                ", phone='" + (phone == null ? "" : phone) + '\'' +
                 '}';
     }
 }

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.xml.annotation;
+package net.kk.xml.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,24 +21,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 元素，不支持接口，Void类型，除非接口在默认构造函数初始化
+ * xml tag:don't used interface and abstract
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface XmlElementList {
+public @interface XmlElement {
     /***
      *
-     * @return 名字
+     * @return tag name
      */
     String value();
-
-    /***
-     *
-     * @return List的item名字
-     */
-    String item() default "item";
-    /**
-     * @return List的元素类型
-     */
-    Class<?> type();
 }

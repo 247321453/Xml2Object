@@ -1,6 +1,6 @@
 package com.uutils.xml2object;
 
-import org.xml.annotation.XmlAttribute;
+import net.kk.xml.annotations.XmlAttribute;
 
 /**
  * Created by Hasee on 2016/2/2.

@@ -1,13 +1,9 @@
 package com.uutils.xml2object;
 
-import org.junit.Test;
-import org.xml.annotation.XmlElement;
-import org.xml.core.XmlReader;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+import net.kk.xml.annotations.XmlElement;
 
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.InvocationTargetException;
+import org.junit.Test;
+import org.xmlpull.v1.XmlPullParserException;
 
 public class EnumTest {
     static enum A {
@@ -54,19 +50,19 @@ public class EnumTest {
     @Test
     public void testNum() throws XmlPullParserException {
         String xml = "<c><a>a</a></c>";
-        XmlReader xmlReader = new XmlReader(XmlPullParserFactory.newInstance().newPullParser());
-        C a = null;
-        try {
-            a = xmlReader.from(new ByteArrayInputStream(xml.getBytes()), C.class, null);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        System.out.print(a);
+//        XmlReader xmlReader = new XmlReader(XmlPullParserFactory.newInstance().newPullParser());
+//        C a = null;
+//        try {
+//            a = xmlReader.from(new ByteArrayInputStream(xml.getBytes()), C.class, null);
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        } catch (InstantiationException e) {
+//            e.printStackTrace();
+//        } catch (InvocationTargetException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
+//        System.out.print(a);
     }
 }

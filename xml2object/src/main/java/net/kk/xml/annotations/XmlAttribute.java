@@ -13,18 +13,22 @@
  * limitations under the License.
  */
 
-package org.xml.annotation;
+package net.kk.xml.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * 元素，不支持接口，Void类型，除非接口在默认构造函数初始化
- */
-@Target({ElementType.TYPE, ElementType.FIELD})
+/***
+ * xml attribute :string,int,long,bool,enum
+ * */
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface XmlElement {
+public @interface XmlAttribute {
+    /**
+     *
+     * @return attribute name
+     */
     String value();
 }

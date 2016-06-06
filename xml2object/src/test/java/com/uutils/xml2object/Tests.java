@@ -1,8 +1,10 @@
 package com.uutils.xml2object;
 
+import net.kk.xml.XmlReader;
+import net.kk.xml.XmlWriter;
+import net.kk.xml.internal.XmlOptions;
+
 import org.junit.Test;
-import org.xml.core.XmlReader;
-import org.xml.core.XmlWriter;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -13,6 +15,11 @@ import java.util.HashMap;
 
 public class Tests {
 
+    @Test
+    public void testType(){
+        System.out.println(Boolean.class.isAssignableFrom(boolean.class));
+        System.out.println(boolean.class.isAssignableFrom(Boolean.class));
+    }
     @Test
     public void test() throws XmlPullParserException {
         Man man1 = new Man();
@@ -38,12 +45,15 @@ public class Tests {
 //        man1.childs=new ArrayList<>();
 //        man1.childs.add(new Man("join", 16));
 //        man1.childs.add(new Woman("lily", 18));
-        XmlReader xmlReader = new XmlReader(XmlPullParserFactory.newInstance().newPullParser());
-        xmlReader.setSameAsList(false);
-        xmlReader.setUseSetMethod(false);
-        XmlWriter xmlWriter = new XmlWriter(XmlPullParserFactory.newInstance().newSerializer());
-        xmlWriter.setSameAsList(false);
-        xmlWriter.setUseSpace(true);
+        XmlOptions options=new XmlOptions.Builder()
+                .ignoreNoAnnotation()
+                .dontUseSetMethod()
+                .enableSameAsList()
+                .useSpace()
+                .registerTypeAdapter(PeopleType.class, new PeopleTypeAdapter())
+                .build();
+        XmlReader xmlReader = new XmlReader(XmlPullParserFactory.newInstance().newPullParser(),options);
+        XmlWriter xmlWriter = new XmlWriter(XmlPullParserFactory.newInstance().newSerializer(),options);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             System.out.println("main=" + man1 + "\n");

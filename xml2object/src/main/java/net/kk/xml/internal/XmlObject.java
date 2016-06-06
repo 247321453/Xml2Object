@@ -1,5 +1,7 @@
-package org.xml.core;
+package net.kk.xml.internal;
 
+
+import net.kk.xml.internal.bind.Reflect;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -9,75 +11,82 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class Element {
-    public Element() {
+public class XmlObject {
+    public XmlObject() {
         super();
-        attributes = new HashMap<String, String>();
-        mElements = new ArrayList<Element>();
     }
 
-    public Element(String name) {
+    public XmlObject(String name) {
         this();
         this.name = name;
     }
 
+    //xml的文本
     private String text;
 
+    //标签名
     private String name;
 
     private Field tField;
 
+    //类型
     private Class<?> tClass;
 
-    private final Map<String, String> attributes;
-    private final List<Element> mElements;
+    //子元素，用来打印
+    private boolean subItem;
 
-    private final List<String> xmlnames = new ArrayList<String>();
+    //属性
+    private Map<String, String> attributes;
+    //子标签
+    private List<XmlObject> mXmlObjects;
 
-    public List<Element> getElements() {
-        return mElements;
-    }
-
+    //子元素数量
     public int size() {
-        return mElements.size();
+        return mXmlObjects == null ? 0 : mXmlObjects.size();
     }
 
+    //属性值
     public Map<String, String> getAttributes() {
         return attributes;
     }
 
+    public boolean isSubItem() {
+        return subItem;
+    }
+
+    public void setSubItem(boolean subItem) {
+        this.subItem = subItem;
+    }
+
     public void addAttribute(String name, String value) {
         if (name == null) return;
-        if (!xmlnames.contains(name)) {
-            xmlnames.add(name);
+        if (attributes == null) {
+            attributes = new HashMap<String, String>();
         }
         attributes.put(name, value);
+    }
+
+    public boolean isNULL() {
+        return tClass == null;
     }
 
     public String getAttribute(String name) {
         return attributes.get(name);
     }
 
-    public void add(Element element) {
-        if (element != null) {
-            if (!xmlnames.contains(element.getName())) {
-                xmlnames.add(element.getName());
-            }
-            mElements.add(element);
+    public void add(XmlObject xmlObject) {
+        if (mXmlObjects == null) {
+            mXmlObjects = new ArrayList<XmlObject>();
+        }
+        if (xmlObject != null) {
+            mXmlObjects.add(xmlObject);
         }
     }
 
-    public void updateTClass(Class<?> pTClass) {
-        tClass = pTClass;
-    }
-
-    public List<String> getTagNames() {
-        return xmlnames;
-    }
-
-    public Element get(int i) {
+    public XmlObject get(int i) {
+        if (mXmlObjects == null) return null;
         if (i >= 0 && i < size()) {
-            return mElements.get(i);
+            return mXmlObjects.get(i);
         }
         return null;
     }
@@ -98,63 +107,56 @@ class Element {
         this.text = value;
     }
 
-    public boolean isArray() {
-        if (tClass == null) return false;
-        return tClass.isArray();
-    }
-
-    public boolean isList() {
-        if (tClass == null) return false;
-        return Collection.class.isAssignableFrom(tClass);
-    }
-
-    public boolean isMap() {
-        if (tClass == null) return false;
-        return Map.class.isAssignableFrom(tClass);
-    }
-
-    public void addAll(Collection<Element> collection) {
+    public void addAll(Collection<XmlObject> collection) {
         if (collection != null) {
-            for (Element e : collection) {
+            for (XmlObject e : collection) {
                 add(e);
             }
         }
     }
 
-    public Element get(String name) {
-        if (name == null) return null;
-        for (Element t : mElements) {
+    public XmlObject get(String name) {
+        if (name == null || mXmlObjects == null) return null;
+        for (XmlObject t : mXmlObjects) {
             if (name.equals(t.getName())) {
                 return t;
             }
         }
         return null;
     }
-    public Element getElement(String name) {
-        if (name == null) {
+
+    public XmlObject getElement(String name) {
+        if (name == null || mXmlObjects == null) {
             return null;
         }
-        for (Element t : this.mElements) {
+        for (XmlObject t : this.mXmlObjects) {
             if (name.equals(t.getName())) {
                 return t;
             }
         }
         return null;
     }
-    public ArrayList<Element> getElementList(String name) {
-        ArrayList<Element> elements = new ArrayList<Element>();
-        if (name == null) {
-            return elements;
+
+    public ArrayList<XmlObject> getElementList(String name) {
+        ArrayList<XmlObject> xmlObjects = new ArrayList<XmlObject>();
+        if (name == null || this.mXmlObjects == null) {
+            return xmlObjects;
         }
-        for (Element t : this.mElements) {
+        for (XmlObject t : this.mXmlObjects) {
             if (name.equals(t.getName())) {
-                elements.add(t);
+                xmlObjects.add(t);
             }
         }
-        return elements;
+        return xmlObjects;
     }
 
     public Class<?> getTClass() {
+        if (tClass == null) {
+            if (tField == null) {
+                return null;
+            }
+            return tField.getType();
+        }
         return tClass;
     }
 
@@ -178,7 +180,7 @@ class Element {
         stringBuffer.append("" + (tClass == null ? "" : tClass.getName()));
         try {
             if (Reflect.isNormal(tClass)) {
-                stringBuffer.append(" = " + text+"\n");
+                stringBuffer.append(" = " + text + "\n");
                 return stringBuffer.toString();
             }
         } catch (Exception e) {
@@ -187,15 +189,15 @@ class Element {
         stringBuffer.append("{text='" + (text == null ? "" : text));
         stringBuffer.append("', attributes=" + attributes);
         stringBuffer.append(", tags=");
-        if (mElements.size() == 0) {
-            stringBuffer.append("[]}\n");
+        if (mXmlObjects == null || mXmlObjects.size() == 0) {
+            stringBuffer.append("null}\n");
         } else {
             stringBuffer.append("[\n");
-            for (Element element : mElements) {
+            for (XmlObject xmlObject : mXmlObjects) {
                 for (int i = 0; i < start + 1; i++) {
                     stringBuffer.append("\t");
                 }
-                stringBuffer.append(element.toString(start + 1));
+                stringBuffer.append(xmlObject.toString(start + 1));
             }
             for (int i = 0; i < start; i++) {
                 stringBuffer.append("\t");

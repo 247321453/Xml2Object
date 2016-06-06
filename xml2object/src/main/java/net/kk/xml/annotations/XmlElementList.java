@@ -13,18 +13,33 @@
  * limitations under the License.
  */
 
-package org.xml.annotation;
+package net.kk.xml.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/***
- * xml属性，支持enum，但不支持其他自定义类
+/**
+ * xml list tag
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface XmlAttribute {
+public @interface XmlElementList {
+    public static final String ITEM = "item";
+    /***
+     *
+     * @return tag name
+     */
     String value();
+
+    /***
+     *
+     * @return sub tag name
+     */
+    String item() default ITEM;
+    /**
+     * @return sub itemType
+     */
+    Class<?> type();
 }
