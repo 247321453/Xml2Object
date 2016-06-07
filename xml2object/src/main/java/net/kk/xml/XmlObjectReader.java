@@ -66,11 +66,13 @@ class XmlObjectReader {
     private <T> T object(XmlObject xmlObject, Class<T> pClass, Object parent) throws Exception {
         T t = (parent == null) ? Reflect.create(pClass) : (T) parent;
         //attr
-        if (reader.DEBUG) {
-            Log.d("xml", xmlObject.getName() + " attr = " + xmlObject.getAttributes().size());
-        }
-        for (Map.Entry<String, String> e : xmlObject.getAttributes().entrySet()) {
-            setAttribute(t, e.getKey(), e.getValue());
+        if (xmlObject.getAttributes() != null) {
+            if (reader.DEBUG) {
+                Log.d("xml", xmlObject.getName() + " attr = " + xmlObject.getAttributes().size());
+            }
+            for (Map.Entry<String, String> e : xmlObject.getAttributes().entrySet()) {
+                setAttribute(t, e.getKey(), e.getValue());
+            }
         }
         setText(t, xmlObject.getText());
         int count = xmlObject.size();
