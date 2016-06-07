@@ -1,8 +1,7 @@
 package net.kk.xml;
 
 import net.kk.xml.annotations.XmlElementMap;
-import net.kk.xml.internal.XmlObject;
-import net.kk.xml.internal.bind.Reflect;
+import net.kk.xml.internal.Reflect;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -15,11 +14,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-class XmlConvert {
+class XmlPullReader {
     private XmlPullParser xmlParser;
     private XmlReader mXmlReader;
 
-    public XmlConvert(XmlReader reader, XmlPullParser xmlParser) {
+    public XmlPullReader(XmlReader reader, XmlPullParser xmlParser) {
         this.mXmlReader = reader;
         this.xmlParser = xmlParser;
     }
@@ -133,4 +132,5 @@ class XmlConvert {
         }
         return tfield;
     }
+
 }

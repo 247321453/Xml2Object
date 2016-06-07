@@ -4,9 +4,6 @@ import android.util.Log;
 
 import net.kk.xml.annotations.XmlElementList;
 import net.kk.xml.annotations.XmlElementMap;
-import net.kk.xml.internal.XmlObject;
-import net.kk.xml.internal.XmlOptions;
-import net.kk.xml.internal.XmlTypeAdapter;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -20,11 +17,13 @@ import java.lang.reflect.InvocationTargetException;
  * 支持enum，enum的值为名字（混淆前)
  */
 public class XmlReader extends XmlBase {
-    private XmlConvert mXmlConvert;
+    private XmlPullReader mXmlPullReader;
+    private XmlObjectReader mXmlObjectReader;
 
     public XmlReader(XmlPullParser xmlParser, XmlOptions options) {
         super(options);
-        mXmlConvert = new XmlConvert(this, xmlParser);
+        this.mXmlObjectReader = new XmlObjectReader(this);
+        mXmlPullReader = new XmlPullReader(this, xmlParser);
     }
 
     /***
@@ -39,13 +38,10 @@ public class XmlReader extends XmlBase {
     @SuppressWarnings("unchecked")
     public <T> T from(InputStream inputStream, Class<T> pClass, String encoding)
             throws Exception {
-        XmlObject tag = mXmlConvert.toTag(pClass, inputStream, encoding);
+        XmlObject tag = mXmlPullReader.toTag(pClass, inputStream, encoding);
         if (DEBUG)
             Log.d("xml", "form " + tag);
-//        System.out.println(tag);
-//        return null;
-        XmlTypeAdapter adapter = getAdapter(pClass);
-        return (T) adapter.read(this,null, tag, null);
+        return (T) mXmlObjectReader.read(null, tag, null);
     }
 
     public Class<?> getListClass(AnnotatedElement cls) {

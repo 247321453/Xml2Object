@@ -1,7 +1,7 @@
-package net.kk.xml.internal;
+package net.kk.xml;
 
 
-import net.kk.xml.internal.bind.Reflect;
+import net.kk.xml.internal.Reflect;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class XmlObject {
+class XmlObject {
     public XmlObject() {
         super();
     }

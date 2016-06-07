@@ -5,35 +5,37 @@ import net.kk.xml.annotations.XmlElement;
 import net.kk.xml.annotations.XmlElementList;
 import net.kk.xml.annotations.XmlElementMap;
 import net.kk.xml.annotations.XmlElementText;
-import net.kk.xml.internal.XmlOptions;
-import net.kk.xml.internal.XmlTypeAdapter;
-import net.kk.xml.internal.bind.ObjectTypeAdapter;
-import net.kk.xml.internal.bind.Reflect;
-import net.kk.xml.internal.bind.XmlTypeAdapters;
+import net.kk.xml.internal.Reflect;
+import net.kk.xml.internal.XmlStringAdapter;
+import net.kk.xml.internal.XmlTypeAdapters;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 class XmlBase {
     public static final String DEF_ENCODING = "UTF-8";
-    final Map<String, XmlTypeAdapter<?>> mXmlTypeAdapterMap;
+    final Map<Class<?>, XmlStringAdapter<?>> mXmlTypeAdapterMap;
     private XmlTypeAdapters mXmlTypeAdapters;
     protected XmlOptions mOptions;
-    private final XmlTypeAdapter<?> DEFAULT_ADAPTER;
+    private final XmlStringAdapter<?> DEFAULT_ADAPTER;
     public final boolean DEBUG;
 
     public XmlBase(XmlOptions options) {
         this.mOptions = (options == null) ? XmlOptions.DEFAULT : options;
-        DEBUG = this.mOptions.isDebug();
-        DEFAULT_ADAPTER = new ObjectTypeAdapter();
-        mXmlTypeAdapterMap = this.mOptions.getXmlTypeAdapterMap();
+        this.DEBUG = this.mOptions.isDebug();
         mXmlTypeAdapters = new XmlTypeAdapters();
-        //TODO register mXmlTypeAdapters
-        if (mXmlTypeAdapterMap != null) {
+        mXmlTypeAdapterMap = new HashMap<Class<?>, XmlStringAdapter<?>>();
+        DEFAULT_ADAPTER = mXmlTypeAdapters.ObjectStringAdapter;
 
+        //TODO register mXmlTypeAdapters
+        mXmlTypeAdapterMap.put(Object.class, mXmlTypeAdapters.ObjectStringAdapter);
+
+        if (this.mOptions.getXmlTypeAdapterMap() != null) {
+            mXmlTypeAdapterMap.putAll(this.mOptions.getXmlTypeAdapterMap());
         }
     }
 
@@ -41,18 +43,32 @@ class XmlBase {
         this(XmlOptions.DEFAULT);
     }
 
-    public XmlTypeAdapter<?> getAdapter(Class<?> tClass) {
+    public XmlStringAdapter<?> getAdapter(Class<?> tClass) {
         return getAdapter(tClass, DEFAULT_ADAPTER);
     }
 
-    public XmlTypeAdapter<?> getAdapter(Class<?> tClass, XmlTypeAdapter def) {
+    public XmlStringAdapter<?> getAdapter(Class<?> tClass, XmlStringAdapter def) {
         if (mXmlTypeAdapterMap == null) return def;
-        String key = Reflect.wrapper(tClass).getName();
-        XmlTypeAdapter<?> tXmlTypeAdapter = mXmlTypeAdapterMap.get(key);
+        Class<?> key = Reflect.wrapper(tClass);
+        XmlStringAdapter<?> tXmlTypeAdapter = mXmlTypeAdapterMap.get(key);
         if (tXmlTypeAdapter == null) return def;//;
         return tXmlTypeAdapter;
     }
 
+    public boolean isNormal(AnnotatedElement element) throws IllegalAccessException {
+        XmlElement element1 = element.getAnnotation(XmlElement.class);
+        if (element1 != null && element1.isString()) {
+            return true;
+        }
+        if (element instanceof Field) {
+            Field field = (Field) element;
+            return Reflect.isNormal(field.getType());
+        } else if (element instanceof Class) {
+            Class<?> cls = (Class<?>) element;
+            return Reflect.isNormal(cls);
+        }
+        return false;
+    }
     public XmlOptions getOptions() {
         return mOptions;
     }

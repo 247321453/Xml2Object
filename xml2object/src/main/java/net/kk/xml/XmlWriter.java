@@ -1,9 +1,5 @@
 package net.kk.xml;
 
-import net.kk.xml.internal.XmlObject;
-import net.kk.xml.internal.XmlOptions;
-import net.kk.xml.internal.XmlTypeAdapter;
-
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
@@ -16,9 +12,11 @@ import java.util.Map;
 public class XmlWriter extends XmlBase {
     private static final String NEW_LINE = System.getProperty("line.separator", "\n");
     private XmlSerializer serializer;
+    private XmlObjectWriter mXmlObjectWriter;
 
     public XmlWriter(XmlSerializer serializer, XmlOptions options) {
         super(options);
+        this.mXmlObjectWriter = new XmlObjectWriter(this);
         this.serializer = serializer;
     }
 
@@ -34,9 +32,12 @@ public class XmlWriter extends XmlBase {
             throws Exception {
         if (object == null) return;
         Class cls = object.getClass();
-        XmlTypeAdapter adapter = getAdapter(cls);
         String name = getTagName(cls);
-        XmlObject xmlObject = adapter.write(this, name, cls, object);
+        long time = System.currentTimeMillis();
+        XmlObject xmlObject = mXmlObjectWriter.toObject(name, cls, object);
+        if(DEBUG) {
+            System.out.println("time0=" + (System.currentTimeMillis() - time));
+        }
         if (xmlObject == null) {
             xmlObject = new XmlObject(name);
         }
@@ -44,7 +45,7 @@ public class XmlWriter extends XmlBase {
     }
 
     private void toXml(XmlObject xmlObject, OutputStream outputStream, String encoding)
-            throws IOException {
+            throws IOException, IllegalAccessException {
         if (outputStream == null) return;
         if (encoding == null) {
             encoding = DEF_ENCODING;
@@ -57,17 +58,17 @@ public class XmlWriter extends XmlBase {
 
     @SuppressWarnings("unchecked")
     private void writeTag(XmlObject xmlObject, XmlSerializer serializer, int depth)
-            throws IOException {
+            throws IOException, IllegalAccessException {
         if (xmlObject == null || serializer == null) return;
         //list,map,array
-        boolean noSameList = xmlObject.isSubItem() || !(mOptions.isSameAsList() && isArray(xmlObject.getTClass()));
+        boolean noSameList = isNormal(xmlObject.getType()) || xmlObject.isSubItem() || !(mOptions.isSameAsList() && isArray(xmlObject.getTClass()));
         if (noSameList) {
             if (mOptions.isUseSpace()) {
                 serializer.text(NEW_LINE);
                 writeTab(serializer, depth);
             }
             serializer.startTag(null, xmlObject.getName());
-            if(xmlObject.getAttributes()!=null) {
+            if (xmlObject.getAttributes() != null) {
                 for (Map.Entry<String, String> e : xmlObject.getAttributes().entrySet()) {
                     serializer.attribute(null, e.getKey(), e.getValue());
                 }

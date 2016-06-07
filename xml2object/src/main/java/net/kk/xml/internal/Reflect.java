@@ -1,4 +1,4 @@
-package net.kk.xml.internal.bind;
+package net.kk.xml.internal;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
@@ -40,10 +40,7 @@ public class Reflect {
                 } catch (Exception e) {
                 }
             }
-            Class<?> type = field.getType();
-            Object val = wrapper(type, value);
-            field.set(object, val);
-//            setField(field, parent, value);
+            field.set(object, value);
         }
     }
 
@@ -270,7 +267,7 @@ public class Reflect {
         return type;
     }
 
-    public static Object wrapper(Class<?> type, Object object) throws IllegalAccessException {
+    public static Object wrapperValue(Class<?> type, Object object) throws IllegalAccessException {
         String value = object == null ? "" : String.valueOf(object);
         value = value.replace("\t", "").replace("\r", "").replace("\n", "");
         if (type == null) {
@@ -301,7 +298,7 @@ public class Reflect {
         } else if (type.isEnum()) {
             Object[] vals = (Object[]) Reflect.call(type, null, "values");
             for (Object o : vals) {
-                //string
+                //isString
                 String v = String.valueOf(o);
                 //value
                 String i = String.valueOf(Reflect.call(o.getClass(), o, "ordinal"));
@@ -374,6 +371,7 @@ public class Reflect {
     }
 
 
+    @SuppressWarnings("unchecked")
     public static <T> Collection<T> createCollection(Class<T> rawType) {
         if (SortedSet.class.isAssignableFrom(rawType)) {
             return new TreeSet<T>();
@@ -416,67 +414,4 @@ public class Reflect {
 
         public Class<?> clsName;
     }
-
-    //
-//    public static Class<?> getMethodClass(Class<?> cls, String metod, Class<?>... args) {
-//        Method method = null;
-//        try {
-//            method = cls.getMethod(metod, args);
-//        } catch (NoSuchMethodException e) {
-//            e.printStackTrace();
-//        }
-//        return method == null ? Object.class : method.getReturnType();
-//    }
-//
-//    private static final String TYPE_NAME_PREFIX = "class ";
-//
-//    private static String getClassName(Type type) {
-//        if (type == null) {
-//            return "";
-//        }
-//        String className = type.toString();
-//        if (className.startsWith(TYPE_NAME_PREFIX)) {
-//            className = className.substring(TYPE_NAME_PREFIX.length());
-//        }
-//        className = className.trim();
-//        return className;
-//    }
-//
-//    public static Class<?> getClass(Type type)
-//            throws ClassNotFoundException {
-//        String className = getClassName(type);
-//        if (className == null || className.isEmpty()) {
-//            return null;
-//        }
-//        return Class.forName(className);
-//    }
-//
-//    public static Object newInstance(Type type)
-//            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-//        Class<?> clazz = getClass(type);
-//        if (clazz == null) {
-//            return null;
-//        }
-//        return clazz.newInstance();
-//    }
-//
-//    public static Type[] getParameterizedTypes(Object object) {
-//        Type superclassType = object.getClass().getGenericSuperclass();
-//        if (!ParameterizedType.class.isAssignableFrom(superclassType.getClass())) {
-//            return null;
-//        }
-//        return ((ParameterizedType) superclassType).getActualTypeArguments();
-//    }
 }
-
-//class Test {
-//    public static void main(String[] args) {
-//        PeopleType type = PeopleType.Woman;
-//        Object[] vals = (Object[]) Reflect.call(type.getClass(), null, "values");
-//        for (Object o : vals) {
-//            if (PeopleType.Woman.toString().equals(String.valueOf(o))) {
-//                System.out.print("" + o);
-//            }
-//        }
-//    }
-//}

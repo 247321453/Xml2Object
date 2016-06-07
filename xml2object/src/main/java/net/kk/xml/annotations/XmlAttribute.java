@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /***
- * xml attribute :string,int,long,bool,enum
+ * xml attribute :isString,int,long,bool,enum
  * */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

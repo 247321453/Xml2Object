@@ -1,6 +1,7 @@
-package net.kk.xml.internal;
+package net.kk.xml;
 
-import net.kk.xml.internal.bind.Reflect;
+import net.kk.xml.internal.Reflect;
+import net.kk.xml.internal.XmlStringAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,7 @@ public class XmlOptions {
     private boolean debug = false;
     private boolean useSetMethod = true;
     private boolean useSpace = false;
-    private Map<String, XmlTypeAdapter<?>> mXmlTypeAdapterMap;
+    private Map<Class<?>, XmlStringAdapter<?>> mXmlTypeAdapterMap;
     /***
      * true
      * <pre>
@@ -30,7 +31,7 @@ public class XmlOptions {
 
     private boolean useNoAnnotation = true;
 
-    public Map<String, XmlTypeAdapter<?>> getXmlTypeAdapterMap() {
+    public Map<Class<?>, XmlStringAdapter<?>> getXmlTypeAdapterMap() {
         return mXmlTypeAdapterMap;
     }
 
@@ -112,11 +113,11 @@ public class XmlOptions {
             return this;
         }
 
-        public Builder registerTypeAdapter(Class<?> cls,XmlTypeAdapter<?> xmlTypeAdapter){
+        public Builder registerTypeAdapter(Class<?> cls,XmlStringAdapter<?> xmlTypeAdapter){
             if(mOptions.mXmlTypeAdapterMap==null){
-                mOptions.mXmlTypeAdapterMap=new HashMap<String, XmlTypeAdapter<?>>();
+                mOptions.mXmlTypeAdapterMap=new HashMap<Class<?>, XmlStringAdapter<?>>();
             }
-            mOptions.mXmlTypeAdapterMap.put(Reflect.wrapper(cls).getName(), xmlTypeAdapter);
+            mOptions.mXmlTypeAdapterMap.put(Reflect.wrapper(cls), xmlTypeAdapter);
             return this;
         }
     }

@@ -27,8 +27,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface XmlElement {
     /***
-     *
      * @return tag name
      */
     String value();
+
+    /***
+     *
+     * @return object to isString save/read
+     */
+    boolean isString() default false;
 }
