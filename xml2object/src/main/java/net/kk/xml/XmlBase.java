@@ -134,7 +134,7 @@ class XmlBase {
                 if ((field.getModifiers() & Modifier.TRANSIENT) == Modifier.TRANSIENT) {
                     return null;
                 }
-                return ((Field) cls).getName();
+                return field.getName();
             } else if (cls instanceof Class<?>) {
                 return ((Class) cls).getName();
             }

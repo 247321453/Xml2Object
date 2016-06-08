@@ -7,6 +7,7 @@ import net.kk.xml.internal.XmlStringAdapter;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
