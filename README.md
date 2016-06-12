@@ -13,8 +13,4 @@
 	XmlElementMap	xml的map元素注解，keyType：key的类，valueType;值的类。
 	XmlElementText	xml元素的text
 	
-	对象转xml
-	new XmlWriter(XmlSerializer).toXml(Object object, OutputStream outputStream, String encoding);
-	xml转对象
-	T t = new XmlReader(XmlPullParser).from(InputStream inputStream, Class<T> pClass, String encoding);
     [Demo](https://github.com/247321453/KXml/blob/master/xml2object/src/test/java/com/uutils/xml2object/Tests.java)

@@ -75,6 +75,12 @@ class XmlBase {
 
     public String getTagName(AnnotatedElement cls) {
         if (cls == null) return null;
+        if(cls instanceof Field) {
+            Field field = (Field) cls;
+            if ((field.getModifiers() & Modifier.TRANSIENT) == Modifier.TRANSIENT) {
+                return null;
+            }
+        }
         XmlElement xmlElement = cls.getAnnotation(XmlElement.class);
         if (xmlElement != null) {
             //text
@@ -131,9 +137,6 @@ class XmlBase {
             //没有注解也注解
             if (cls instanceof Field) {
                 Field field = (Field) cls;
-                if ((field.getModifiers() & Modifier.TRANSIENT) == Modifier.TRANSIENT) {
-                    return null;
-                }
                 return field.getName();
             } else if (cls instanceof Class<?>) {
                 return ((Class) cls).getName();

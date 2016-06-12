@@ -35,7 +35,7 @@ public class XmlWriter extends XmlBase {
         String name = getTagName(cls);
         long time = System.currentTimeMillis();
         XmlObject xmlObject = mXmlObjectWriter.toObject(name, cls, object);
-        if(DEBUG) {
+        if (DEBUG) {
             System.out.println("time0=" + (System.currentTimeMillis() - time));
         }
         if (xmlObject == null) {

@@ -7,6 +7,7 @@ import net.kk.xml.annotations.XmlElementMap;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -31,14 +32,28 @@ public class XmlReader extends XmlBase {
      * @param pClass      类
      * @param <T>         类型
      * @return 对象
-     * @throws IllegalAccessException    异常1
-     * @throws InstantiationException    异常2
-     * @throws InvocationTargetException 异常3
      */
     @SuppressWarnings("unchecked")
     public <T> T from(InputStream inputStream, Class<T> pClass, String encoding)
             throws Exception {
         XmlObject tag = mXmlPullReader.toTag(pClass, inputStream, encoding);
+        if (DEBUG)
+            Log.d("xml", "form " + tag);
+        return (T) mXmlObjectReader.read(null, tag, null);
+    }
+
+    /***
+     * @param xmlStr 输入文字
+     * @param pClass 类
+     * @param <T>    类型
+     * @return 对象
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T from(String xmlStr, Class<T> pClass)
+            throws Exception {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlStr.getBytes());
+        XmlObject tag = mXmlPullReader.toTag(pClass, inputStream, null);
+        inputStream.close();
         if (DEBUG)
             Log.d("xml", "form " + tag);
         return (T) mXmlObjectReader.read(null, tag, null);
