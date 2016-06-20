@@ -277,25 +277,49 @@ public class Reflect {
         if (boolean.class == type || Boolean.class == type) {
             return Boolean.parseBoolean(value);
         } else if (int.class == type || Integer.class == type) {
+            if (value.trim().length() == 0) {
+                return (int) 0;
+            }
             return (value.startsWith("0x")) ?
                     Integer.parseInt(value.substring(2), 16) : Integer.parseInt(value);
         } else if (long.class == type || Long.class == type) {
+            if (value.trim().length() == 0) {
+                return (long)0;
+            }
             return (value.startsWith("0x")) ?
                     Long.parseLong(value.substring(2), 16) : Long.parseLong(value);
         } else if (short.class == type || Short.class == type) {
+            if (value.trim().length() == 0) {
+                return (short)0;
+            }
             return (value.startsWith("0x")) ?
                     Short.parseShort(value.substring(2), 16) : Short.parseShort(value);
         } else if (byte.class == type || Byte.class == type) {
+            if (value.trim().length() == 0) {
+                return (byte) 0;
+            }
             return value.getBytes()[0];
         } else if (double.class == type || Double.class == type) {
+            if (value.trim().length() == 0) {
+                return (double) 0;
+            }
             return Double.parseDouble(value);
         } else if (float.class == type || Float.class == type) {
+            if (value.trim().length() == 0) {
+                return (float) 0;
+            }
             return Float.parseFloat(value);
         } else if (char.class == type || Character.class == type) {
+            if (value.trim().length() == 0) {
+                return (char) 0;
+            }
             return value.toCharArray()[0];
         } else if (String.class == type) {
             return object == null ? "" : String.valueOf(object);
         } else if (type.isEnum()) {
+            if (value.trim().length() == 0) {
+                return null;
+            }
             Object[] vals = (Object[]) Reflect.call(type, null, "values");
             for (Object o : vals) {
                 //isString
