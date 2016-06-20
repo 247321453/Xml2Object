@@ -47,7 +47,7 @@ class XmlBase {
         return getAdapter(tClass, DEFAULT_ADAPTER);
     }
 
-    public XmlStringAdapter<?> getAdapter(Class<?> tClass, XmlStringAdapter def) {
+    public XmlStringAdapter<?> getAdapter(Class<?> tClass, XmlStringAdapter<?> def) {
         if (mXmlTypeAdapterMap == null) return def;
         Class<?> key = Reflect.wrapper(tClass);
         XmlStringAdapter<?> tXmlTypeAdapter = mXmlTypeAdapterMap.get(key);
@@ -140,7 +140,7 @@ class XmlBase {
                 Field field = (Field) cls;
                 return field.getName();
             } else if (cls instanceof Class<?>) {
-                return ((Class) cls).getName();
+                return ((Class<?>) cls).getName();
             }
         }
         return null;

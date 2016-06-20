@@ -1,16 +1,14 @@
 package net.kk.xml;
 
-import android.util.Log;
-
-import net.kk.xml.annotations.XmlElementList;
-import net.kk.xml.annotations.XmlElementMap;
-
-import org.xmlpull.v1.XmlPullParser;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+
+import org.xmlpull.v1.XmlPullParser;
+
+import net.kk.xml.annotations.XmlElementList;
+import net.kk.xml.annotations.XmlElementMap;
 
 /***
  * {@link XmlObject } 转对象
@@ -36,8 +34,9 @@ public class XmlReader extends XmlBase {
     public <T> T from(InputStream inputStream, Class<T> pClass, String encoding)
             throws Exception {
         XmlObject tag = mXmlPullReader.toTag(pClass, inputStream, encoding);
-        if (DEBUG)
-            Log.d("xml", "form " + tag);
+        if (DEBUG){
+        	System.out.println("form " + tag);
+        }
         return (T) mXmlObjectReader.read(null, tag, null);
     }
 
@@ -54,7 +53,7 @@ public class XmlReader extends XmlBase {
         XmlObject tag = mXmlPullReader.toTag(pClass, inputStream, null);
         inputStream.close();
         if (DEBUG)
-            Log.d("xml", "form " + tag);
+        	System.out.println("form " + tag);
         return (T) mXmlObjectReader.read(null, tag, null);
     }
 

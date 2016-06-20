@@ -68,12 +68,12 @@ class XmlObjectWriter {
                 XmlObject xmlObject = new XmlObject(name);
                 xmlObject.setType(pClass);
                 xmlObject.setSubItem(true);
-                Class kcls = k.getClass();
+                Class<?> kcls = k.getClass();
                 xmlObject.add(toObject(XmlElementMap.KEY, kcls, k));
                 if (v == null) {
                     xmlObject.add(new XmlObject(XmlElementMap.VALUE));
                 } else {
-                    Class cls = v.getClass();
+                    Class<?> cls = v.getClass();
                     xmlObject.add(toObject(XmlElementMap.VALUE, cls, v));
                 }
                 list.add(xmlObject);
@@ -82,7 +82,6 @@ class XmlObjectWriter {
         return list;
     }
 
-    @SuppressWarnings("unchecked")
     private List<XmlObject> array(Object object, AnnotatedElement element) throws Exception {
         String name = options.isSameAsList() ? writer.getTagName(element) : writer.getItemTagName(element);
         ArrayList<XmlObject> list = new ArrayList<XmlObject>();
@@ -102,7 +101,6 @@ class XmlObjectWriter {
         return list;
     }
 
-    @SuppressWarnings("unchecked")
     private List<XmlObject> list(Object object, AnnotatedElement element) throws Exception {
         String name = options.isSameAsList() ? writer.getTagName(element) : writer.getItemTagName(element);
         ArrayList<XmlObject> list = new ArrayList<XmlObject>();
@@ -149,12 +147,10 @@ class XmlObjectWriter {
             Reflect.accessible(field);
             Object val = field.get(object);
             XmlStringAdapter xmlStringAdapter = writer.getAdapter(type);
-            //TODO object isString
             parent.addAttribute(writer.getNamespace(field), subTag, xmlStringAdapter.toString(type, val));
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void writeSubTag(Object object, XmlObject parent) throws Exception {
         if (object == null) return;
         Collection<Field> fields = Reflect.getFileds(object.getClass());

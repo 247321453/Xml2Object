@@ -404,7 +404,7 @@ public class Reflect {
             if (type instanceof ParameterizedType) {
                 Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
                 if (elementType instanceof Class) {
-                    return EnumSet.noneOf((Class) elementType);
+                    return (Collection<T>) EnumSet.noneOf((Class) elementType);
                 } else {
                     throw new RuntimeException("Invalid EnumSet type: " + type.toString());
                 }

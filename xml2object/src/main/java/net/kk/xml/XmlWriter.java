@@ -71,7 +71,6 @@ public class XmlWriter extends XmlBase {
             List<XmlObject.XmlAttributeObject> attributeObjects=xmlObject.getAttributes();
             if (attributeObjects != null) {
                 for (XmlObject.XmlAttributeObject e :attributeObjects) {
-                    //TODO
                     serializer.attribute(e.getNamespace(), e.getName(), e.getValue());
                 }
             }
