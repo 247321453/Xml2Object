@@ -4,7 +4,7 @@ import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
+import java.util.List;
 
 /**
  * {@link XmlObject } 转文件
@@ -67,10 +67,12 @@ public class XmlWriter extends XmlBase {
                 serializer.text(NEW_LINE);
                 writeTab(serializer, depth);
             }
-            serializer.startTag(null, xmlObject.getName());
-            if (xmlObject.getAttributes() != null) {
-                for (Map.Entry<String, String> e : xmlObject.getAttributes().entrySet()) {
-                    serializer.attribute(null, e.getKey(), e.getValue());
+            serializer.startTag(xmlObject.getNamespace(), xmlObject.getName());
+            List<XmlObject.XmlAttributeObject> attributeObjects=xmlObject.getAttributes();
+            if (attributeObjects != null) {
+                for (XmlObject.XmlAttributeObject e :attributeObjects) {
+                    //TODO
+                    serializer.attribute(e.getNamespace(), e.getName(), e.getValue());
                 }
             }
             serializer.text(xmlObject.getText() == null ? "" : xmlObject.getText());
@@ -84,7 +86,7 @@ public class XmlWriter extends XmlBase {
                 serializer.text(NEW_LINE);
                 writeTab(serializer, depth);
             }
-            serializer.endTag(null, xmlObject.getName());
+            serializer.endTag(xmlObject.getNamespace(), xmlObject.getName());
         }
     }
 

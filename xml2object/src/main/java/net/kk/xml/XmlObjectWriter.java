@@ -7,7 +7,6 @@ import net.kk.xml.internal.XmlStringAdapter;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,18 +31,16 @@ class XmlObjectWriter {
         XmlObject root = new XmlObject(name);
         Class<?> cls = object.getClass();
         root.setType(cls);
+        root.setNamespace(writer.getNamespace(element));
         if (writer.isNormal(element)) {
             XmlStringAdapter stringAdapter = writer.getAdapter(cls);
             root.setText(stringAdapter.toString(cls, object));
         } else if (cls.isArray()) {
-            String subtag = options.isSameAsList() ? writer.getTagName(element) : writer.getItemTagName(element);
-            root.addAll(array(object, subtag));
+            root.addAll(array(object, element));
         } else if (object instanceof Map) {
-            String subtag = options.isSameAsList() ? writer.getTagName(element) : writer.getItemTagName(element);
-            root.addAll(map(object, cls, subtag));
+            root.addAll(map(object, cls, element));
         } else if (object instanceof Collection) {
-            String subtag = options.isSameAsList() ? writer.getTagName(element) : writer.getItemTagName(element);
-            root.addAll(list(object, subtag));
+            root.addAll(list(object, element));
         } else {
             writeText(object, root);
             writeAttributes(object, root);
@@ -53,7 +50,8 @@ class XmlObjectWriter {
     }
 
     @SuppressWarnings("unchecked")
-    private ArrayList<XmlObject> map(Object object, Class<?> pClass, String name) throws Exception {
+    private ArrayList<XmlObject> map(Object object, Class<?> pClass, AnnotatedElement element) throws Exception {
+        String name = options.isSameAsList() ? writer.getTagName(element) : writer.getItemTagName(element);
         ArrayList<XmlObject> list = new ArrayList<XmlObject>();
         if (object == null) {
             return list;
@@ -85,7 +83,8 @@ class XmlObjectWriter {
     }
 
     @SuppressWarnings("unchecked")
-    private List<XmlObject> array(Object object, String name) throws Exception {
+    private List<XmlObject> array(Object object, AnnotatedElement element) throws Exception {
+        String name = options.isSameAsList() ? writer.getTagName(element) : writer.getItemTagName(element);
         ArrayList<XmlObject> list = new ArrayList<XmlObject>();
         if (object != null) {
             int count = Array.getLength(object);
@@ -104,7 +103,8 @@ class XmlObjectWriter {
     }
 
     @SuppressWarnings("unchecked")
-    private List<XmlObject> list(Object object, String name) throws Exception {
+    private List<XmlObject> list(Object object, AnnotatedElement element) throws Exception {
+        String name = options.isSameAsList() ? writer.getTagName(element) : writer.getItemTagName(element);
         ArrayList<XmlObject> list = new ArrayList<XmlObject>();
         if (object != null) {
             Object[] objs = (Object[]) Reflect.call(object.getClass(), object, "toArray");
@@ -150,7 +150,7 @@ class XmlObjectWriter {
             Object val = field.get(object);
             XmlStringAdapter xmlStringAdapter = writer.getAdapter(type);
             //TODO object isString
-            parent.addAttribute(subTag, xmlStringAdapter.toString(type, val));
+            parent.addAttribute(writer.getNamespace(field), subTag, xmlStringAdapter.toString(type, val));
         }
     }
 

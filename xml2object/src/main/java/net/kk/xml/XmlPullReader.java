@@ -67,9 +67,10 @@ class XmlPullReader {
                         depth = d;
                         int count = xmlParser.getAttributeCount();
                         for (int i = 0; i < count; i++) {
+                            String np = xmlParser.getNamespace();
                             String k = xmlParser.getAttributeName(i);
                             String v = xmlParser.getAttributeValue(i);
-                            mXmlObject.addAttribute(k, v);
+                            mXmlObject.addAttribute(np, k, v);
                         }
                         break;
                     case XmlPullParser.TEXT:

@@ -29,21 +29,22 @@ public @interface XmlElementMap {
     public static final String ITEM = "item";
     public static final String KEY = "key";
     public static final String VALUE = "value";
+
     /***
-     *
      * @return tab name
      */
     String value();
+
     /**
      * @return name of map's value
      */
     Class<?> valueType();
 
     /***
-     *
      * @return sub tag name
      */
     String item() default ITEM;
+
     /**
      * @return name of map's key
      */

@@ -31,4 +31,5 @@ public @interface XmlAttribute {
      * @return attribute name
      */
     String value();
+    String namespace() default "";
 }

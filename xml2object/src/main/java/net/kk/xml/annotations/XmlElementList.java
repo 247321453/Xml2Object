@@ -27,17 +27,17 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface XmlElementList {
     public static final String ITEM = "item";
+
     /***
-     *
      * @return tag name
      */
     String value();
 
     /***
-     *
      * @return sub tag name
      */
     String item() default ITEM;
+
     /**
      * @return sub itemType
      */

@@ -31,8 +31,9 @@ public @interface XmlElement {
      */
     String value();
 
+    String namespace() default "";
+
     /***
-     *
      * @return object to isString save/read
      */
     boolean isString() default false;

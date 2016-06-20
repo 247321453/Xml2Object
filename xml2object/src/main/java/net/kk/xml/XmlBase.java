@@ -69,13 +69,14 @@ class XmlBase {
         }
         return false;
     }
+
     public XmlOptions getOptions() {
         return mOptions;
     }
 
     public String getTagName(AnnotatedElement cls) {
         if (cls == null) return null;
-        if(cls instanceof Field) {
+        if (cls instanceof Field) {
             Field field = (Field) cls;
             if ((field.getModifiers() & Modifier.TRANSIENT) == Modifier.TRANSIENT) {
                 return null;
@@ -143,6 +144,23 @@ class XmlBase {
             }
         }
         return null;
+    }
+
+    public String getNamespace(AnnotatedElement element) {
+        String namespace = null;
+        if (element == null) return null;
+        XmlAttribute attribute = element.getAnnotation(XmlAttribute.class);
+        if (attribute != null) {
+            namespace = attribute.namespace();
+        }
+        XmlElement xmlElement = element.getAnnotation(XmlElement.class);
+        if (xmlElement != null) {
+            namespace = xmlElement.namespace();
+        }
+        if (namespace != null && namespace.trim().length() == 0) {
+            return null;
+        }
+        return namespace;
     }
 
     protected static String trim(String str) {

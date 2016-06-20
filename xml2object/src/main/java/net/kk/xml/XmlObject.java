@@ -7,11 +7,61 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 class XmlObject {
+    public class XmlAttributeObject {
+        public XmlAttributeObject(String namespace, String name, String value) {
+            this.name = name;
+            this.namespace = namespace;
+            this.value = value;
+        }
+
+        private String name;
+        private String namespace;
+        private String value;
+
+        public String getName() {
+            return name;
+        }
+
+        public String getNamespace() {
+            return namespace;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof XmlAttributeObject) {
+                XmlAttributeObject other = (XmlAttributeObject) o;
+                if (other.getName() != null && !other.getName().equals(name)) {
+                    return false;
+                } else if (name != null) {
+                    return false;
+                }
+                if (other.getNamespace() != null && !other.getNamespace().equals(name)) {
+                    return false;
+                } else if (namespace != null) {
+                    return false;
+                }
+                return true;
+            }
+            return super.equals(o);
+        }
+
+        @Override
+        public String toString() {
+            return "XmlAttributeObject{" +
+                    "name='" + name + '\'' +
+                    ", namespace='" + namespace + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
+    }
+
     public XmlObject() {
         super();
     }
@@ -36,9 +86,11 @@ class XmlObject {
     private boolean subItem;
 
     //属性
-    private Map<String, String> attributes;
+    private List<XmlAttributeObject> attributes;
     //子标签
     private List<XmlObject> mXmlObjects;
+
+    private String namespace;
 
     //子元素数量
     public int size() {
@@ -46,8 +98,12 @@ class XmlObject {
     }
 
     //属性值
-    public Map<String, String> getAttributes() {
+    public List<XmlAttributeObject> getAttributes() {
         return attributes;
+    }
+
+    public String getNamespace() {
+        return namespace;
     }
 
     public boolean isSubItem() {
@@ -58,20 +114,21 @@ class XmlObject {
         this.subItem = subItem;
     }
 
-    public void addAttribute(String name, String value) {
+    public void addAttribute(String namespace, String name, String value) {
         if (name == null) return;
         if (attributes == null) {
-            attributes = new HashMap<String, String>();
+            attributes = new ArrayList<XmlAttributeObject>();
         }
-        attributes.put(name, value);
+        XmlAttributeObject xmlAttributeObject = new XmlAttributeObject(namespace, name, value);
+        int index = attributes.indexOf(xmlAttributeObject);
+        if (index >= 0) {
+            attributes.remove(index);
+        }
+        attributes.add(xmlAttributeObject);
     }
 
     public boolean isNULL() {
         return tClass == null;
-    }
-
-    public String getAttribute(String name) {
-        return attributes.get(name);
     }
 
     public void add(XmlObject xmlObject) {
@@ -97,6 +154,10 @@ class XmlObject {
 
     public String getText() {
         return text;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     public void setName(String name) {
