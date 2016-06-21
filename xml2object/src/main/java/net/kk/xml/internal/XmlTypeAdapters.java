@@ -5,7 +5,13 @@ public class XmlTypeAdapters {
     public XmlStringAdapter<Object> ObjectStringAdapter = new XmlStringAdapter<Object>() {
         @Override
         public Object toObject(Class<?> objectClass, String val) throws Exception {
-            return Reflect.wrapperValue(objectClass, val);
+            Object object=null;
+            try {
+                object = Reflect.wrapperValue(objectClass, val);
+            }catch (Exception e){
+
+            }
+            return object;
         }
 
         @Override
