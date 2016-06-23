@@ -140,7 +140,7 @@ class XmlBase {
                 Field field = (Field) cls;
                 return field.getName();
             } else if (cls instanceof Class<?>) {
-                return ((Class<?>) cls).getName();
+                return ((Class<?>) cls).getSimpleName();
             }
         }
         return null;

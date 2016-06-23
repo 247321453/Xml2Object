@@ -173,7 +173,17 @@ class XmlObjectReader {
         T t;
         if (object != null) {
             t = (T) object;
+            //长度不够
         } else {
+            t = (T) Array.newInstance(sc, count);
+        }
+        Integer integer = null;
+        try {
+            integer = (Integer) Reflect.getFieldValue(pClass, "length", t);
+        } catch (Exception e) {
+
+        }
+        if (integer == null || integer < count) {
             t = (T) Array.newInstance(sc, count);
         }
         for (int i = 0; i < count; i++) {

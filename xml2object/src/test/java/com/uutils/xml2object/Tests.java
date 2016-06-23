@@ -31,8 +31,44 @@ public class Tests {
     }
 
     @Test
-    public void testList(){
-
+    public void testbean() throws XmlPullParserException {
+        TestBean testBean = new TestBean();
+        testBean.age = 18;
+        testBean.name = "hi";
+        testBean.as = new int[]{12, 123,14};
+        testBean.i = 990L;
+        testBean.hello = false;
+        testBean.maps = new HashMap<String, Integer>();
+        testBean.maps.put("encrypt", 1);
+        testBean.maps.put("decrypt", 2);
+        XmlOptions options = new XmlOptions.Builder()
+                //忽略没有注解的字段
+//                .ignoreNoAnnotation()
+                .dontUseSetMethod()
+                //list，map的元素在同一级
+//                .enableSameAsList()
+                .useSpace()
+                .registerTypeAdapter(PeopleType.class, new PeopleTypeAdapter())
+                .registerTypeAdapter(Boolean.class, new BooleanAdapter())
+                .registerTypeAdapter(int[].class, new IntegerArrayAdapter())
+                .build();
+        XmlReader xmlReader = new XmlReader(XmlPullParserFactory.newInstance().newPullParser(), options);
+        XmlWriter xmlWriter = new XmlWriter(XmlPullParserFactory.newInstance().newSerializer(), options);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            long time1 = System.currentTimeMillis();
+            System.out.println("main=" + testBean + "\n");
+            xmlWriter.toXml(testBean, outputStream, null);
+            System.out.println("time1=" + (System.currentTimeMillis() - time1));
+            String xmlStr = outputStream.toString();
+            System.out.println("" + xmlStr + "\n");
+            time1 = System.currentTimeMillis();
+            TestBean testBean2 = xmlReader.from(new ByteArrayInputStream(xmlStr.getBytes()), TestBean.class, null);
+            System.out.println("time3=" + (System.currentTimeMillis() - time1));
+            System.out.println("main=" + testBean2 + "\n");
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

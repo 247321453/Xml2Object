@@ -44,6 +44,14 @@ public class Reflect {
         }
     }
 
+    public static Object getFieldValue(Class<?> cls, String name, Object obj) throws NoSuchFieldException, IllegalAccessException {
+        Field field = cls.getDeclaredField(name);
+        if (field != null) {
+            accessible(field);
+            return field.get(obj);
+        }
+        return null;
+    }
 
     public static Object get(Field field, Object parent) throws IllegalAccessException {
         if (field != null) {
@@ -93,6 +101,7 @@ public class Reflect {
         }
         return Object.class;
     }
+
     public static Class<?>[] getMapClass(Field field) {
         if (field.getType().isAssignableFrom(Map.class)) //【2】
         {
@@ -108,6 +117,7 @@ public class Reflect {
         }
         return new Class[]{Object.class, Object.class};
     }
+
     public static Object call(Class<?> cls, Object object, String name, Object... args) throws RuntimeException {
         Class<?>[] types = types(args);
         args = reObjects(args);
