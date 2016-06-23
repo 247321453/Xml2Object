@@ -69,12 +69,16 @@ class XmlObjectWriter {
                 xmlObject.setType(pClass);
                 xmlObject.setSubItem(true);
                 Class<?> kcls = k.getClass();
-                xmlObject.addChild(toObject(XmlElementMap.KEY, kcls, k));
+                XmlObject xmlkey = toObject(XmlElementMap.KEY, kcls, k);
+                xmlkey.setNamespace(writer.getNamespace(element));
+                xmlObject.addChild(xmlkey);
                 if (v == null) {
                     xmlObject.addChild(new XmlObject(XmlElementMap.VALUE));
                 } else {
                     Class<?> cls = v.getClass();
-                    xmlObject.addChild(toObject(XmlElementMap.VALUE, cls, v));
+                    XmlObject xmlval = toObject(XmlElementMap.VALUE, cls, v);
+                    xmlval.setNamespace(writer.getNamespace(element));
+                    xmlObject.addChild(xmlval);
                 }
                 list.add(xmlObject);
             }
@@ -93,6 +97,7 @@ class XmlObjectWriter {
                     Class<?> cls = obj.getClass();
                     //
                     XmlObject object1 = toObject(name, cls, obj);
+                    object1.setNamespace(writer.getNamespace(element));
                     object1.setSubItem(true);
                     list.add(object1);
                 }
@@ -111,6 +116,7 @@ class XmlObjectWriter {
                     if (obj != null) {
                         Class<?> cls = obj.getClass();
                         XmlObject object1 = toObject(name, cls, obj);
+                        object1.setNamespace(writer.getNamespace(element));
                         object1.setSubItem(true);
                         list.add(object1);
                     }
@@ -155,15 +161,15 @@ class XmlObjectWriter {
         if (object == null) return;
         Class<?> parentClass = parent.getTClass();
         //内部类
-        boolean isInner=object.getClass().isMemberClass();
+        boolean isInner = object.getClass().isMemberClass();
         Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
             String name = writer.getTagName(field);
             String fname = field.getName();
             if (name == null)
                 continue;
-            if(isInner){
-                if("this$0".equals(fname)){
+            if (isInner) {
+                if ("this$0".equals(fname)) {
                     continue;
                 }
             }

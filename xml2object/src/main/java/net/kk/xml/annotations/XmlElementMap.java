@@ -38,15 +38,15 @@ public @interface XmlElementMap {
     /**
      * @return name of map's value
      */
-    Class<?> valueType();
+    Class<?> valueType() default Object.class;
 
     /***
      * @return sub tag name
      */
     String item() default ITEM;
-
+    String namespace() default "";
     /**
      * @return name of map's key
      */
-    Class<?> keyType();
+    Class<?> keyType() default Object.class;
 }

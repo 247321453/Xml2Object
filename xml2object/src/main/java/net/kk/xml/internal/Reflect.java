@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -80,6 +81,33 @@ public class Reflect {
         }
     }
 
+    public static Class<?> getListClass(Field field) {
+        if (field.getType().isAssignableFrom(List.class)) //【2】
+        {
+            Type fc = field.getGenericType(); // 关键的地方，如果是List类型，得到其Generic的类型
+            if (fc instanceof ParameterizedType) // 【3】如果是泛型参数的类型
+            {
+                ParameterizedType pt = (ParameterizedType) fc;
+                return (Class) pt.getActualTypeArguments()[0]; //【4】 得到泛型里的class类型对象。
+            }
+        }
+        return Object.class;
+    }
+    public static Class<?>[] getMapClass(Field field) {
+        if (field.getType().isAssignableFrom(Map.class)) //【2】
+        {
+            Type fc = field.getGenericType(); // 关键的地方，如果是List类型，得到其Generic的类型
+            if (fc instanceof ParameterizedType) // 【3】如果是泛型参数的类型
+            {
+                ParameterizedType pt = (ParameterizedType) fc;
+                return new Class[]{
+                        (Class) pt.getActualTypeArguments()[0],
+                        (Class) pt.getActualTypeArguments()[1]
+                };
+            }
+        }
+        return new Class[]{Object.class, Object.class};
+    }
     public static Object call(Class<?> cls, Object object, String name, Object... args) throws RuntimeException {
         Class<?>[] types = types(args);
         args = reObjects(args);

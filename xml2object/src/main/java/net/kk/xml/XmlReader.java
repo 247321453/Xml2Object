@@ -2,6 +2,7 @@ package net.kk.xml;
 
 import net.kk.xml.annotations.XmlElementList;
 import net.kk.xml.annotations.XmlElementMap;
+import net.kk.xml.internal.Reflect;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -86,6 +87,9 @@ public class XmlReader extends XmlBase {
 
     public Class<?> getListClass(AnnotatedElement cls) {
         if (cls == null) return Object.class;
+        if (cls instanceof Field) {
+            return Reflect.getListClass((Field) cls);
+        }
         XmlElementList xmlElement = cls.getAnnotation(XmlElementList.class);
         if (xmlElement != null) {
             if (xmlElement.type() != null) {
@@ -98,6 +102,9 @@ public class XmlReader extends XmlBase {
     public Class<?>[] getMapClass(AnnotatedElement cls) {
         if (cls == null)
             return new Class[]{Object.class, Object.class};
+        if (cls instanceof Field) {
+           return Reflect.getMapClass((Field) cls);
+        }
         XmlElementMap xmlElement = cls.getAnnotation(XmlElementMap.class);
         Class<?> kclass = Object.class;
         Class<?> vclass = Object.class;

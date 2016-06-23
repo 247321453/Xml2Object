@@ -1,8 +1,8 @@
 package com.uutils.xml2object;
 
+import net.kk.xml.XmlOptions;
 import net.kk.xml.XmlReader;
 import net.kk.xml.XmlWriter;
-import net.kk.xml.XmlOptions;
 
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserException;
@@ -11,7 +11,9 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class Tests {
 
@@ -19,6 +21,18 @@ public class Tests {
     public void testType() {
         System.out.println(Boolean.class.isAssignableFrom(boolean.class));
         System.out.println(boolean.class.isAssignableFrom(Boolean.class));
+    }
+
+    @Test
+    public void getType() {
+        List<String> list = new ArrayList<String>();
+        System.out.println(list.getClass().getGenericSuperclass());
+        System.out.println(Arrays.toString(list.getClass().getGenericInterfaces()));
+    }
+
+    @Test
+    public void testList(){
+
     }
 
     @Test

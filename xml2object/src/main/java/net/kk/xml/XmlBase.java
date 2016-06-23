@@ -157,6 +157,14 @@ class XmlBase {
         if (xmlElement != null) {
             namespace = xmlElement.namespace();
         }
+        XmlElementList xmlElementList = element.getAnnotation(XmlElementList.class);
+        if (xmlElementList != null) {
+            namespace = xmlElementList.namespace();
+        }
+        XmlElementMap xmlElementMap = element.getAnnotation(XmlElementMap.class);
+        if (xmlElementMap != null) {
+            namespace = xmlElementMap.namespace();
+        }
         if (namespace != null && namespace.trim().length() == 0) {
             return null;
         }

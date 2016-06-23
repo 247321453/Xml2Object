@@ -32,7 +32,7 @@ public @interface XmlElementList {
      * @return tag name
      */
     String value();
-
+    String namespace() default "";
     /***
      * @return sub tag name
      */
@@ -41,5 +41,5 @@ public @interface XmlElementList {
     /**
      * @return sub itemType
      */
-    Class<?> type();
+    Class<?> type() default Object.class;
 }

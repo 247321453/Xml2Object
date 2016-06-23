@@ -43,10 +43,10 @@ public class Man implements IPeople {
 
     @XmlElement("inner")
     SubClass sub;
-    @XmlElementList(value = "inners", type = SubClass.class)
+    @XmlElementList("inners")
     List<SubClass> subs;
 
-    @XmlElementMap(value = "innermap", keyType = String.class, valueType = SubClass.class)
+    @XmlElementMap("innermap")
     Map<String, SubClass> subMap;
 
     @XmlAttribute("name1")
@@ -78,10 +78,10 @@ public class Man implements IPeople {
     @XmlAttribute("type")
     PeopleType type = PeopleType.Man;
 
-    @XmlElementList(value = "son1", item = "son", type = Son.class)
+    @XmlElementList(value = "son1", item = "son")
     List<Son> sons;
 
-    @XmlElementMap(value = "maps", keyType = String.class, valueType = Integer.class)
+    @XmlElementMap(value = "maps")
     Map<String, Integer> maps;
 
     @Override

@@ -9,6 +9,7 @@ import java.util.Map;
 public class XmlOptions {
     private boolean debug = false;
     private boolean useSetMethod = true;
+    //xml缩进
     private boolean useSpace = false;
     private Map<Class<?>, XmlStringAdapter<?>> mXmlTypeAdapterMap;
     /***
