@@ -1,14 +1,15 @@
 package net.kk.xml;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
+import net.kk.xml.annotations.XmlElementList;
+import net.kk.xml.annotations.XmlElementMap;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import net.kk.xml.annotations.XmlElementList;
-import net.kk.xml.annotations.XmlElementMap;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 
 /***
  * {@link XmlObject } 转对象
@@ -31,13 +32,44 @@ public class XmlReader extends XmlBase {
      * @return 对象
      */
     @SuppressWarnings("unchecked")
-    public <T> T from(InputStream inputStream, Class<T> pClass, String encoding)
-            throws Exception {
-        XmlObject tag = mXmlPullReader.toTag(pClass, inputStream, encoding);
-        if (DEBUG){
-        	System.out.println("form " + tag);
+    public <T> T from(InputStream inputStream, Class<T> pClass, String encoding) throws Exception {
+        XmlObject tag = toXmlObject(inputStream, pClass, encoding);
+        if (DEBUG) {
+            System.out.println("form " + tag);
         }
-        return (T) mXmlObjectReader.read(null, tag, null);
+        return (T) mXmlObjectReader.read(null, tag, null, null);
+    }
+
+    /***
+     * xml转为xmlobject
+     *
+     * @param inputStream 流
+     * @param pClass      类
+     * @param encoding    编码
+     */
+    public <T> XmlObject toXmlObject(InputStream inputStream, Class<T> pClass, String encoding) {
+        return mXmlPullReader.toTag(pClass, inputStream, encoding);
+    }
+
+    /***
+     * xml转为xmlobject
+     *
+     * @param xmlStr   xml
+     * @param pClass   类
+     * @param encoding 编码
+     */
+    public <T> XmlObject toXmlObject(String xmlStr, Class<T> pClass, String encoding) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlStr.getBytes());
+        XmlObject xmlObject = null;
+        try {
+            xmlObject = mXmlPullReader.toTag(pClass, inputStream, encoding);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+            }
+        }
+        return xmlObject;
     }
 
     /***
@@ -47,14 +79,9 @@ public class XmlReader extends XmlBase {
      * @return 对象
      */
     @SuppressWarnings("unchecked")
-    public <T> T from(String xmlStr, Class<T> pClass)
-            throws Exception {
+    public <T> T from(String xmlStr, Class<T> pClass) throws Exception {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlStr.getBytes());
-        XmlObject tag = mXmlPullReader.toTag(pClass, inputStream, null);
-        inputStream.close();
-        if (DEBUG)
-        	System.out.println("form " + tag);
-        return (T) mXmlObjectReader.read(null, tag, null);
+        return from(inputStream, pClass, null);
     }
 
     public Class<?> getListClass(AnnotatedElement cls) {

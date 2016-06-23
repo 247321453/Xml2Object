@@ -24,6 +24,7 @@ public class Tests {
     @Test
     public void test() throws XmlPullParserException {
         Man man1 = new Man();
+        man1.initSub();
         man1.sons = new ArrayList<Son>();
         man1.maps = new HashMap<String, Integer>();
         man1.name = "man1";
@@ -46,12 +47,13 @@ public class Tests {
         man1.sons.add(son);
         man1.sons.add(new Son());
 //        man1.childs=new ArrayList<>();
-//        man1.childs.add(new Man("join", 16));
-//        man1.childs.add(new Woman("lily", 18));
+//        man1.childs.addChild(new Man("join", 16));
+//        man1.childs.addChild(new Woman("lily", 18));
         XmlOptions options = new XmlOptions.Builder()
 //                .ignoreNoAnnotation()
                 .dontUseSetMethod()
-                .enableSameAsList()
+                //list，map的元素在同一级
+//                .enableSameAsList()
                 .useSpace()
                 .registerTypeAdapter(PeopleType.class, new PeopleTypeAdapter())
                 .registerTypeAdapter(Boolean.class, new BooleanAdapter())

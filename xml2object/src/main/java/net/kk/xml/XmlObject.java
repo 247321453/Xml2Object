@@ -91,28 +91,40 @@ class XmlObject {
 
 	private String namespace;
 
-	// 子元素数量
-	public int size() {
-		return mXmlObjects == null ? 0 : mXmlObjects.size();
-	}
-
-	// 属性值
+    /***
+     * xml属性集合
+     */
 	public List<XmlAttributeObject> getAttributes() {
 		return attributes;
 	}
 
+    /***
+     * 命名空间
+     * @return
+     */
 	public String getNamespace() {
 		return namespace;
 	}
 
+    /**
+     * list，map的子标签
+     */
 	public boolean isSubItem() {
 		return subItem;
 	}
-
+    /**
+     * list，map的子标签
+     */
 	public void setSubItem(boolean subItem) {
 		this.subItem = subItem;
 	}
 
+    /***
+     * 添加属性
+     * @param namespace 命名空间
+     * @param name 名字
+     * @param value 值
+     */
 	public void addAttribute(String namespace, String name, String value) {
 		if (name == null)
 			return;
@@ -127,11 +139,18 @@ class XmlObject {
 		attributes.add(xmlAttributeObject);
 	}
 
+    /**
+     * 空
+     */
 	public boolean isNULL() {
 		return tClass == null;
 	}
 
-	public void add(XmlObject xmlObject) {
+    /***
+     * 添加字标签
+     * @param xmlObject
+     */
+	public void addChild(XmlObject xmlObject) {
 		if (mXmlObjects == null) {
 			mXmlObjects = new ArrayList<XmlObject>();
 		}
@@ -140,10 +159,23 @@ class XmlObject {
 		}
 	}
 
-	public XmlObject get(int i) {
+    /***
+     *  xml标签数量
+     * @return
+     */
+    public int getChildCount() {
+        return mXmlObjects == null ? 0 : mXmlObjects.size();
+    }
+
+    /***
+     * 获取字标签
+     * @param i
+     * @return
+     */
+	public XmlObject getChildAt(int i) {
 		if (mXmlObjects == null)
 			return null;
-		if (i >= 0 && i < size()) {
+		if (i >= 0 && i < getChildCount()) {
 			return mXmlObjects.get(i);
 		}
 		return null;
@@ -169,15 +201,15 @@ class XmlObject {
 		this.text = value;
 	}
 
-	public void addAll(Collection<XmlObject> collection) {
+	public void addAllChilds(Collection<XmlObject> collection) {
 		if (collection != null) {
 			for (XmlObject e : collection) {
-				add(e);
+				addChild(e);
 			}
 		}
 	}
 
-	public XmlObject get(String name) {
+	public XmlObject getChild(String name) {
 		if (name == null || mXmlObjects == null)
 			return null;
 		for (XmlObject t : mXmlObjects) {
@@ -188,19 +220,7 @@ class XmlObject {
 		return null;
 	}
 
-	public XmlObject getElement(String name) {
-		if (name == null || mXmlObjects == null) {
-			return null;
-		}
-		for (XmlObject t : this.mXmlObjects) {
-			if (name.equals(t.getName())) {
-				return t;
-			}
-		}
-		return null;
-	}
-
-	public ArrayList<XmlObject> getElementList(String name) {
+	public ArrayList<XmlObject> getSameChild(String name) {
 		ArrayList<XmlObject> xmlObjects = new ArrayList<XmlObject>();
 		if (name == null || this.mXmlObjects == null) {
 			return xmlObjects;

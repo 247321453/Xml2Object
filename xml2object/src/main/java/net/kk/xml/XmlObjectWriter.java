@@ -36,11 +36,11 @@ class XmlObjectWriter {
             XmlStringAdapter stringAdapter = writer.getAdapter(cls);
             root.setText(stringAdapter.toString(cls, object));
         } else if (cls.isArray()) {
-            root.addAll(array(object, element));
+            root.addAllChilds(array(object, element));
         } else if (object instanceof Map) {
-            root.addAll(map(object, cls, element));
+            root.addAllChilds(map(object, cls, element));
         } else if (object instanceof Collection) {
-            root.addAll(list(object, element));
+            root.addAllChilds(list(object, element));
         } else {
             writeText(object, root);
             writeAttributes(object, root);
@@ -69,12 +69,12 @@ class XmlObjectWriter {
                 xmlObject.setType(pClass);
                 xmlObject.setSubItem(true);
                 Class<?> kcls = k.getClass();
-                xmlObject.add(toObject(XmlElementMap.KEY, kcls, k));
+                xmlObject.addChild(toObject(XmlElementMap.KEY, kcls, k));
                 if (v == null) {
-                    xmlObject.add(new XmlObject(XmlElementMap.VALUE));
+                    xmlObject.addChild(new XmlObject(XmlElementMap.VALUE));
                 } else {
                     Class<?> cls = v.getClass();
-                    xmlObject.add(toObject(XmlElementMap.VALUE, cls, v));
+                    xmlObject.addChild(toObject(XmlElementMap.VALUE, cls, v));
                 }
                 list.add(xmlObject);
             }
@@ -153,17 +153,26 @@ class XmlObjectWriter {
 
     private void writeSubTag(Object object, XmlObject parent) throws Exception {
         if (object == null) return;
+        Class<?> parentClass = parent.getTClass();
+        //内部类
+        boolean isInner=object.getClass().isMemberClass();
         Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
             String name = writer.getTagName(field);
+            String fname = field.getName();
             if (name == null)
                 continue;
+            if(isInner){
+                if("this$0".equals(fname)){
+                    continue;
+                }
+            }
             Reflect.accessible(field);
             Object val = field.get(object);
             XmlObject fobject = toObject(name, field, val);
             if (fobject != null) {
                 fobject.setType(field);
-                parent.add(fobject);
+                parent.addChild(fobject);
             }
         }
     }

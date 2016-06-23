@@ -5,7 +5,9 @@ import net.kk.xml.annotations.XmlElement;
 import net.kk.xml.annotations.XmlElementList;
 import net.kk.xml.annotations.XmlElementMap;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,10 +18,36 @@ public class Man implements IPeople {
         // sons = new ArrayList<>();
     }
 
+    public void initSub() {
+        sub = new SubClass();
+        subs = new ArrayList<SubClass>();
+        subs.add(new SubClass());
+        subMap=new HashMap<String, SubClass>();
+        subMap.put("1", new SubClass());
+    }
+
     public Man(String pName, int pAge) {
         age = pAge;
         name = pName;
     }
+
+    class SubClass {
+        @XmlElement("a")
+        int a;
+
+        @Override
+        public String toString() {
+            return "sub[a=" + a + "]";
+        }
+    }
+
+    @XmlElement("inner")
+    SubClass sub;
+    @XmlElementList(value = "inners", type = SubClass.class)
+    List<SubClass> subs;
+
+    @XmlElementMap(value = "innermap", keyType = String.class, valueType = SubClass.class)
+    Map<String, SubClass> subMap;
 
     @XmlAttribute("name1")
     String name;
@@ -50,7 +78,7 @@ public class Man implements IPeople {
     @XmlAttribute("type")
     PeopleType type = PeopleType.Man;
 
-    @XmlElementList(value = "son1",item = "son" ,type = Son.class)
+    @XmlElementList(value = "son1", item = "son", type = Son.class)
     List<Son> sons;
 
     @XmlElementMap(value = "maps", keyType = String.class, valueType = Integer.class)
@@ -60,6 +88,9 @@ public class Man implements IPeople {
     public String toString() {
         return "Man{" +
                 "age=" + age +
+                ", sub=" + sub +
+                ", subs=" + subs +
+                ", innermap="+subMap+
                 ", name='" + name + '\'' +
                 ", sex='" + sex + '\'' +
                 ", as=" + Arrays.toString(as) +

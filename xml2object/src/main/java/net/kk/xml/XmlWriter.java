@@ -76,9 +76,9 @@ public class XmlWriter extends XmlBase {
             }
             serializer.text(xmlObject.getText() == null ? "" : xmlObject.getText());
         }
-        int count = xmlObject.size();
+        int count = xmlObject.getChildCount();
         for (int i = 0; i < count; i++) {
-            writeTag(xmlObject.get(i), serializer, noSameList ? depth + 1 : depth);
+            writeTag(xmlObject.getChildAt(i), serializer, noSameList ? depth + 1 : depth);
         }
         if (noSameList) {
             if (count > 0 && mOptions.isUseSpace()) {

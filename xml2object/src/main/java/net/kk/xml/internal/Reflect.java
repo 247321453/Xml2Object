@@ -1,7 +1,6 @@
 package net.kk.xml.internal;
 
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -284,13 +283,13 @@ public class Reflect {
                     Integer.parseInt(value.substring(2), 16) : Integer.parseInt(value);
         } else if (long.class == type || Long.class == type) {
             if (value.trim().length() == 0) {
-                return (long)0;
+                return (long) 0;
             }
             return (value.startsWith("0x")) ?
                     Long.parseLong(value.substring(2), 16) : Long.parseLong(value);
         } else if (short.class == type || Short.class == type) {
             if (value.trim().length() == 0) {
-                return (short)0;
+                return (short) 0;
             }
             return (value.startsWith("0x")) ?
                     Short.parseShort(value.substring(2), 16) : Short.parseShort(value);
@@ -350,29 +349,29 @@ public class Reflect {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T create(Class<T> tClass, Class<?>... args)
+    public static <T> T create(Class<T> tClass, Class<?>[] args, Object[] objs)
             throws
             RuntimeException,
             IllegalAccessException,
             InvocationTargetException,
             InstantiationException {
-        if (tClass.isArray()) {
-            return (T) Array.newInstance(tClass.getComponentType(), 0);
-        }
-        if (tClass.isInterface() || Modifier.isAbstract(tClass.getModifiers())) {
-            if (Collection.class.isAssignableFrom(tClass)) {
-                if (args.length < 1) {
-                    throw new RuntimeException("create(Class<T>, Class<E>)");
-                }
-                return (T) createCollection(tClass);
-            }
-            if (Map.class.isAssignableFrom(tClass)) {
-                if (args.length < 2) {
-                    throw new RuntimeException("create(Class<T>, Class<K> Class<V>)");
-                }
-                return (T) createMap(tClass, args[0], args[1]);
-            }
-        }
+//        if (tClass.isArray()) {
+//            return (T) Array.newInstance(tClass.getComponentType(), 0);
+//        }
+//        if (tClass.isInterface() || Modifier.isAbstract(tClass.getModifiers())) {
+//            if (Collection.class.isAssignableFrom(tClass)) {
+//                if (args.length < 1) {
+//                    throw new RuntimeException("create(Class<T>, Class<E>)");
+//                }
+//                return (T) createCollection(tClass);
+//            }
+//            if (Map.class.isAssignableFrom(tClass)) {
+//                if (args.length < 2) {
+//                    throw new RuntimeException("create(Class<T>, Class<K> Class<V>)");
+//                }
+//                return (T) createMap(tClass, args[0], args[1]);
+//            }
+//        }
         Constructor<T> constructor = null;
         try {
             constructor = tClass.getDeclaredConstructor(args);
@@ -389,17 +388,17 @@ public class Reflect {
         }
         if (constructor != null) {
             accessible(constructor);
-            return constructor.newInstance();
+            return constructor.newInstance(objs);
         }
         return null;
     }
 
 
     @SuppressWarnings("unchecked")
-    public static <T> Collection<T> createCollection(Class<T> rawType) {
-        if (SortedSet.class.isAssignableFrom(rawType)) {
+    public static <T> Collection<T> createCollection(Class<?> pClass, Class<T> rawType) {
+        if (SortedSet.class.isAssignableFrom(pClass)) {
             return new TreeSet<T>();
-        } else if (EnumSet.class.isAssignableFrom(rawType)) {
+        } else if (EnumSet.class.isAssignableFrom(pClass)) {
             Type type = rawType.getGenericSuperclass();
             if (type instanceof ParameterizedType) {
                 Type elementType = ((ParameterizedType) type).getActualTypeArguments()[0];
@@ -411,9 +410,9 @@ public class Reflect {
             } else {
                 throw new RuntimeException("Invalid EnumSet type: " + type.toString());
             }
-        } else if (Set.class.isAssignableFrom(rawType)) {
+        } else if (Set.class.isAssignableFrom(pClass)) {
             return new LinkedHashSet<T>();
-        } else if (Queue.class.isAssignableFrom(rawType)) {
+        } else if (Queue.class.isAssignableFrom(pClass)) {
             return new LinkedList<T>();
         } else {
             return new ArrayList<T>();

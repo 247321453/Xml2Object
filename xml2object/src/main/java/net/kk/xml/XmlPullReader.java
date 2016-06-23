@@ -63,7 +63,7 @@ class XmlPullReader {
 						mXmlObject = new XmlObject(xmlTag);
 						mXmlObject.setType(findTagClass(parent, xmlTag));
 						if (parent != null) {
-							parent.add(mXmlObject);
+							parent.addChild(mXmlObject);
 						}
 						tagMap.put(d, mXmlObject);
 					}
