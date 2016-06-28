@@ -41,6 +41,14 @@ public class XmlReader extends XmlBase {
         return (T) mXmlObjectReader.read(null, tag, null, null);
     }
 
+    public <T> T get(Class<T> pClass) throws Exception {
+        XmlObject tag = toXmlObject((InputStream) null, pClass, null);
+        if (DEBUG) {
+            System.out.println("form " + tag);
+        }
+        return (T) mXmlObjectReader.read(null, tag, null, null);
+    }
+
     /***
      * xml转为xmlobject
      *
@@ -103,7 +111,7 @@ public class XmlReader extends XmlBase {
         if (cls == null)
             return new Class[]{Object.class, Object.class};
         if (cls instanceof Field) {
-           return Reflect.getMapClass((Field) cls);
+            return Reflect.getMapClass((Field) cls);
         }
         XmlElementMap xmlElement = cls.getAnnotation(XmlElementMap.class);
         Class<?> kclass = Object.class;
