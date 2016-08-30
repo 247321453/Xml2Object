@@ -33,20 +33,20 @@ public class XmlReader extends XmlBase {
      * @return 对象
      */
     @SuppressWarnings("unchecked")
-    public <T> T from(InputStream inputStream, Class<T> pClass, String encoding) throws Exception {
+    public <T> T from(InputStream inputStream, Class<T> pClass, String encoding,T def) throws Exception {
         XmlObject tag = toXmlObject(inputStream, pClass, encoding);
         if (DEBUG) {
             System.out.println("form " + tag);
         }
-        return (T) mXmlObjectReader.read(null, tag, null, null);
+        return (T) mXmlObjectReader.read(null, tag, def, null);
     }
 
-    public <T> T get(Class<T> pClass) throws Exception {
+    public <T> T get(Class<T> pClass,T def) throws Exception {
         XmlObject tag = toXmlObject((InputStream) null, pClass, null);
         if (DEBUG) {
             System.out.println("form " + tag);
         }
-        return (T) mXmlObjectReader.read(null, tag, null, null);
+        return (T) mXmlObjectReader.read(null, tag, def, null);
     }
 
     /***
@@ -88,9 +88,9 @@ public class XmlReader extends XmlBase {
      * @return 对象
      */
     @SuppressWarnings("unchecked")
-    public <T> T from(String xmlStr, Class<T> pClass) throws Exception {
+    public <T> T from(String xmlStr, Class<T> pClass,T def) throws Exception {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlStr.getBytes());
-        return from(inputStream, pClass, null);
+        return from(inputStream, pClass, null, def);
     }
 
     public Field getTagFiled(Class<?> type, String name) {

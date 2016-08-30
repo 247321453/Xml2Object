@@ -277,6 +277,31 @@ public class Reflect {
         return false;
     }
 
+    private static Object getDefault(Class<?> type) {
+        if (type == null) {
+            return null;
+        } else if (type.isPrimitive()) {
+            if (boolean.class == type) {
+                return Boolean.FALSE;
+            } else if (int.class == type) {
+                return 0;
+            } else if (long.class == type) {
+                return (long) 0;
+            } else if (short.class == type) {
+                return (short) 0;
+            } else if (byte.class == type) {
+                return (byte) 0;
+            } else if (double.class == type) {
+                return (double) 0;
+            } else if (float.class == type) {
+                return (float) 0;
+            } else if (char.class == type) {
+                return (char) 0;
+            }
+        }
+        return null;
+    }
+
     public static Class<?> wrapper(Class<?> type) {
         if (type == null) {
             return Object.class;
@@ -417,20 +442,48 @@ public class Reflect {
         // 这种情况下，构造器往往是私有的，多用于工厂方法，刻意的隐藏了构造器。
         catch (NoSuchMethodException e) {
             // private阻止不了反射的脚步:)
+            int min = Integer.MAX_VALUE;
             for (Constructor<?> con : tClass.getDeclaredConstructors()) {
-                if (con.getParameterTypes().length == args.length) {
-                    constructor = (Constructor<T>) con;
-                    break;
+                if (args == null || args.length == 0) {
+                    //取一个最小参数的构造，
+                    if (con.getParameterTypes().length < min) {
+                        min = con.getParameterTypes().length;
+                        constructor = (Constructor<T>) con;
+                    }
+                } else {
+                    if (con.getParameterTypes().length == args.length) {
+                        constructor = (Constructor<T>) con;
+                        break;
+                    }
                 }
             }
+            if (constructor == null) {
+                //没有默认值的参数
+                throw new RuntimeException("no find default constructor " + tClass);
+            }
+
         }
         if (constructor != null) {
             accessible(constructor);
-            return constructor.newInstance(objs);
+            if (args == null || args.length == 0) {
+//                System.err.print("args="+Arrays.toString(constructor.getParameterTypes()));
+                objs = getDefault(constructor.getParameterTypes());
+//                System.err.print("objs="+Arrays.toString(objs));
+                return constructor.newInstance(objs);
+            } else {
+                return constructor.newInstance(objs);
+            }
         }
         return null;
     }
 
+    private static Object[] getDefault(Class<?>[] classes) {
+        Object[] objects = new Object[classes.length];
+        for (int i = 0; i < objects.length; i++) {
+            objects[i] = getDefault(classes[i]);
+        }
+        return objects;
+    }
 
     @SuppressWarnings("unchecked")
     public static <T> Collection<T> createCollection(Class<?> pClass, Class<T> rawType) {

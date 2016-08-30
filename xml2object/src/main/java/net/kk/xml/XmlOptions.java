@@ -3,6 +3,7 @@ package net.kk.xml;
 import android.os.Bundle;
 
 import net.kk.xml.internal.Reflect;
+import net.kk.xml.internal.XmlConstructorAdapter;
 import net.kk.xml.internal.XmlStringAdapter;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class XmlOptions {
     private boolean useSpace = false;
     private boolean ignoreStatic = true;
     private Map<Class<?>, XmlStringAdapter<?>> mXmlTypeAdapterMap;
+    private Map<Class<?>, XmlConstructorAdapter> xmlConstructorAdapterMap;
     private List<Class<?>> mIgnoreClasses;
     /***
      * true
@@ -47,6 +49,10 @@ public class XmlOptions {
 
     public Map<Class<?>, XmlStringAdapter<?>> getXmlTypeAdapterMap() {
         return mXmlTypeAdapterMap;
+    }
+
+    public Map<Class<?>, XmlConstructorAdapter> getXmlConstructorAdapterMap() {
+        return xmlConstructorAdapterMap;
     }
 
     /***
@@ -119,10 +125,11 @@ public class XmlOptions {
             return mOptions;
         }
 
-        public Builder dontIgnoreStatic(){
-            mOptions.ignoreStatic=false;
+        public Builder dontIgnoreStatic() {
+            mOptions.ignoreStatic = false;
             return this;
         }
+
         public Builder dontUseSetMethod() {
             mOptions.useSetMethod = false;
             return this;
@@ -145,6 +152,14 @@ public class XmlOptions {
 
         public Builder debug() {
             mOptions.debug = true;
+            return this;
+        }
+
+        public Builder registerConstructorAdapter(Class<?> cls, XmlConstructorAdapter xmlTypeAdapter) {
+            if (mOptions.xmlConstructorAdapterMap == null) {
+                mOptions.xmlConstructorAdapterMap = new HashMap<Class<?>, XmlConstructorAdapter>();
+            }
+            mOptions.xmlConstructorAdapterMap.put(Reflect.wrapper(cls), xmlTypeAdapter);
             return this;
         }
 

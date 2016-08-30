@@ -6,8 +6,10 @@ import net.kk.xml.annotations.XmlElementList;
 import net.kk.xml.annotations.XmlElementMap;
 import net.kk.xml.annotations.XmlElementText;
 import net.kk.xml.internal.Reflect;
+import net.kk.xml.internal.XmlConstructorAdapter;
+import net.kk.xml.internal.XmlConstructors;
 import net.kk.xml.internal.XmlStringAdapter;
-import net.kk.xml.internal.XmlTypeAdapters;
+import net.kk.xml.internal.XmlStringAdapters;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -19,23 +21,31 @@ import java.util.Map;
 class XmlBase {
     public static final String DEF_ENCODING = "UTF-8";
     final Map<Class<?>, XmlStringAdapter<?>> mXmlTypeAdapterMap;
-    private XmlTypeAdapters mXmlTypeAdapters;
+    final Map<Class<?>, XmlConstructorAdapter> mXmlConstructorAdapterMap;
+    private XmlStringAdapters mXmlStringAdapters;
+    private XmlConstructors xmlConstructors;
     protected XmlOptions mOptions;
     private final XmlStringAdapter<?> DEFAULT_ADAPTER;
+    private final XmlConstructorAdapter DEFAULT_CONSTRUCTOR;
     public final boolean DEBUG;
 
     public XmlBase(XmlOptions options) {
         this.mOptions = (options == null) ? XmlOptions.DEFAULT : options;
         this.DEBUG = this.mOptions.isDebug();
-        mXmlTypeAdapters = new XmlTypeAdapters();
+        mXmlStringAdapters = new XmlStringAdapters();
+        xmlConstructors = new XmlConstructors();
+        mXmlConstructorAdapterMap = new HashMap<Class<?>, XmlConstructorAdapter>();
         mXmlTypeAdapterMap = new HashMap<Class<?>, XmlStringAdapter<?>>();
-        DEFAULT_ADAPTER = mXmlTypeAdapters.ObjectStringAdapter;
-
-        //TODO register mXmlTypeAdapters
-        mXmlTypeAdapterMap.put(Object.class, mXmlTypeAdapters.ObjectStringAdapter);
-
+        DEFAULT_ADAPTER = mXmlStringAdapters.ObjectStringAdapter;
+        DEFAULT_CONSTRUCTOR = xmlConstructors.objectXmlConstructorAdapter;
+        //TODO register mXmlStringAdapters
+        mXmlTypeAdapterMap.put(Object.class, DEFAULT_ADAPTER);
+        mXmlConstructorAdapterMap.put(Object.class, DEFAULT_CONSTRUCTOR);
         if (this.mOptions.getXmlTypeAdapterMap() != null) {
             mXmlTypeAdapterMap.putAll(this.mOptions.getXmlTypeAdapterMap());
+        }
+        if(this.mOptions.getXmlConstructorAdapterMap()!=null){
+            mXmlConstructorAdapterMap.putAll(this.mOptions.getXmlConstructorAdapterMap());
         }
     }
 
@@ -43,8 +53,20 @@ class XmlBase {
         this(XmlOptions.DEFAULT);
     }
 
-    public XmlStringAdapter<?> getAdapter(Class<?> tClass) {
+    public XmlStringAdapter getAdapter(Class<?> tClass) {
         return getAdapter(tClass, DEFAULT_ADAPTER);
+    }
+
+    public XmlConstructorAdapter getConstructor(Class<?> tClass) {
+        return getConstructor(tClass, DEFAULT_CONSTRUCTOR);
+    }
+
+    public XmlConstructorAdapter getConstructor(Class<?> tClass, XmlConstructorAdapter def) {
+        if (mXmlTypeAdapterMap == null) return def;
+        Class<?> key = Reflect.wrapper(tClass);
+        XmlConstructorAdapter tXmlTypeAdapter = mXmlConstructorAdapterMap.get(key);
+        if (tXmlTypeAdapter == null) return def;//;
+        return tXmlTypeAdapter;
     }
 
     public XmlStringAdapter<?> getAdapter(Class<?> tClass, XmlStringAdapter<?> def) {

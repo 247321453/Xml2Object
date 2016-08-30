@@ -13,7 +13,8 @@ import java.util.Map;
 
 @XmlElement("man")
 public class Man implements IPeople {
-    public Man() {
+    public Man(String name) {
+        this.name = name;
         // maps = new HashMap<>();
         // sons = new ArrayList<>();
     }
@@ -22,7 +23,7 @@ public class Man implements IPeople {
         sub = new SubClass();
         subs = new ArrayList<SubClass>();
         subs.add(new SubClass());
-        subMap=new HashMap<String, SubClass>();
+        subMap = new HashMap<String, SubClass>();
         subMap.put("1", new SubClass());
     }
 
@@ -90,7 +91,7 @@ public class Man implements IPeople {
                 "age=" + age +
                 ", sub=" + sub +
                 ", subs=" + subs +
-                ", innermap="+subMap+
+                ", innermap=" + subMap +
                 ", name='" + name + '\'' +
                 ", sex='" + sex + '\'' +
                 ", as=" + Arrays.toString(as) +

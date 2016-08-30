@@ -1,6 +1,6 @@
 package net.kk.xml.internal;
 
-public class XmlTypeAdapters {
+public class XmlStringAdapters {
 
     public XmlStringAdapter<Object> ObjectStringAdapter = new XmlStringAdapter<Object>() {
         @Override

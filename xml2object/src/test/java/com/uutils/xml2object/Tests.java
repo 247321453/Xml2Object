@@ -35,7 +35,7 @@ public class Tests {
         TestBean testBean = new TestBean();
         testBean.age = 18;
         testBean.name = "hi";
-        testBean.as = new int[]{12, 123,14};
+        testBean.as = new int[]{12, 123, 14};
         testBean.i = 990L;
         testBean.hello = false;
         testBean.maps = new HashMap<String, Integer>();
@@ -63,7 +63,7 @@ public class Tests {
             String xmlStr = outputStream.toString();
             System.out.println("" + xmlStr + "\n");
             time1 = System.currentTimeMillis();
-            TestBean testBean2 = xmlReader.from(new ByteArrayInputStream(xmlStr.getBytes()), TestBean.class, null);
+            TestBean testBean2 = xmlReader.from(new ByteArrayInputStream(xmlStr.getBytes()), TestBean.class, null, null);
             System.out.println("time3=" + (System.currentTimeMillis() - time1));
             System.out.println("main=" + testBean2 + "\n");
         } catch (Throwable e) {
@@ -73,7 +73,7 @@ public class Tests {
 
     @Test
     public void test() throws XmlPullParserException {
-        Man man1 = new Man();
+        Man man1 = new Man("man1");
         man1.initSub();
         man1.sons = new ArrayList<Son>();
         man1.maps = new HashMap<String, Integer>();
@@ -108,7 +108,7 @@ public class Tests {
                 .registerTypeAdapter(PeopleType.class, new PeopleTypeAdapter())
                 .registerTypeAdapter(Boolean.class, new BooleanAdapter())
                 .registerTypeAdapter(int[].class, new IntegerArrayAdapter())
-                                .ignore(Son.class)
+                .ignore(Son.class)
                 .build();
         XmlReader xmlReader = new XmlReader(XmlPullParserFactory.newInstance().newPullParser(), options);
         XmlWriter xmlWriter = new XmlWriter(XmlPullParserFactory.newInstance().newSerializer(), options);
@@ -121,7 +121,7 @@ public class Tests {
             String xmlStr = outputStream.toString();
             System.out.println("" + xmlStr + "\n");
             time1 = System.currentTimeMillis();
-            Man m = xmlReader.from(new ByteArrayInputStream(xmlStr.getBytes()), Man.class, null);
+            Man m = xmlReader.from(new ByteArrayInputStream(xmlStr.getBytes()), Man.class, null, null);
             System.out.println("time3=" + (System.currentTimeMillis() - time1));
             System.out.println("main=" + m + "\n");
         } catch (Throwable e) {

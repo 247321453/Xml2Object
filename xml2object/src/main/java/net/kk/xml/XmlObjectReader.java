@@ -2,6 +2,7 @@ package net.kk.xml;
 
 import net.kk.xml.annotations.XmlElementMap;
 import net.kk.xml.internal.Reflect;
+import net.kk.xml.internal.XmlConstructorAdapter;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
@@ -38,6 +39,7 @@ class XmlObjectReader {
             try {
                 obj = reader.getAdapter(pClass).toObject(pClass, xmlObject.getText());
             } catch (Throwable e) {
+                obj = init;
             }
             return obj;
         } else if (pClass.isArray()) {
@@ -63,14 +65,13 @@ class XmlObjectReader {
     private <T> T object(XmlObject xmlObject, Class<T> pClass, Object object, Object parent) throws Exception {
         T t;
         if (object == null) {
-            if (pClass.isMemberClass() && (pClass.getModifiers() & Modifier.STATIC) == 0) {
-                //内部类
-                t = (T) Reflect.create(pClass, new Class[]{parent.getClass()}, new Object[]{parent});
-            } else {
-                t = Reflect.create(pClass, null, null);
-            }
+            XmlConstructorAdapter tXmlConstructorAdapter = reader.getConstructor(pClass);
+            t = tXmlConstructorAdapter.create(pClass, parent);
         } else {
             t = (T) object;
+        }
+        if(t == null){
+            return null;
         }
         // attr
         List<XmlObject.XmlAttributeObject> xmlAttributeObjects = xmlObject.getAttributes();
@@ -99,7 +100,7 @@ class XmlObjectReader {
             if (isIgnore(field)) {
                 continue;
             }
-            if(options.isIgnoreStatic() && (field.getModifiers()& Modifier.STATIC) !=0){
+            if (options.isIgnoreStatic() && (field.getModifiers() & Modifier.STATIC) != 0) {
                 continue;
             }
             el.setType(field);
