@@ -96,6 +96,12 @@ class XmlObjectReader {
                     System.out.println("no find field " + name);
                 continue;
             }
+            if (isIgnore(field)) {
+                continue;
+            }
+            if(options.isIgnoreStatic() && (field.getModifiers()& Modifier.STATIC) !=0){
+                continue;
+            }
             el.setType(field);
             oldtags.add(name);
             Object val = Reflect.get(field, t);
@@ -265,5 +271,19 @@ class XmlObjectReader {
             }
         }
         return t;
+    }
+
+    protected boolean isIgnore(Field field) {
+        Class<?> type = Reflect.wrapper(field.getType());
+        if (type.isArray()) {
+            return options.isIgnore(type.getComponentType());
+        } else if (List.class.isAssignableFrom(type)) {
+            return options.isIgnore(reader.getListClass(field));
+        } else if (Map.class.isAssignableFrom(type)) {
+            Class<?>[] classes = reader.getMapClass(field);
+            return options.isIgnore(classes[0]) || options.isIgnore(classes[1]);
+        } else {
+            return options.isIgnore(type);
+        }
     }
 }

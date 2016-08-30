@@ -108,6 +108,7 @@ public class Tests {
                 .registerTypeAdapter(PeopleType.class, new PeopleTypeAdapter())
                 .registerTypeAdapter(Boolean.class, new BooleanAdapter())
                 .registerTypeAdapter(int[].class, new IntegerArrayAdapter())
+                                .ignore(Son.class)
                 .build();
         XmlReader xmlReader = new XmlReader(XmlPullParserFactory.newInstance().newPullParser(), options);
         XmlWriter xmlWriter = new XmlWriter(XmlPullParserFactory.newInstance().newSerializer(), options);

@@ -93,40 +93,6 @@ public class XmlReader extends XmlBase {
         return from(inputStream, pClass, null);
     }
 
-    public Class<?> getListClass(AnnotatedElement cls) {
-        if (cls == null) return Object.class;
-        if (cls instanceof Field) {
-            return Reflect.getListClass((Field) cls);
-        }
-        XmlElementList xmlElement = cls.getAnnotation(XmlElementList.class);
-        if (xmlElement != null) {
-            if (xmlElement.type() != null) {
-                return xmlElement.type();
-            }
-        }
-        return Object.class;
-    }
-
-    public Class<?>[] getMapClass(AnnotatedElement cls) {
-        if (cls == null)
-            return new Class[]{Object.class, Object.class};
-        if (cls instanceof Field) {
-            return Reflect.getMapClass((Field) cls);
-        }
-        XmlElementMap xmlElement = cls.getAnnotation(XmlElementMap.class);
-        Class<?> kclass = Object.class;
-        Class<?> vclass = Object.class;
-        if (xmlElement != null) {
-            if (xmlElement.keyType() != null) {
-                kclass = xmlElement.keyType();
-            }
-            if (xmlElement.valueType() != null) {
-                vclass = xmlElement.valueType();
-            }
-        }
-        return new Class[]{kclass, vclass};
-    }
-
     public Field getTagFiled(Class<?> type, String name) {
         // 尝试作为公有字段处理
         do {

@@ -171,6 +171,40 @@ class XmlBase {
         return namespace;
     }
 
+    protected Class<?> getListClass(AnnotatedElement cls) {
+        if (cls == null) return Object.class;
+        if (cls instanceof Field) {
+            return Reflect.getListClass((Field) cls);
+        }
+        XmlElementList xmlElement = cls.getAnnotation(XmlElementList.class);
+        if (xmlElement != null) {
+            if (xmlElement.type() != null) {
+                return xmlElement.type();
+            }
+        }
+        return Object.class;
+    }
+
+    protected Class<?>[] getMapClass(AnnotatedElement cls) {
+        if (cls == null)
+            return new Class[]{Object.class, Object.class};
+        if (cls instanceof Field) {
+            return Reflect.getMapClass((Field) cls);
+        }
+        XmlElementMap xmlElement = cls.getAnnotation(XmlElementMap.class);
+        Class<?> kclass = Object.class;
+        Class<?> vclass = Object.class;
+        if (xmlElement != null) {
+            if (xmlElement.keyType() != null) {
+                kclass = xmlElement.keyType();
+            }
+            if (xmlElement.valueType() != null) {
+                vclass = xmlElement.valueType();
+            }
+        }
+        return new Class[]{kclass, vclass};
+    }
+
     protected static String trim(String str) {
         if (str == null) return null;
         return str.trim();

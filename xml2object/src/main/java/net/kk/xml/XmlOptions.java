@@ -1,9 +1,13 @@
 package net.kk.xml;
 
+import android.os.Bundle;
+
 import net.kk.xml.internal.Reflect;
 import net.kk.xml.internal.XmlStringAdapter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class XmlOptions {
@@ -11,7 +15,9 @@ public class XmlOptions {
     private boolean useSetMethod = true;
     //xml缩进
     private boolean useSpace = false;
+    private boolean ignoreStatic = true;
     private Map<Class<?>, XmlStringAdapter<?>> mXmlTypeAdapterMap;
+    private List<Class<?>> mIgnoreClasses;
     /***
      * true
      * <pre>
@@ -31,6 +37,13 @@ public class XmlOptions {
     private boolean sameAsList = false;
 
     private boolean useNoAnnotation = true;
+
+    public boolean isIgnore(Class<?> cls) {
+        if (mIgnoreClasses != null) {
+            return mIgnoreClasses.contains(cls);
+        }
+        return false;
+    }
 
     public Map<Class<?>, XmlStringAdapter<?>> getXmlTypeAdapterMap() {
         return mXmlTypeAdapterMap;
@@ -69,6 +82,10 @@ public class XmlOptions {
 
     }
 
+    public boolean isIgnoreStatic() {
+        return ignoreStatic;
+    }
+
     public final static XmlOptions DEFAULT = new XmlOptions.Builder().build();
 
     public static class Builder {
@@ -85,10 +102,27 @@ public class XmlOptions {
             }
         }
 
+        /***
+         * 忽略这些类，在write的时候忽略
+         *
+         * @param cls
+         */
+        public Builder ignore(Class<?> cls) {
+            if (mOptions.mIgnoreClasses == null) {
+                mOptions.mIgnoreClasses = new ArrayList<Class<?>>();
+            }
+            mOptions.mIgnoreClasses.add(cls);
+            return this;
+        }
+
         public XmlOptions build() {
             return mOptions;
         }
 
+        public Builder dontIgnoreStatic(){
+            mOptions.ignoreStatic=false;
+            return this;
+        }
         public Builder dontUseSetMethod() {
             mOptions.useSetMethod = false;
             return this;
@@ -114,9 +148,9 @@ public class XmlOptions {
             return this;
         }
 
-        public Builder registerTypeAdapter(Class<?> cls,XmlStringAdapter<?> xmlTypeAdapter){
-            if(mOptions.mXmlTypeAdapterMap==null){
-                mOptions.mXmlTypeAdapterMap=new HashMap<Class<?>, XmlStringAdapter<?>>();
+        public Builder registerTypeAdapter(Class<?> cls, XmlStringAdapter<?> xmlTypeAdapter) {
+            if (mOptions.mXmlTypeAdapterMap == null) {
+                mOptions.mXmlTypeAdapterMap = new HashMap<Class<?>, XmlStringAdapter<?>>();
             }
             mOptions.mXmlTypeAdapterMap.put(Reflect.wrapper(cls), xmlTypeAdapter);
             return this;

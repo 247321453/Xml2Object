@@ -1,5 +1,7 @@
 package net.kk.xml;
 
+import android.util.Log;
+
 import net.kk.xml.annotations.XmlElementMap;
 import net.kk.xml.internal.Reflect;
 import net.kk.xml.internal.XmlStringAdapter;
@@ -7,6 +9,7 @@ import net.kk.xml.internal.XmlStringAdapter;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -159,11 +162,16 @@ class XmlObjectWriter {
 
     private void writeSubTag(Object object, XmlObject parent) throws Exception {
         if (object == null) return;
-        Class<?> parentClass = parent.getTClass();
         //内部类
         boolean isInner = object.getClass().isMemberClass();
         Collection<Field> fields = Reflect.getFileds(object.getClass());
         for (Field field : fields) {
+            if (isIgnore(field)) {
+                continue;
+            }
+            if(options.isIgnoreStatic() && (field.getModifiers()& Modifier.STATIC) !=0){
+                continue;
+            }
             String name = writer.getTagName(field);
             String fname = field.getName();
             if (name == null)
@@ -180,6 +188,20 @@ class XmlObjectWriter {
                 fobject.setType(field);
                 parent.addChild(fobject);
             }
+        }
+    }
+
+    protected boolean isIgnore(Field field) {
+        Class<?> type = Reflect.wrapper(field.getType());
+        if (type.isArray()) {
+            return options.isIgnore(type.getComponentType());
+        } else if (List.class.isAssignableFrom(type)) {
+            return options.isIgnore(writer.getListClass(field));
+        } else if (Map.class.isAssignableFrom(type)) {
+            Class<?>[] classes = writer.getMapClass(field);
+            return options.isIgnore(classes[0]) || options.isIgnore(classes[1]);
+        } else {
+            return options.isIgnore(type);
         }
     }
 }
