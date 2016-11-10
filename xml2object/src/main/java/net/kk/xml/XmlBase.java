@@ -5,6 +5,7 @@ import net.kk.xml.annotations.XmlElement;
 import net.kk.xml.annotations.XmlElementList;
 import net.kk.xml.annotations.XmlElementMap;
 import net.kk.xml.annotations.XmlElementText;
+import net.kk.xml.annotations.XmlIgnore;
 import net.kk.xml.internal.Reflect;
 import net.kk.xml.internal.XmlConstructorAdapter;
 import net.kk.xml.internal.XmlConstructors;
@@ -98,6 +99,9 @@ class XmlBase {
 
     public String getTagName(AnnotatedElement cls) {
         if (cls == null) return null;
+        if(cls.getAnnotation(XmlIgnore.class)!=null){
+            return null;
+        }
         if (cls instanceof Field) {
             Field field = (Field) cls;
             if ((field.getModifiers() & Modifier.TRANSIENT) == Modifier.TRANSIENT) {

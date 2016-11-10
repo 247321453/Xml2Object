@@ -47,6 +47,7 @@ class XmlPullReader {
                 xmlParser.setInput(inputStream, encoding == null ? XmlReader.DEF_ENCODING : encoding);
             }
             int evtType = xmlParser.getEventType();
+            int _index = 0;
             while (evtType != XmlPullParser.END_DOCUMENT) {
                 // 一直循环，直到文档结束
                 switch (evtType) {
@@ -61,7 +62,10 @@ class XmlPullReader {
                             mXmlObject = new XmlObject(xmlTag);
                             mXmlObject.setType(findTagClass(parent, xmlTag));
                             if (parent != null) {
+                                mXmlObject.setIndex(_index++);
                                 parent.addChild(mXmlObject);
+                            }else{
+                                _index = 0;
                             }
                             tagMap.put(d, mXmlObject);
                         }

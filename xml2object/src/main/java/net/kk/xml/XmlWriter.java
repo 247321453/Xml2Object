@@ -4,6 +4,8 @@ import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -68,15 +70,17 @@ public class XmlWriter extends XmlBase {
                 writeTab(serializer, depth);
             }
             serializer.startTag(xmlObject.getNamespace(), xmlObject.getName());
-            List<XmlObject.XmlAttributeObject> attributeObjects=xmlObject.getAttributes();
+            List<XmlAttributeObject> attributeObjects=xmlObject.getAttributes();
             if (attributeObjects != null) {
-                for (XmlObject.XmlAttributeObject e :attributeObjects) {
+                for (XmlAttributeObject e :attributeObjects) {
                     serializer.attribute(e.getNamespace(), e.getName(), e.getValue());
                 }
             }
             serializer.text(xmlObject.getText() == null ? "" : xmlObject.getText());
         }
         int count = xmlObject.getChildCount();
+        //排序
+        Collections.sort(xmlObject.getAllChilds(), IXmlElementASC);
         for (int i = 0; i < count; i++) {
             writeTag(xmlObject.getChildAt(i), serializer, noSameList ? depth + 1 : depth);
         }
@@ -94,4 +98,15 @@ public class XmlWriter extends XmlBase {
             pXmlSerializer.text("\t");
         }
     }
+    private Comparator<Object> IXmlElementASC= new Comparator<Object>() {
+        @Override
+        public int compare(Object o1, Object o2) {
+            if(o1 instanceof IXmlElement && o2 instanceof IXmlElement){
+                IXmlElement e1 = (IXmlElement)o1;
+                IXmlElement e2 = (IXmlElement)o2;
+                return e1.getIndex() - e2.getIndex();
+            }
+            return 0;
+        }
+    };
 }

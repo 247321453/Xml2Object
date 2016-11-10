@@ -73,13 +73,18 @@ class XmlObjectReader {
         if(t == null){
             return null;
         }
+        if(IXmlElement.class.isInstance(t)){
+            Field field=IXmlElement.class.getDeclaredField("index");
+            field.setAccessible(true);
+            field.set(t, xmlObject.getIndex());
+        }
         // attr
-        List<XmlObject.XmlAttributeObject> xmlAttributeObjects = xmlObject.getAttributes();
+        List<XmlAttributeObject> xmlAttributeObjects = xmlObject.getAttributes();
         if (xmlAttributeObjects != null) {
             if (reader.DEBUG) {
                 System.out.println(xmlObject.getName() + " attr = " + xmlObject.getAttributes().size());
             }
-            for (XmlObject.XmlAttributeObject e : xmlAttributeObjects) {
+            for (XmlAttributeObject e : xmlAttributeObjects) {
                 setAttribute(t, e.getNamespace(), e.getName(), e.getValue());
             }
         }
