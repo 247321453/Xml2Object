@@ -80,7 +80,7 @@ public class XmlWriter extends XmlBase {
         }
         int count = xmlObject.getChildCount();
         //排序
-        Collections.sort(xmlObject.getAllChilds(), IXmlElementASC);
+        Collections.sort(xmlObject.getAllChilds(), IXmlElement.ASC);
         for (int i = 0; i < count; i++) {
             writeTag(xmlObject.getChildAt(i), serializer, noSameList ? depth + 1 : depth);
         }
@@ -98,15 +98,4 @@ public class XmlWriter extends XmlBase {
             pXmlSerializer.text("\t");
         }
     }
-    private Comparator<Object> IXmlElementASC= new Comparator<Object>() {
-        @Override
-        public int compare(Object o1, Object o2) {
-            if(o1 instanceof IXmlElement && o2 instanceof IXmlElement){
-                IXmlElement e1 = (IXmlElement)o1;
-                IXmlElement e2 = (IXmlElement)o2;
-                return e1.getIndex() - e2.getIndex();
-            }
-            return 0;
-        }
-    };
 }
