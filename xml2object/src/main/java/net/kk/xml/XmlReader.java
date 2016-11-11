@@ -99,8 +99,14 @@ public class XmlReader extends XmlBase {
             Field[] fields = type.getDeclaredFields();
             for (Field f : fields) {
                 String xmltag = getTagName(f);
-                if (name.equals(xmltag)) {
-                    return f;
+                if(mOptions.isIgnoreTagCase()){
+                    if (name.equalsIgnoreCase(xmltag)) {
+                        return f;
+                    }
+                }else {
+                    if (name.equals(xmltag)) {
+                        return f;
+                    }
                 }
             }
             type = type.getSuperclass();

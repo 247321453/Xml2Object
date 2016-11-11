@@ -7,10 +7,10 @@ import java.util.Comparator;
 public class IXmlElement {
     /** 同级元素的位置 */
     @XmlIgnore
-    protected int index;
+    protected int pos;
 
-    public int getIndex() {
-        return index;
+    public int getPos() {
+        return pos;
     }
     public static final Comparator<Object> ASC= new Comparator<Object>() {
         @Override
@@ -18,7 +18,7 @@ public class IXmlElement {
             if(o1 instanceof IXmlElement && o2 instanceof IXmlElement){
                 IXmlElement e1 = (IXmlElement)o1;
                 IXmlElement e2 = (IXmlElement)o2;
-                return e1.getIndex() - e2.getIndex();
+                return e1.getPos() - e2.getPos();
             }
             return 0;
         }

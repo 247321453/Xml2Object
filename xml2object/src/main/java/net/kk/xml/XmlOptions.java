@@ -20,6 +20,8 @@ public class XmlOptions {
     private Map<Class<?>, XmlStringAdapter<?>> mXmlTypeAdapterMap;
     private Map<Class<?>, XmlConstructorAdapter> xmlConstructorAdapterMap;
     private List<Class<?>> mIgnoreClasses;
+    /** 忽略tag的大小写*/
+    private boolean ignoreTagCase=true;
     /***
      * true
      * <pre>
@@ -64,6 +66,10 @@ public class XmlOptions {
 
     public boolean isDebug() {
         return debug;
+    }
+
+    public boolean isIgnoreTagCase() {
+        return ignoreTagCase;
     }
 
     /***
@@ -127,6 +133,11 @@ public class XmlOptions {
 
         public Builder dontIgnoreStatic() {
             mOptions.ignoreStatic = false;
+            return this;
+        }
+
+        public Builder dontIgnoreTagCase() {
+            mOptions.ignoreTagCase = false;
             return this;
         }
 

@@ -74,7 +74,7 @@ class XmlObjectReader {
             return null;
         }
         if(IXmlElement.class.isInstance(t)){
-            Field field=IXmlElement.class.getDeclaredField("index");
+            Field field=IXmlElement.class.getDeclaredField("pos");
             field.setAccessible(true);
             field.set(t, xmlObject.getIndex());
         }

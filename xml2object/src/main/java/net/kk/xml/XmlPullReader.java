@@ -126,9 +126,16 @@ class XmlPullReader {
         Field tfield = null;
         for (Field field : fields) {
             String tagname = mXmlReader.getTagName(field);
-            if (name.equals(tagname)) {
-                tfield = field;
-                break;
+            if(mXmlReader.getOptions().isIgnoreTagCase()){
+                if (name.equalsIgnoreCase(tagname)) {
+                    tfield = field;
+                    break;
+                }
+            }else {
+                if (name.equals(tagname)) {
+                    tfield = field;
+                    break;
+                }
             }
         }
         if (tfield == null) {
