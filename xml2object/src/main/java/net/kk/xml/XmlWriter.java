@@ -5,7 +5,6 @@ import org.xmlpull.v1.XmlSerializer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -79,10 +78,12 @@ public class XmlWriter extends XmlBase {
             serializer.text(xmlObject.getText() == null ? "" : xmlObject.getText());
         }
         int count = xmlObject.getChildCount();
-        //排序
-        Collections.sort(xmlObject.getAllChilds(), IXmlElement.ASC);
-        for (int i = 0; i < count; i++) {
-            writeTag(xmlObject.getChildAt(i), serializer, noSameList ? depth + 1 : depth);
+        if(count>0) {
+            //排序
+            Collections.sort(xmlObject.getAllChilds(), IXmlElement.ASC);
+            for (int i = 0; i < count; i++) {
+                writeTag(xmlObject.getChildAt(i), serializer, noSameList ? depth + 1 : depth);
+            }
         }
         if (noSameList) {
             if (count > 0 && mOptions.isUseSpace()) {
