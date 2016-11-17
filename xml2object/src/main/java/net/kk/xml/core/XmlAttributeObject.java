@@ -1,4 +1,4 @@
-package net.kk.xml;
+package net.kk.xml.core;
 
 class XmlAttributeObject {
     public XmlAttributeObject(String namespace, String name, String value) {

@@ -1,5 +1,8 @@
 package net.kk.xml.internal;
 
+
+import net.kk.xml.core.Reflect;
+
 public class XmlStringAdapters {
 
     public XmlStringAdapter<Object> ObjectStringAdapter = new XmlStringAdapter<Object>() {

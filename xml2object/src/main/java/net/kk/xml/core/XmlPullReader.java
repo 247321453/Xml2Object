@@ -1,7 +1,6 @@
-package net.kk.xml;
+package net.kk.xml.core;
 
 import net.kk.xml.annotations.XmlElementMap;
-import net.kk.xml.internal.Reflect;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -122,22 +121,7 @@ class XmlPullReader {
         if (Collection.class.isAssignableFrom(pClass)) {
             pClass = mXmlReader.getListClass(p.getType());
         }
-        Collection<Field> fields = Reflect.getFileds(pClass);
-        Field tfield = null;
-        for (Field field : fields) {
-            String tagname = mXmlReader.getTagName(field);
-            if(mXmlReader.getOptions().isIgnoreTagCase()){
-                if (name.equalsIgnoreCase(tagname)) {
-                    tfield = field;
-                    break;
-                }
-            }else {
-                if (name.equals(tagname)) {
-                    tfield = field;
-                    break;
-                }
-            }
-        }
+        Field tfield = Reflect.get(pClass).get(name, mXmlReader.getOptions().isIgnoreTagCase());
         if (tfield == null) {
             // if (IXml.DEBUG)
             // Log.w("xml", "no find " + name + " form " + pClass.getName());

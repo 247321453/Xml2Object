@@ -1,11 +1,9 @@
 package net.kk.xml.internal;
 
-import java.lang.reflect.InvocationTargetException;
+import net.kk.xml.core.Reflect;
+
 import java.lang.reflect.Modifier;
 
-/**
- * Created by Administrator on 2016/8/30.
- */
 public class XmlConstructors {
     public XmlConstructorAdapter objectXmlConstructorAdapter = new XmlConstructorAdapter() {
         @Override
@@ -14,15 +12,11 @@ public class XmlConstructors {
             try {
                 if (pClass.isMemberClass() && (pClass.getModifiers() & Modifier.STATIC) == 0) {
                     //内部类
-                    o = (T) Reflect.create(pClass, new Class[]{parent.getClass()}, new Object[]{parent});
+                    o = Reflect.get(pClass).create(new Class[]{parent.getClass()}, new Object[]{parent});
                 } else {
-                    o = Reflect.create(pClass, null, null);
+                    o = Reflect.get(pClass).create(null);
                 }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return o;

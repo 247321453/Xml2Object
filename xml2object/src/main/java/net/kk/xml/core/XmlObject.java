@@ -1,11 +1,10 @@
-package net.kk.xml;
-
-import net.kk.xml.internal.Reflect;
+package net.kk.xml.core;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 class XmlObject {
@@ -177,28 +176,44 @@ class XmlObject {
         return mXmlObjects;
     }
 
+    HashMap<String, ArrayList<XmlObject>> mCache;
+
+    private void makeCache() {
+        if (mCache == null) {
+            synchronized (this) {
+                if (mCache == null) {
+                    mCache = new HashMap<>();
+                }
+            }
+            for (XmlObject t : mXmlObjects) {
+                String name = t.getName();
+                ArrayList<XmlObject> list = mCache.get(name);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    mCache.put(name, list);
+                }
+                list.add(t);
+            }
+        }
+    }
+
     public XmlObject getChild(String name) {
         if (name == null || mXmlObjects == null)
             return null;
-        for (XmlObject t : mXmlObjects) {
-            if (name.equals(t.getName())) {
-                return t;
-            }
+        makeCache();
+        ArrayList<XmlObject> items=getSameChild(name);
+        if(items!=null&&items.size()>0){
+            return items.get(0);
         }
         return null;
     }
 
     public ArrayList<XmlObject> getSameChild(String name) {
-        ArrayList<XmlObject> xmlObjects = new ArrayList<XmlObject>();
         if (name == null || this.mXmlObjects == null) {
-            return xmlObjects;
+            return null;
         }
-        for (XmlObject t : this.mXmlObjects) {
-            if (name.equals(t.getName())) {
-                xmlObjects.add(t);
-            }
-        }
-        return xmlObjects;
+        makeCache();
+        return mCache.get(name);
     }
 
     public Class<?> getTClass() {

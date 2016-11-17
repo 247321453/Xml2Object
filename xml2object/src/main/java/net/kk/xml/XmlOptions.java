@@ -1,8 +1,6 @@
 package net.kk.xml;
 
-import android.os.Bundle;
-
-import net.kk.xml.internal.Reflect;
+import net.kk.xml.core.Reflect;
 import net.kk.xml.internal.XmlConstructorAdapter;
 import net.kk.xml.internal.XmlStringAdapter;
 
@@ -13,7 +11,6 @@ import java.util.Map;
 
 public class XmlOptions {
     private boolean debug = false;
-    private boolean useSetMethod = true;
     //xml缩进
     private boolean useSpace = false;
     private boolean ignoreStatic = true;
@@ -55,13 +52,6 @@ public class XmlOptions {
 
     public Map<Class<?>, XmlConstructorAdapter> getXmlConstructorAdapterMap() {
         return xmlConstructorAdapterMap;
-    }
-
-    /***
-     * @return use setXXXX
-     */
-    public boolean isUseSetMethod() {
-        return useSetMethod;
     }
 
     public boolean isDebug() {
@@ -109,9 +99,6 @@ public class XmlOptions {
 
         public Builder(XmlOptions options) {
             this();
-            if (options != null) {
-                mOptions.useSetMethod = options.useSetMethod;
-            }
         }
 
         /***
@@ -138,11 +125,6 @@ public class XmlOptions {
 
         public Builder dontIgnoreTagCase() {
             mOptions.ignoreTagCase = false;
-            return this;
-        }
-
-        public Builder dontUseSetMethod() {
-            mOptions.useSetMethod = false;
             return this;
         }
 

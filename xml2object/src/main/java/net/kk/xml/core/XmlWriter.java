@@ -1,4 +1,7 @@
-package net.kk.xml;
+package net.kk.xml.core;
+
+import net.kk.xml.IXmlElement;
+import net.kk.xml.XmlOptions;
 
 import org.xmlpull.v1.XmlSerializer;
 

@@ -1,12 +1,12 @@
-package net.kk.xml;
+package net.kk.xml.core;
 
+import net.kk.xml.XmlOptions;
 import net.kk.xml.annotations.XmlAttribute;
 import net.kk.xml.annotations.XmlElement;
 import net.kk.xml.annotations.XmlElementList;
 import net.kk.xml.annotations.XmlElementMap;
 import net.kk.xml.annotations.XmlElementText;
 import net.kk.xml.annotations.XmlIgnore;
-import net.kk.xml.internal.Reflect;
 import net.kk.xml.internal.XmlConstructorAdapter;
 import net.kk.xml.internal.XmlConstructors;
 import net.kk.xml.internal.XmlStringAdapter;
@@ -200,7 +200,7 @@ class XmlBase {
     protected Class<?> getListClass(AnnotatedElement cls) {
         if (cls == null) return Object.class;
         if (cls instanceof Field) {
-            return Reflect.getListClass((Field) cls);
+            return ReflectUtils.getListClass((Field) cls);
         }
         XmlElementList xmlElement = cls.getAnnotation(XmlElementList.class);
         if (xmlElement != null) {
@@ -215,7 +215,7 @@ class XmlBase {
         if (cls == null)
             return new Class[]{Object.class, Object.class};
         if (cls instanceof Field) {
-            return Reflect.getMapClass((Field) cls);
+            return ReflectUtils.getMapClass((Field) cls);
         }
         XmlElementMap xmlElement = cls.getAnnotation(XmlElementMap.class);
         Class<?> kclass = Object.class;

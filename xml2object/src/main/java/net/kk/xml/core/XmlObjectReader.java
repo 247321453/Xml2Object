@@ -1,7 +1,8 @@
-package net.kk.xml;
+package net.kk.xml.core;
 
+import net.kk.xml.IXmlElement;
+import net.kk.xml.XmlOptions;
 import net.kk.xml.annotations.XmlElementMap;
-import net.kk.xml.internal.Reflect;
 import net.kk.xml.internal.XmlConstructorAdapter;
 
 import java.lang.reflect.AnnotatedElement;
@@ -70,11 +71,11 @@ class XmlObjectReader {
         } else {
             t = (T) object;
         }
-        if(t == null){
+        if (t == null) {
             return null;
         }
-        if(IXmlElement.class.isInstance(t)){
-            Field field=IXmlElement.class.getDeclaredField("pos");
+        if (IXmlElement.class.isInstance(t)) {
+            Field field = IXmlElement.class.getDeclaredField("pos");
             field.setAccessible(true);
             field.set(t, xmlObject.getIndex());
         }
@@ -90,6 +91,7 @@ class XmlObjectReader {
         }
         setText(t, xmlObject.getText());
         int count = xmlObject.getChildCount();
+        Reflect reflect = Reflect.get(pClass);
         List<String> oldtags = new ArrayList<String>();
         for (int i = 0; i < count; i++) {
             XmlObject el = xmlObject.getChildAt(i);
@@ -110,10 +112,10 @@ class XmlObjectReader {
             }
             el.setType(field);
             oldtags.add(name);
-            Object val = Reflect.get(field, t);
+            Object val = reflect.get(t, field.getName());
             Object obj = read(xmlObject, el, val, t);
             if (obj != null && !Modifier.isFinal(field.getModifiers())) {
-                Reflect.set(field, t, obj, reader.getOptions().isUseSetMethod());
+                reflect.set(t, field.getName(), obj);
             }
         }
         return t;
@@ -124,16 +126,18 @@ class XmlObjectReader {
             return;
         if (reader.DEBUG)
             System.out.println("np=" + namespace + ",name=" + tag + ", value=" + value);
-        Collection<Field> fields = Reflect.getFileds(object.getClass());
+        Reflect reflect = Reflect.get(object.getClass());
+        Collection<Field> fields = reflect.getFields();
+        boolean ignorecase = reader.mOptions.isIgnoreTagCase();
         for (Field field : fields) {
             String np = reader.getNamespace(field);
             String name = reader.getAttributeName(field);
-            if (tag.equals(name)
+            if ((ignorecase ? tag.equalsIgnoreCase(name) : tag.equals(name))
                     && ((namespace == null && np == null) || (namespace != null && namespace.equals(np)))) {
                 Object val = reader.getAdapter(field.getType()).toObject(field.getType(), value);// Reflect.wrapper(field.getType(),
                 // value);
                 if (val != null) {
-                    Reflect.set(field, object, val, reader.getOptions().isUseSetMethod());
+                    reflect.set(object, field.getName(), val);
                 }
                 if (reader.DEBUG)
                     System.out.println(tag + " set " + value);
@@ -145,13 +149,14 @@ class XmlObjectReader {
     private void setText(Object object, String value) throws Exception {
         if (object == null)
             return;
-        Collection<Field> fields = Reflect.getFileds(object.getClass());
+        Reflect reflect = Reflect.get(object.getClass());
+        Collection<Field> fields = reflect.getFields();
         for (Field field : fields) {
             if (reader.isXmlElementText(field)) {
                 Class<?> cls = field.getType();
                 Object val = reader.getAdapter(cls).toObject(cls, value);
                 if (val != null) {
-                    Reflect.set(field, object, val, reader.getOptions().isUseSetMethod());
+                    reflect.set(object, field.getName(), val);
                 }
                 break;
             }
@@ -189,13 +194,8 @@ class XmlObjectReader {
         } else {
             t = (T) Array.newInstance(sc, count);
         }
-        Integer integer = null;
-        try {
-            integer = (Integer) Reflect.getFieldValue(pClass, "length", t);
-        } catch (Exception e) {
-
-        }
-        if (integer == null || integer < count) {
+        int integer = Reflect.get(pClass).get(t, "length", -1);
+        if (integer < count) {
             t = (T) Array.newInstance(sc, count);
         }
         for (int i = 0; i < count; i++) {
@@ -217,7 +217,7 @@ class XmlObjectReader {
         }
         T t;
         if (object == null) {
-            t = (T) Reflect.createMap(pClass, subClass[0], subClass[1]);
+            t = (T) ReflectUtils.createMap(pClass, subClass[0], subClass[1]);
             if (reader.DEBUG)
                 System.out.println("create map " + pClass.getName());
         } else {
@@ -241,7 +241,7 @@ class XmlObjectReader {
                 System.out.println(xmlObject.getName() + " put " + k + "=" + v);
             }
             if (k != null)
-                Reflect.call(t.getClass(), t, "put", k, v);
+                Reflect.get(t.getClass()).call(t, "put", k, v);
         }
         return t;
     }
@@ -255,7 +255,7 @@ class XmlObjectReader {
             System.out.println("list " + subClass.getName());
         T t;
         if (object == null) {
-            t = (T) Reflect.createCollection(pClass, subClass);
+            t = (T) ReflectUtils.createCollection(pClass, subClass);
             if (reader.DEBUG)
                 System.out.println("create list " + pClass.getName());
         } else {
@@ -269,7 +269,7 @@ class XmlObjectReader {
                 xmlObject.setType(sc);
                 Object sub = read(null, xmlObject, null, parent);
                 if (sub != null)
-                    Reflect.call(t.getClass(), t, "add", sub);
+                    Reflect.get(t.getClass()).call(t, "add", sub);
                 else {
                     if (reader.DEBUG)
                         System.out.println(xmlObject.getName() + "@" + sc.getName() + " is null");

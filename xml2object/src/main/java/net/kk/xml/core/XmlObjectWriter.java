@@ -1,9 +1,7 @@
-package net.kk.xml;
+package net.kk.xml.core;
 
-import android.util.Log;
-
+import net.kk.xml.XmlOptions;
 import net.kk.xml.annotations.XmlElementMap;
-import net.kk.xml.internal.Reflect;
 import net.kk.xml.internal.XmlStringAdapter;
 
 import java.lang.reflect.AnnotatedElement;
@@ -59,7 +57,7 @@ class XmlObjectWriter {
         if (object == null) {
             return list;
         }
-        Object set = Reflect.call(object.getClass(), object, "entrySet");
+        Object set = Reflect.get(object.getClass()).call(object, "entrySet");
         if (set instanceof Set) {
             Set<Map.Entry<?, ?>> sets = (Set<Map.Entry<?, ?>>) set;
             for (Map.Entry<?, ?> e : sets) {
@@ -113,7 +111,7 @@ class XmlObjectWriter {
         String name = options.isSameAsList() ? writer.getTagName(element) : writer.getItemTagName(element);
         ArrayList<XmlObject> list = new ArrayList<XmlObject>();
         if (object != null) {
-            Object[] objs = (Object[]) Reflect.call(object.getClass(), object, "toArray");
+            Object[] objs = Reflect.get(object.getClass()).call(object, "toArray");
             if (objs != null) {
                 for (Object obj : objs) {
                     if (obj != null) {
@@ -132,10 +130,9 @@ class XmlObjectWriter {
     private void writeText(Object object, XmlObject xmlObject) throws IllegalAccessException {
         if (object == null || xmlObject == null) return;
         Class<?> cls = object.getClass();
-        Collection<Field> fields = Reflect.getFileds(cls);
+        Collection<Field> fields = Reflect.get(cls).getFields();
         for (Field field : fields) {
             if (writer.isXmlElementText(field)) {
-                Reflect.accessible(field);
                 Object val = field.get(object);
                 xmlObject.setText(val == null ? "" : val.toString());
                 break;
@@ -147,13 +144,12 @@ class XmlObjectWriter {
     private void writeAttributes(Object object, XmlObject parent) throws IllegalAccessException {
         if (object == null || parent == null) return;
         Class<?> cls = object.getClass();
-        Collection<Field> fields = Reflect.getFileds(cls);
+        Collection<Field> fields = Reflect.get(cls).getFields();
         for (Field field : fields) {
             String subTag = writer.getAttributeName(field);
             if (subTag == null)
                 continue;
             Class<?> type = field.getType();
-            Reflect.accessible(field);
             Object val = field.get(object);
             XmlStringAdapter xmlStringAdapter = writer.getAdapter(type);
             parent.addAttribute(writer.getNamespace(field), subTag, xmlStringAdapter.toString(type, val));
@@ -164,7 +160,7 @@ class XmlObjectWriter {
         if (object == null) return;
         //内部类
         boolean isInner = object.getClass().isMemberClass();
-        Collection<Field> fields = Reflect.getFileds(object.getClass());
+        Collection<Field> fields = Reflect.get(object.getClass()).getFields();
         for (Field field : fields) {
             if (isIgnore(field)) {
                 continue;
@@ -181,7 +177,6 @@ class XmlObjectWriter {
                     continue;
                 }
             }
-            Reflect.accessible(field);
             Object val = field.get(object);
             XmlObject fobject = toObject(name, field, val);
             if (fobject != null) {

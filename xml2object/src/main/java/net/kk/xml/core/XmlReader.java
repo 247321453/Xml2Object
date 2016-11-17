@@ -1,15 +1,12 @@
-package net.kk.xml;
+package net.kk.xml.core;
 
-import net.kk.xml.annotations.XmlElementList;
-import net.kk.xml.annotations.XmlElementMap;
-import net.kk.xml.internal.Reflect;
+import net.kk.xml.XmlOptions;
 
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 
 /***
@@ -35,17 +32,11 @@ public class XmlReader extends XmlBase {
     @SuppressWarnings("unchecked")
     public <T> T from(InputStream inputStream, Class<T> pClass, String encoding,T def) throws Exception {
         XmlObject tag = toXmlObject(inputStream, pClass, encoding);
-        if (DEBUG) {
-            System.out.println("form " + tag);
-        }
         return (T) mXmlObjectReader.read(null, tag, def, null);
     }
 
     public <T> T get(Class<T> pClass,T def) throws Exception {
         XmlObject tag = toXmlObject((InputStream) null, pClass, null);
-        if (DEBUG) {
-            System.out.println("form " + tag);
-        }
         return (T) mXmlObjectReader.read(null, tag, def, null);
     }
 
