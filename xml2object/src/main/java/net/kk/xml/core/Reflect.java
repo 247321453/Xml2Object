@@ -46,6 +46,7 @@ public class Reflect {
             findConstructor = true;
             try {
                 constructor = mClass.getDeclaredConstructor(args);
+                constructor.setAccessible(true);
                 mConstructor = constructor;
             } catch (Exception e) {
                 int min = Integer.MAX_VALUE;
@@ -67,6 +68,7 @@ public class Reflect {
                     //没有默认值的参数
                     throw new RuntimeException("no find default constructor " + mClass);
                 }
+                constructor.setAccessible(true);
                 mConstructor2 = constructor;
             }
         } else {
@@ -143,8 +145,10 @@ public class Reflect {
         }
         return (T) field.get(obj);
     }
-
     public void set(Object obj, String name, Object value) throws Exception {
+        set(obj, name, value, false);
+    }
+    public void set(Object obj, String name, Object value,boolean usemethod) throws Exception {
         Field field = null;
         synchronized (mFields) {
             if (!makeFields) {

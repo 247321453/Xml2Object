@@ -93,6 +93,7 @@ class XmlObjectReader {
         int count = xmlObject.getChildCount();
         Reflect reflect = Reflect.get(pClass);
         List<String> oldtags = new ArrayList<String>();
+        boolean usemethod=reader.mOptions.isUseSetMethod();
         for (int i = 0; i < count; i++) {
             XmlObject el = xmlObject.getChildAt(i);
             String name = el.getName();
@@ -115,7 +116,7 @@ class XmlObjectReader {
             Object val = reflect.get(t, field.getName());
             Object obj = read(xmlObject, el, val, t);
             if (obj != null && !Modifier.isFinal(field.getModifiers())) {
-                reflect.set(t, field.getName(), obj);
+                reflect.set(t, field.getName(), obj, usemethod);
             }
         }
         return t;
@@ -129,6 +130,7 @@ class XmlObjectReader {
         Reflect reflect = Reflect.get(object.getClass());
         Collection<Field> fields = reflect.getFields();
         boolean ignorecase = reader.mOptions.isIgnoreTagCase();
+        boolean usemethod=reader.mOptions.isUseSetMethod();
         for (Field field : fields) {
             String np = reader.getNamespace(field);
             String name = reader.getAttributeName(field);
@@ -137,7 +139,7 @@ class XmlObjectReader {
                 Object val = reader.getAdapter(field.getType()).toObject(field.getType(), value);// Reflect.wrapper(field.getType(),
                 // value);
                 if (val != null) {
-                    reflect.set(object, field.getName(), val);
+                    reflect.set(object, field.getName(), val,usemethod );
                 }
                 if (reader.DEBUG)
                     System.out.println(tag + " set " + value);
@@ -150,13 +152,14 @@ class XmlObjectReader {
         if (object == null)
             return;
         Reflect reflect = Reflect.get(object.getClass());
+        boolean usemethod=reader.mOptions.isUseSetMethod();
         Collection<Field> fields = reflect.getFields();
         for (Field field : fields) {
             if (reader.isXmlElementText(field)) {
                 Class<?> cls = field.getType();
                 Object val = reader.getAdapter(cls).toObject(cls, value);
                 if (val != null) {
-                    reflect.set(object, field.getName(), val);
+                    reflect.set(object, field.getName(), val, usemethod);
                 }
                 break;
             }
