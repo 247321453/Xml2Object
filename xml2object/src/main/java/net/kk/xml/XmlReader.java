@@ -261,7 +261,7 @@ public class XmlReader extends XmlCore {
         Class<?> pClass = field.getType();
         Object object = null;
         boolean org = false;
-        if (field.get(parent) != null) {
+        if (!on(field.getType()).isNormal() && field.get(parent) != null) {
             org = true;
             toObject(pClass, subtag, reflect.get(parent, field.getName()), parent);
         } else {
