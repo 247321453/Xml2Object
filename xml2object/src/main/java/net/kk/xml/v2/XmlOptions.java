@@ -21,8 +21,10 @@ public class XmlOptions {
     private Map<Class<?>, XmlConstructorAdapter> xmlConstructorAdapterMap;
     //忽略的类
     private List<Class<?>> mIgnoreClasses;
-    /** 忽略tag的大小写*/
-    private boolean ignoreTagCase=true;
+    /**
+     * 忽略tag的大小写
+     */
+    private boolean ignoreTagCase = true;
     /***
      * 集合元素
      * <pre>
@@ -101,8 +103,6 @@ public class XmlOptions {
     public boolean isIgnoreStatic() {
         return ignoreStatic;
     }
-
-    public final static XmlOptions DEFAULT = new XmlOptions.Builder().build();
 
     public static class Builder {
         private XmlOptions mOptions;

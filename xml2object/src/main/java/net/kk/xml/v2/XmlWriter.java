@@ -24,6 +24,9 @@ public class XmlWriter extends XmlCore {
     private static final String NEW_LINE = System.getProperty("line.separator", "\n");
     private XmlSerializer serializer;
 
+    /***
+     * @see org.xmlpull.v1.XmlPullParserFactory newInstance().newSerializer()
+     */
     public XmlWriter(XmlSerializer serializer, XmlOptions options) {
         super(options);
         this.serializer = serializer;
@@ -35,7 +38,7 @@ public class XmlWriter extends XmlCore {
     }
 
     public void write(TagObject xmlObject, OutputStream outputStream, String encoding) throws Exception {
-        serializer.setOutput(outputStream, encoding);
+        serializer.setOutput(outputStream, encoding==null?DEF_ENCODING:encoding);
         serializer.startDocument(encoding, null);
         writeTag(xmlObject, serializer, 1);
         serializer.endDocument();
@@ -92,14 +95,12 @@ public class XmlWriter extends XmlCore {
 
     }
 
-    private TagObject toRootTag(Object object) throws Exception {
+    TagObject toRootTag(Object object) throws Exception {
         TagObject tagObject;
         if (object == null) {
             return new TagObject("root", null, 0, 0);
         }
-
-        Reflect reflect = on(object);
-        tagObject = make(reflect.getType(), 0);
+        tagObject = make(object);
         fillTag(tagObject, object, null);
         return tagObject;
     }
@@ -150,10 +151,10 @@ public class XmlWriter extends XmlCore {
                         if (xmlInnerText != null) {
                             writeText = true;
                             tagObject.setText(toString(val));
-                            break;
+                            continue;
                         }
                     }
-                    tagObject.addSubTags(toSubTags(field, val, object));
+                    tagObject.addSubTags(toSubTags(field, val, parent));
                 }
             }
         }
@@ -178,7 +179,7 @@ public class XmlWriter extends XmlCore {
         boolean isSameList = mOptions.isSameAsList();
         ArrayList<TagObject> list = new ArrayList<TagObject>();
         TagObject root = new TagObject(name, namespace, 0, 0);
-        if (isSameList) {
+        if (!isSameList) {
             list.add(root);
         }
         if (object != null) {
@@ -188,11 +189,11 @@ public class XmlWriter extends XmlCore {
                 if (obj != null) {
                     if (isSameList) {
                         TagObject object1 = new TagObject(name, namespace, 0, i);
-                        fillTag(object1, object, parent);
+                        fillTag(object1, obj, parent);
                         list.add(object1);
                     } else {
                         TagObject object1 = new TagObject(itemName, namespace, 0, i);
-                        fillTag(object1, object, parent);
+                        fillTag(object1, obj, parent);
                         root.addSubTag(object1);
                     }
                 }
@@ -209,7 +210,7 @@ public class XmlWriter extends XmlCore {
         boolean isSameList = mOptions.isSameAsList();
         ArrayList<TagObject> list = new ArrayList<TagObject>();
         TagObject root = new TagObject(name, namespace, 0, 0);
-        if (isSameList) {
+        if (!isSameList) {
             list.add(root);
         }
         if (object != null) {
@@ -219,11 +220,11 @@ public class XmlWriter extends XmlCore {
                     if (obj != null) {
                         if (isSameList) {
                             TagObject object1 = new TagObject(name, namespace, 0, 0);
-                            fillTag(object1, object, parent);
+                            fillTag(object1, obj, parent);
                             list.add(object1);
                         } else {
                             TagObject object1 = new TagObject(itemName, namespace, 0, 0);
-                            fillTag(object1, object, parent);
+                            fillTag(object1, obj, parent);
                             root.addSubTag(object1);
                         }
                     }
@@ -243,7 +244,7 @@ public class XmlWriter extends XmlCore {
         boolean isSameList = mOptions.isSameAsList();
         ArrayList<TagObject> list = new ArrayList<TagObject>();
         TagObject root = new TagObject(name, namespace, 0, 0);
-        if (isSameList) {
+        if (!isSameList) {
             list.add(root);
         }
 

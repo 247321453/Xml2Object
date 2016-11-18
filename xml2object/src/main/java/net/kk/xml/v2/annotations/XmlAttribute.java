@@ -26,6 +26,6 @@ public @interface XmlAttribute {
     /** tag名字 */
     String value();
     /** 同名 */
-    String[] alias();
+    String alias() default "";
     String namespace() default "";
 }

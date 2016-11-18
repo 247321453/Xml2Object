@@ -1,11 +1,10 @@
 package net.kk.xml.v2.bean;
 
-import java.lang.reflect.Array;
-
 public class AttributeObject {
-    public AttributeObject(String namespace, String name){
+    public AttributeObject(String namespace, String name) {
         this(namespace, name, null);
     }
+
     public AttributeObject(String namespace, String name, String value) {
         this.name = name;
         if (namespace != null && namespace.trim().length() == 0) {
@@ -56,7 +55,15 @@ public class AttributeObject {
 
     @Override
     public String toString() {
-        return "AttributeObject{" + "name='" + name + '\'' + ", namespace='" + namespace + '\'' + ", value='"
-                + value + '\'' + '}';
+        String text = "attr{" +
+                "name='" + name + '\'';
+        if (namespace != null) {
+            text += ", namespace='" + namespace + '\'';
+        }
+        if (value != null) {
+            text += ", value='" + value + '\'';
+        }
+        text += '}';
+        return text;
     }
 }

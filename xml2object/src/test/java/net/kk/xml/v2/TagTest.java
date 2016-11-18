@@ -1,4 +1,4 @@
-package net.kk.xml;
+package net.kk.xml.v2;
 
 import org.junit.Test;
 

@@ -8,13 +8,19 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface XmlTag {
-     String ITEM = "item";
+    String ITEM = "item";
     String KEY = "key";
     String VALUE = "value";
-    /** 名字 */
+
+    /**
+     * 名字
+     */
     String value();
-    /** 同名 */
-    String[] alias();
+
+    /**
+     * 同名
+     */
+    String alias() default "";
 
     String listItem() default ITEM;
 

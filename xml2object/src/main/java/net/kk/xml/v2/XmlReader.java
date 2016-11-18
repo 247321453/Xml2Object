@@ -1,5 +1,7 @@
 package net.kk.xml.v2;
 
+import com.sun.xml.internal.txw2.TXW;
+
 import net.kk.xml.v2.adapter.XmlTextAdapter;
 import net.kk.xml.v2.annotations.XmlTag;
 import net.kk.xml.v2.bean.AttributeObject;
@@ -59,7 +61,11 @@ public class XmlReader extends XmlCore {
         return toObject(pClass, root, null, null);
     }
 
-    public <T> T toObject(Class<T> pClass, TagObject root, T t, Object parent) throws Exception {
+    public <T> T fromTag(Class<T> pClass, TagObject object) throws Exception {
+        return toObject(pClass, object, null, null);
+    }
+
+    private <T> T toObject(Class<T> pClass, TagObject root, T t, Object parent) throws Exception {
         if (t == null) {
             t = create(pClass, parent);
         }
@@ -82,6 +88,9 @@ public class XmlReader extends XmlCore {
         }
         //text
         if (!isEmtry(root.getText())) {
+            if (reflect.isNormal()) {
+                return (T) ReflectUtils.wrapperValue(pClass, root.getText(), mOptions);
+            }
             for (Field field : fields) {
                 if (isXmlText(field)) {
                     setField(reflect, t, field, root.getText());
@@ -192,9 +201,9 @@ public class XmlReader extends XmlCore {
         return t;
     }
 
-    private <T> T map(List<TagObject> xmlObjects, Class<T> pClass, Object object, Object parent, Class<?>[] subClass)
+    private <T> T map(List<TagObject> _xmlObjects, Class<T> pClass, Object object, Object parent, Class<?>[] subClass)
             throws Exception {
-        if (xmlObjects == null || subClass == null || subClass.length < 2) {
+        if (_xmlObjects == null || _xmlObjects.size() == 0 || subClass == null || subClass.length < 2) {
             return null;
         }
         T t;
@@ -205,7 +214,16 @@ public class XmlReader extends XmlCore {
         }
         if (t == null)
             return t;
+        List<TagObject> xmlObjects;
+        if (!mOptions.isSameAsList()) {
+            xmlObjects = _xmlObjects.get(0).getSubTags();
+        } else {
+            xmlObjects = _xmlObjects;
+        }
         for (TagObject xmlObject : xmlObjects) {
+//            if (!mOptions.isSameAsList()) {
+//                xmlObject = xmlObject.getChild(XmlTag.ITEM);
+//            }
             TagObject tk = xmlObject.getChild(XmlTag.KEY);
             Object k = toObject(subClass[0], tk, null, parent);
             if (k != null) {
@@ -243,7 +261,7 @@ public class XmlReader extends XmlCore {
     private void setField(Reflect reflect, Object parent, Field field, TagObject subtag) throws Exception {
         Class<?> pClass = field.getType();
         Object object = null;
-        XmlTextAdapter xmlTextAdapter = mOptions.getXmlTypeAdapterMap().get(pClass);
+        XmlTextAdapter xmlTextAdapter = getTypeAdapter(pClass);
         if (xmlTextAdapter != null) {
             object = xmlTextAdapter.toObject(pClass, subtag.getText(), parent);
         }
@@ -264,7 +282,7 @@ public class XmlReader extends XmlCore {
     }
 
     private void setField(Reflect reflect, Object obj, Field field, String text) throws Exception {
-        XmlTextAdapter xmlTextAdapter = mOptions.getXmlTypeAdapterMap().get(field.getType());
+        XmlTextAdapter xmlTextAdapter = getTypeAdapter(field.getType());
         Object val = null;
         if (xmlTextAdapter != null) {
             val = xmlTextAdapter.toObject(field.getType(), text, obj);
@@ -317,7 +335,7 @@ public class XmlReader extends XmlCore {
      * @param inputStream 输入流
      * @return tag对象
      */
-    public TagObject parseTags(InputStream inputStream, String encoding) throws IOException, XmlPullParserException {
+    TagObject parseTags(InputStream inputStream, String encoding) throws IOException, XmlPullParserException {
         Map<Integer, TagObject> xmlParent = new HashMap<>();
         TagObject lastTag = null;
         //当前tag
@@ -327,7 +345,7 @@ public class XmlReader extends XmlCore {
         int curIndex = 0;
 
         if (inputStream != null) {
-            xmlParser.setInput(inputStream, encoding == null ? XmlReader.DEF_ENCODING : encoding);
+            xmlParser.setInput(inputStream, encoding == null ? DEF_ENCODING : encoding);
         }
         int evtType = xmlParser.getEventType();
         while (evtType != XmlPullParser.END_DOCUMENT) {
@@ -369,9 +387,15 @@ public class XmlReader extends XmlCore {
                     String text = xmlParser.getText();
                     if (curTag != null && curTag.getText() == null) {
                         if (text != null) {
-                            text = text.trim();
+                            int len = text.length();
+                            for (int i = 0; i < len; i++) {
+                                char c = text.charAt(i);
+                                if (c > 32) {
+                                    text = text.trim();
+                                    curTag.setText(text);
+                                }
+                            }
                         }
-                        curTag.setText(text);
                     }
                 }
                 break;

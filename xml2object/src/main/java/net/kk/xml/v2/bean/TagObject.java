@@ -29,6 +29,7 @@ public class TagObject {
         this.depth = depth;
         this.pos = pos;
     }
+
     public void addSubTag(TagObject tagObject) {
         if (tagObject == null) return;
         if (subTags == null) {
@@ -36,6 +37,7 @@ public class TagObject {
         }
         subTags.add(tagObject);
     }
+
     public void addSubTags(List<TagObject> tagObjects) {
         if (tagObjects == null) return;
         if (subTags == null) {
@@ -43,6 +45,7 @@ public class TagObject {
         }
         subTags.addAll(tagObjects);
     }
+
     public void addAttribute(AttributeObject attributeObject) {
         if (attributeObject == null) {
             return;
@@ -111,6 +114,26 @@ public class TagObject {
 
     public int getDepth() {
         return depth;
+    }
+
+    @Override
+    public String toString() {
+        String _text = "TagObject{" +
+                "name='" + name + '\'' +
+                ", depth=" + depth +
+                ", pos=" + pos;
+        if (text != null)
+            _text += ", text='" + text + '\'';
+        if (namespace != null&&namespace.length()>0)
+            _text += ", namespace='" + namespace + '\'';
+        if (comments != null)
+            _text += ", comments=" + comments;
+        if (attributes != null)
+            _text += ", attributes=" + attributes;
+        if (subTags != null)
+            _text += ", subTags=" + subTags;
+        _text += '}';
+        return _text;
     }
 
     public static final Comparator<TagObject> ASC = new Comparator<TagObject>() {

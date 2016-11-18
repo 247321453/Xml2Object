@@ -20,29 +20,36 @@ class XmlCore {
         mOptions = options;
     }
 
-    public Reflect on(Object obj) {
+    protected Reflect on(Object obj) {
         return Reflect.on(obj.getClass(), mOptions);
     }
 
-    public Reflect on(Class<?> pClass) {
+    protected Reflect on(Class<?> pClass) {
         return Reflect.on(pClass, mOptions);
     }
-    public TagObject make(Object obj) throws Exception {
-        if(IXmlElement.class.isInstance(obj)){
+
+    protected TagObject make(Object obj) throws Exception {
+        if (IXmlElement.class.isInstance(obj)) {
             int pos = on(obj).get(obj, "pos");
             return make(obj.getClass(), pos);
         }
         return make(obj.getClass(), 0);
     }
-    public TagObject make(Class<?> pClass,int pos){
+
+    protected TagObject make(Class<?> pClass, int pos) {
         XmlTag tag = pClass.getAnnotation(XmlTag.class);
+        TagObject tagObject = null;
         if (tag != null) {
-            return new TagObject(tag.value(),tag.namespace(), 0, pos);
+            tagObject = new TagObject(tag.value(), tag.namespace(), 0, pos);
         }
-        return new TagObject("unknown", null, 0, 0);
+        if (tagObject == null) {
+            tagObject = new TagObject(pClass.getSimpleName(), null, 0, 0);
+        }
+        System.out.println(tagObject);
+        return tagObject;
     }
 
-    public String getClassTag(Class<?> cls) {
+    protected String getClassTag(Class<?> cls) {
         if (cls == null) return null;
         XmlTag tag = cls.getAnnotation(XmlTag.class);
         if (tag != null) {
@@ -55,8 +62,8 @@ class XmlCore {
         return text == null || text.length() == 0;
     }
 
-    protected boolean isXmlText(AnnotatedElement ae){
-        return ae.getAnnotation(XmlInnerText.class)!=null;
+    protected boolean isXmlText(AnnotatedElement ae) {
+        return ae.getAnnotation(XmlInnerText.class) != null;
     }
 
     protected boolean matchTag(Field field, String name) {
@@ -79,22 +86,18 @@ class XmlCore {
                     return true;
                 }
             }
-            String[] alias = xmlTag.alias();
-            if (alias != null) {
-                for (String alia : alias) {
-                    if (mOptions.isIgnoreTagCase()) {
-                        if (name.equalsIgnoreCase(alia)) {
-                            return true;
-                        }
-                    } else {
-                        if (name.equals(alia)) {
-                            return true;
-                        }
-                    }
+            String alias = xmlTag.alias();
+            if (mOptions.isIgnoreTagCase()) {
+                if (name.equalsIgnoreCase(alias)) {
+                    return true;
+                }
+            } else {
+                if (name.equals(alias)) {
+                    return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 
     protected boolean matchAttribute(Field field, String name, String namespace) {
@@ -129,18 +132,14 @@ class XmlCore {
                     return true;
                 }
             }
-            String[] alias = attribute.alias();
-            if (alias != null) {
-                for (String alia : alias) {
-                    if (mOptions.isIgnoreTagCase()) {
-                        if (name.equalsIgnoreCase(alia)) {
-                            return true;
-                        }
-                    } else {
-                        if (name.equals(alia)) {
-                            return true;
-                        }
-                    }
+            String alia = attribute.alias();
+            if (mOptions.isIgnoreTagCase()) {
+                if (name.equalsIgnoreCase(alia)) {
+                    return true;
+                }
+            } else {
+                if (name.equals(alia)) {
+                    return true;
                 }
             }
             return false;
@@ -148,14 +147,20 @@ class XmlCore {
     }
 
     protected XmlTextAdapter getTypeAdapter(Class<?> pClass) {
+        if (mOptions.getXmlTypeAdapterMap() == null) {
+            return null;
+        }
         return mOptions.getXmlTypeAdapterMap().get(ReflectUtils.wrapper(pClass));
     }
 
     protected XmlConstructorAdapter getConstructor(Class<?> pClass) {
+        if (mOptions.getXmlConstructorAdapterMap() == null) {
+            return null;
+        }
         return mOptions.getXmlConstructorAdapterMap().get(ReflectUtils.wrapper(pClass));
     }
 
-    public <T> T create(Class<T> pClass, Object parent) {
+    protected <T> T create(Class<T> pClass, Object parent) {
         T o = null;
         XmlConstructorAdapter constructorAdapter = getConstructor(pClass);
         if (constructorAdapter != null) {
