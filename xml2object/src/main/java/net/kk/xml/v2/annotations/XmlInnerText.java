@@ -13,28 +13,17 @@
  * limitations under the License.
  */
 
-package net.kk.xml.annotations;
+package net.kk.xml.v2.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * xml tag:don't used interface and abstract
+/***
+ * xml元素的中间文字
  */
-@Target({ElementType.TYPE, ElementType.FIELD})
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface XmlElement {
-    /***
-     * @return tag name
-     */
-    String value();
-
-    String namespace() default "";
-
-    /***
-     * @return object to isString save/read
-     */
-    boolean isString() default false;
+public @interface XmlInnerText {
 }

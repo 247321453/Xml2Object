@@ -1,6 +1,6 @@
-package net.kk.xml;
+package net.kk.xml.v2.bean;
 
-import net.kk.xml.annotations.XmlIgnore;
+import net.kk.xml.v2.annotations.XmlIgnore;
 
 import java.util.Comparator;
 

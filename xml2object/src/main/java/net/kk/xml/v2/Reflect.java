@@ -1,29 +1,42 @@
-package net.kk.xml.core;
+package net.kk.xml.v2;
+
+import net.kk.xml.v2.annotations.XmlAttribute;
+import net.kk.xml.v2.annotations.XmlIgnore;
+import net.kk.xml.v2.annotations.XmlTag;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class Reflect {
+class Reflect {
     private Class<?> mClass;
-    private static final HashMap<Class<?>, Reflect> sReflectUtils = new HashMap<>();
+    private XmlOptions options;
+    private static final HashMap<String, Reflect> sReflectUtils = new HashMap<>();
 
-    private Reflect(Class<?> pClass) {
+    private Reflect(Class<?> pClass, XmlOptions options) {
         this.mClass = pClass;
+        this.options = options;
     }
 
-    public static Reflect get(Class<?> pClass) {
+    public static Reflect on(Class<?> pClass, XmlOptions options) {
         Reflect reflect = null;
         synchronized (Reflect.class) {
-            reflect = sReflectUtils.get(pClass);
+            reflect = sReflectUtils.get(pClass.getName());
             if (reflect == null) {
-                reflect = new Reflect(pClass);
-                sReflectUtils.put(pClass, reflect);
+                reflect = new Reflect(pClass, options);
+                sReflectUtils.put(pClass.getName(), reflect);
+            } else {
+                if (reflect.options == null) {
+                    reflect.makeFields = false;
+                    reflect.options = options;
+                }
             }
         }
         return reflect;
@@ -91,18 +104,75 @@ public class Reflect {
         return name + ":" + Arrays.toString(types);
     }
 
+    public boolean isNormal() {
+        return ReflectUtils.isNormal(mClass);
+    }
+
+    public boolean isArray() {
+        return mClass.isArray();
+    }
+
+    public boolean isCollection(){
+        return Collection.class.isAssignableFrom(mClass);
+    }
+    public boolean isMap(){
+        return Map.class.isAssignableFrom(mClass);
+    }
+    public Class<?> getType() {
+        return mClass;
+    }
+
+    private boolean enableField(Field field) {
+        if (options != null) {
+            //忽略静态变量
+            if (options.isIgnoreStatic()) {
+                if ((field.getModifiers() & Modifier.STATIC) != 0) {
+                    return false;
+                }
+            }
+            //忽略的类
+            if (options.isIgnore(field.getType())) {
+                return false;
+            }
+        }
+        //主动忽略
+        if (field.getAnnotation(XmlIgnore.class) != null) {
+            return false;
+        }
+        XmlAttribute attribute = field.getAnnotation(XmlAttribute.class);
+        if (attribute != null) {
+            return true;
+        }
+        XmlTag tag = field.getAnnotation(XmlTag.class);
+        if (tag != null) {
+            return true;
+        }
+        if (options != null) {
+            //是否忽略没有标记的元素？
+            if (options.isUseNoAnnotation()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void findAllFields() {
+        mFields.clear();
         Field[] fields = mClass.getDeclaredFields();
         if (fields != null) {
             for (Field f : fields) {
-                f.setAccessible(true);
-                mFields.put(f.getName(), f);
+                if (enableField(f)) {
+                    f.setAccessible(true);
+                    mFields.put(f.getName(), f);
+                }
             }
         }
         if (fields != null) {
             fields = mClass.getFields();
             for (Field f : fields) {
-                mFields.put(f.getName(), f);
+                if (enableField(f)) {
+                    mFields.put(f.getName(), f);
+                }
             }
         }
     }
@@ -111,23 +181,24 @@ public class Reflect {
         return get(name, false);
     }
 
-    public Collection<Field> getFields(){
+    public Collection<Field> getFields() {
         if (!makeFields) {
             findAllFields();
             makeFields = true;
         }
         return mFields.values();
     }
+
     public Field get(String name, boolean ignonreCase) {
         Collection<Field> fields = getFields();
-        if(fields!=null){
-            for (Field field: fields){
-                if(ignonreCase){
-                    if(field.getName().equalsIgnoreCase(name)){
+        if (fields != null) {
+            for (Field field : fields) {
+                if (ignonreCase) {
+                    if (field.getName().equalsIgnoreCase(name)) {
                         return field;
                     }
-                }else{
-                    if(field.getName().equals(name)){
+                } else {
+                    if (field.getName().equals(name)) {
                         return field;
                     }
                 }
@@ -135,20 +206,24 @@ public class Reflect {
         }
         return null;
     }
+
     public <T> T get(Object obj, String name) throws Exception {
         return get(obj, name, null);
     }
+
     public <T> T get(Object obj, String name, Object def) throws Exception {
         Field field = get(name);
         if (field == null) {
-            return (T)def;
+            return (T) def;
         }
         return (T) field.get(obj);
     }
+
     public void set(Object obj, String name, Object value) throws Exception {
         set(obj, name, value, false);
     }
-    public void set(Object obj, String name, Object value,boolean usemethod) throws Exception {
+
+    public void set(Object obj, String name, Object value, boolean usemethod) throws Exception {
         Field field = null;
         synchronized (mFields) {
             if (!makeFields) {
@@ -179,38 +254,11 @@ public class Reflect {
             }
         }
         if (method == null) {
-            return null;
+            throw new Exception("no find method " + name);
         }
         args = ReflectUtils.reObjects(args);
         return (T) method.invoke(obj, args);
     }
-
-    public static Class<?> wrapper(Class<?> type) {
-        return ReflectUtils.wrapper(type);
-    }
-
-    public static Object wrapperValue(Class<?> type, Object object) throws Exception {
-        return ReflectUtils.wrapperValue(type, object);
-    }
-
-    public static boolean isNormal(Class<?> type) throws IllegalAccessException {
-        if (type == null || type.isEnum()) {
-            return true;
-        }
-        if (boolean.class == type || Boolean.class == type
-                || int.class == type || Integer.class == type
-                || long.class == type || Long.class == type
-                || short.class == type || Short.class == type
-                || byte.class == type || Byte.class == type
-                || double.class == type || Double.class == type
-                || float.class == type || Float.class == type
-                || char.class == type || Character.class == type
-                || String.class == type) {
-            return true;
-        }
-        return false;
-    }
-
 
     public static class NULL {
         public NULL(Class<?> cls) {

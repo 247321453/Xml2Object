@@ -1,7 +1,12 @@
-package net.kk.xml.core;
+package net.kk.xml.v2.bean;
 
-class XmlAttributeObject {
-    public XmlAttributeObject(String namespace, String name, String value) {
+import java.lang.reflect.Array;
+
+public class AttributeObject {
+    public AttributeObject(String namespace, String name){
+        this(namespace, name, null);
+    }
+    public AttributeObject(String namespace, String name, String value) {
         this.name = name;
         if (namespace != null && namespace.trim().length() == 0) {
             namespace = null;
@@ -13,6 +18,10 @@ class XmlAttributeObject {
     private String name;
     private String namespace;
     private String value;
+
+    public void setValue(String value) {
+        this.value = value;
+    }
 
     public String getName() {
         return name;
@@ -28,8 +37,8 @@ class XmlAttributeObject {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof XmlAttributeObject) {
-            XmlAttributeObject other = (XmlAttributeObject) o;
+        if (o instanceof AttributeObject) {
+            AttributeObject other = (AttributeObject) o;
             if (other.getName() != null && !other.getName().equals(name)) {
                 return false;
             } else if (name != null) {
@@ -47,7 +56,7 @@ class XmlAttributeObject {
 
     @Override
     public String toString() {
-        return "XmlAttributeObject{" + "name='" + name + '\'' + ", namespace='" + namespace + '\'' + ", value='"
+        return "AttributeObject{" + "name='" + name + '\'' + ", namespace='" + namespace + '\'' + ", value='"
                 + value + '\'' + '}';
     }
 }

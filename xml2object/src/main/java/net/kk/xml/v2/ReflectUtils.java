@@ -1,4 +1,4 @@
-package net.kk.xml.core;
+package net.kk.xml.v2;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -22,6 +22,26 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 class ReflectUtils {
+
+    public static boolean isNormal(Class<?> type){
+        if (type == null || type.isEnum()) {
+            return true;
+        }
+        if (boolean.class == type || Boolean.class == type
+                || int.class == type || Integer.class == type
+                || long.class == type || Long.class == type
+                || short.class == type || Short.class == type
+                || byte.class == type || Byte.class == type
+                || double.class == type || Double.class == type
+                || float.class == type || Float.class == type
+                || char.class == type || Character.class == type
+                || String.class == type) {
+            return true;
+        }
+        return false;
+    }
+
+
     public static Object[] getDefault(Class<?>[] classes) {
         Object[] objects = new Object[classes.length];
         for (int i = 0; i < objects.length; i++) {
@@ -29,6 +49,7 @@ class ReflectUtils {
         }
         return objects;
     }
+
     public static Class<?> getListClass(Field field) {
         if (field.getType().isAssignableFrom(List.class)) //【2】
         {
@@ -187,6 +208,7 @@ class ReflectUtils {
         }
         return args;
     }
+
     @SuppressWarnings("unchecked")
     public static <T> Collection<T> createCollection(Class<?> pClass, Class<T> rawType) {
         if (SortedSet.class.isAssignableFrom(pClass)) {
@@ -222,6 +244,7 @@ class ReflectUtils {
         }
 
     }
+
     public static Class<?> wrapper(Class<?> type) {
         if (type == null) {
             return Object.class;
@@ -266,8 +289,8 @@ class ReflectUtils {
         return result;
     }
 
-    public static Object wrapperValue(Class<?> type, Object object) throws Exception {
-        String value = object == null ? "" : String.valueOf(object);
+    public static Object wrapperValue(Class<?> type, String object, XmlOptions options) throws Exception {
+        String value = object == null ? "" : object;
         value = value.replace("\t", "").replace("\r", "").replace("\n", "");
         if (type == null) {
             return object;
@@ -319,12 +342,12 @@ class ReflectUtils {
             if (value.trim().length() == 0) {
                 return null;
             }
-            Object[] vals = Reflect.get(type).call(null, "values");
+            Object[] vals = Reflect.on(type, options).call(null, "values");
             for (Object o : vals) {
                 //isString
                 String v = String.valueOf(o);
                 //value
-                String i = String.valueOf(Reflect.get(o.getClass()).call(o, "ordinal"));
+                String i = String.valueOf(Reflect.on(o.getClass(), options).call(o, "ordinal"));
                 if (value.equalsIgnoreCase(v) || value.equals(i)) {
                     return o;
                 }

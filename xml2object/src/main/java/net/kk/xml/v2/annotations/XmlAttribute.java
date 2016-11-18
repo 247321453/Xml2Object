@@ -13,23 +13,19 @@
  * limitations under the License.
  */
 
-package net.kk.xml.annotations;
+package net.kk.xml.v2.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/***
- * xml attribute :isString,int,long,bool,enum
- * */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface XmlAttribute {
-    /**
-     *
-     * @return attribute name
-     */
+    /** tag名字 */
     String value();
+    /** 同名 */
+    String[] alias();
     String namespace() default "";
 }

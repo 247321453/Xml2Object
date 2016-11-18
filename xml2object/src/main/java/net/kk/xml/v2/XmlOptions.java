@@ -1,8 +1,7 @@
-package net.kk.xml;
+package net.kk.xml.v2;
 
-import net.kk.xml.core.Reflect;
-import net.kk.xml.internal.XmlConstructorAdapter;
-import net.kk.xml.internal.XmlStringAdapter;
+import net.kk.xml.v2.adapter.XmlConstructorAdapter;
+import net.kk.xml.v2.adapter.XmlTextAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,18 +9,22 @@ import java.util.List;
 import java.util.Map;
 
 public class XmlOptions {
+    //debug
     private boolean debug = false;
+    //使用set方法
     private boolean useSetMethod = true;
     //xml缩进
     private boolean useSpace = false;
+    //忽略静态
     private boolean ignoreStatic = true;
-    private Map<Class<?>, XmlStringAdapter<?>> mXmlTypeAdapterMap;
+    private Map<Class<?>, XmlTextAdapter<?>> mXmlTypeAdapterMap;
     private Map<Class<?>, XmlConstructorAdapter> xmlConstructorAdapterMap;
+    //忽略的类
     private List<Class<?>> mIgnoreClasses;
     /** 忽略tag的大小写*/
     private boolean ignoreTagCase=true;
     /***
-     * true
+     * 集合元素
      * <pre>
      *     list
      *     list
@@ -38,6 +41,9 @@ public class XmlOptions {
      */
     private boolean sameAsList = false;
 
+    /***
+     * 未标注的也算
+     */
     private boolean useNoAnnotation = true;
 
     public boolean isIgnore(Class<?> cls) {
@@ -47,7 +53,7 @@ public class XmlOptions {
         return false;
     }
 
-    public Map<Class<?>, XmlStringAdapter<?>> getXmlTypeAdapterMap() {
+    public Map<Class<?>, XmlTextAdapter<?>> getXmlTypeAdapterMap() {
         return mXmlTypeAdapterMap;
     }
 
@@ -168,15 +174,15 @@ public class XmlOptions {
             if (mOptions.xmlConstructorAdapterMap == null) {
                 mOptions.xmlConstructorAdapterMap = new HashMap<Class<?>, XmlConstructorAdapter>();
             }
-            mOptions.xmlConstructorAdapterMap.put(Reflect.wrapper(cls), xmlTypeAdapter);
+            mOptions.xmlConstructorAdapterMap.put(ReflectUtils.wrapper(cls), xmlTypeAdapter);
             return this;
         }
 
-        public Builder registerTypeAdapter(Class<?> cls, XmlStringAdapter<?> xmlTypeAdapter) {
+        public Builder registerTypeAdapter(Class<?> cls, XmlTextAdapter<?> xmlTextAdapter) {
             if (mOptions.mXmlTypeAdapterMap == null) {
-                mOptions.mXmlTypeAdapterMap = new HashMap<Class<?>, XmlStringAdapter<?>>();
+                mOptions.mXmlTypeAdapterMap = new HashMap<Class<?>, XmlTextAdapter<?>>();
             }
-            mOptions.mXmlTypeAdapterMap.put(Reflect.wrapper(cls), xmlTypeAdapter);
+            mOptions.mXmlTypeAdapterMap.put(ReflectUtils.wrapper(cls), xmlTextAdapter);
             return this;
         }
     }
