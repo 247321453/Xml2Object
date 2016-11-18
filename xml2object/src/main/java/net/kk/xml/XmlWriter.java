@@ -3,7 +3,7 @@ package net.kk.xml;
 import net.kk.xml.adapter.XmlTextAdapter;
 import net.kk.xml.annotations.XmlAttribute;
 import net.kk.xml.annotations.XmlElement;
-import net.kk.xml.annotations.XmlInnerText;
+import net.kk.xml.annotations.XmlElementText;
 import net.kk.xml.bean.AttributeObject;
 import net.kk.xml.bean.TagObject;
 
@@ -147,7 +147,7 @@ public class XmlWriter extends XmlCore {
                     tagObject.addAttribute(toAttributeObject(val, attribute, object));
                 } else {
                     if (!writeText) {
-                        XmlInnerText xmlInnerText = field.getAnnotation(XmlInnerText.class);
+                        XmlElementText xmlInnerText = field.getAnnotation(XmlElementText.class);
                         if (xmlInnerText != null) {
                             writeText = true;
                             tagObject.setText(toString(val));

@@ -1,4 +1,4 @@
-package net.kk.xml.bean;
+package net.kk.xml;
 
 import net.kk.xml.annotations.XmlIgnore;
 

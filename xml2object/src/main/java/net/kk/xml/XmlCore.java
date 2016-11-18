@@ -3,8 +3,7 @@ package net.kk.xml;
 import net.kk.xml.adapter.XmlConstructorAdapter;
 import net.kk.xml.adapter.XmlTextAdapter;
 import net.kk.xml.annotations.XmlAttribute;
-import net.kk.xml.annotations.XmlInnerText;
-import net.kk.xml.bean.IXmlElement;
+import net.kk.xml.annotations.XmlElementText;
 import net.kk.xml.bean.TagObject;
 import net.kk.xml.annotations.XmlElement;
 
@@ -63,7 +62,7 @@ class XmlCore {
     }
 
     protected boolean isXmlText(AnnotatedElement ae) {
-        return ae.getAnnotation(XmlInnerText.class) != null;
+        return ae.getAnnotation(XmlElementText.class) != null;
     }
 
     protected boolean matchTag(Field field, String name) {

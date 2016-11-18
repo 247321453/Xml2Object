@@ -2,7 +2,7 @@ package net.kk.xml;
 
 import net.kk.xml.annotations.XmlAttribute;
 import net.kk.xml.annotations.XmlIgnore;
-import net.kk.xml.annotations.XmlInnerText;
+import net.kk.xml.annotations.XmlElementText;
 import net.kk.xml.annotations.XmlElement;
 
 import java.lang.reflect.Constructor;
@@ -151,7 +151,7 @@ class Reflect {
         if (tag != null) {
             return true;
         }
-        XmlInnerText innerText = field.getAnnotation(XmlInnerText.class);
+        XmlElementText innerText = field.getAnnotation(XmlElementText.class);
         if (innerText != null) {
             return true;
         }
