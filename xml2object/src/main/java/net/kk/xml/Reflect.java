@@ -36,6 +36,7 @@ class Reflect {
             } else {
                 if (reflect.options == null) {
                     reflect.makeFields = false;
+                    reflect.mFields.clear();
                     reflect.options = options;
                 }
             }
@@ -113,12 +114,14 @@ class Reflect {
         return mClass.isArray();
     }
 
-    public boolean isCollection(){
+    public boolean isCollection() {
         return Collection.class.isAssignableFrom(mClass);
     }
-    public boolean isMap(){
+
+    public boolean isMap() {
         return Map.class.isAssignableFrom(mClass);
     }
+
     public Class<?> getType() {
         return mClass;
     }
@@ -148,8 +151,8 @@ class Reflect {
         if (tag != null) {
             return true;
         }
-        XmlInnerText innerText =field.getAnnotation(XmlInnerText.class);
-        if(innerText!=null){
+        XmlInnerText innerText = field.getAnnotation(XmlInnerText.class);
+        if (innerText != null) {
             return true;
         }
         if (options != null) {
@@ -161,9 +164,8 @@ class Reflect {
         return false;
     }
 
-    private void findAllFields() {
-        mFields.clear();
-        Field[] fields = mClass.getDeclaredFields();
+    private void findAllFields(Class<?> cls) {
+        Field[] fields = cls.getDeclaredFields();
         if (fields != null) {
             for (Field f : fields) {
                 if (enableField(f)) {
@@ -173,12 +175,16 @@ class Reflect {
             }
         }
         if (fields != null) {
-            fields = mClass.getFields();
+            fields = cls.getFields();
             for (Field f : fields) {
                 if (enableField(f)) {
                     mFields.put(f.getName(), f);
                 }
             }
+        }
+        Class<?> sup = cls.getSuperclass();
+        if (sup != null && sup!=Object.class) {
+            findAllFields(sup);
         }
     }
 
@@ -188,7 +194,7 @@ class Reflect {
 
     public Collection<Field> getFields() {
         if (!makeFields) {
-            findAllFields();
+            findAllFields(mClass);
             makeFields = true;
         }
         return mFields.values();
@@ -229,14 +235,7 @@ class Reflect {
     }
 
     public void set(Object obj, String name, Object value, boolean usemethod) throws Exception {
-        Field field = null;
-        synchronized (mFields) {
-            if (!makeFields) {
-                findAllFields();
-                makeFields = true;
-            }
-            field = mFields.get(name);
-        }
+        Field field = get(name);
         if (field != null) {
             field.set(obj, value);
         }

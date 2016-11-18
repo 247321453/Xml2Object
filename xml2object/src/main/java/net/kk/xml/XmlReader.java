@@ -99,11 +99,12 @@ public class XmlReader extends XmlCore {
         boolean isattribute;
         List<TagObject> sublist = new ArrayList<>();
         boolean isList = false;
+        AttributeObject attr = null;
         for (Field field : fields) {
             //attributes
             isattribute = false;
             if (attributes != null) {
-                AttributeObject attr = null;
+                attr = null;
                 for (AttributeObject attributeObject : attributes) {
                     if (matchAttribute(field, attributeObject.getName(), attributeObject.getNamespace())) {
                         attr = attributeObject;
