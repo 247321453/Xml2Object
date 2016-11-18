@@ -155,7 +155,8 @@ public class XmlReader extends XmlCore {
     //region set field
     private void setFieldList(Reflect reflect, Object parent, Field field, List<TagObject> xmlObjects) throws Exception {
         Class<?> pClass = field.getType();
-        Object object = reflect.get(parent, field.getName());
+        Object object = field.get(parent);
+        boolean org = object != null;
         if (pClass.isArray()) {
             object = array(xmlObjects, pClass, object, parent);
         } else if (Collection.class.isAssignableFrom(pClass)) {
@@ -163,7 +164,7 @@ public class XmlReader extends XmlCore {
         } else if (Map.class.isAssignableFrom(pClass)) {
             object = map(xmlObjects, pClass, object, parent, ReflectUtils.getMapClass(field));
         }
-        if (object != null) {
+        if (!org && object != null) {
             try {
                 reflect.call(parent, "set" + field.getName(), object);
             } catch (Exception e) {
@@ -259,18 +260,25 @@ public class XmlReader extends XmlCore {
     private void setField(Reflect reflect, Object parent, Field field, TagObject subtag) throws Exception {
         Class<?> pClass = field.getType();
         Object object = null;
-        XmlTextAdapter xmlTextAdapter = getTypeAdapter(pClass);
-        if (xmlTextAdapter != null) {
-            object = xmlTextAdapter.toObject(pClass, subtag.getText(), parent);
-        }
-        if (object == null) {
-            if (ReflectUtils.isNormal(pClass)) {
-                object = ReflectUtils.wrapperValue(pClass, subtag.getText(), mOptions);
-            } else {
-                object = toObject(pClass, subtag, reflect.get(parent, field.getName()), parent);
+        boolean org = false;
+        if (field.get(parent) != null) {
+            org = true;
+            toObject(pClass, subtag, reflect.get(parent, field.getName()), parent);
+        } else {
+            XmlTextAdapter xmlTextAdapter = getTypeAdapter(pClass);
+            if (xmlTextAdapter != null) {
+                object = xmlTextAdapter.toObject(pClass, subtag.getText(), parent);
+            }
+            if (object == null) {
+                if (ReflectUtils.isNormal(pClass)) {
+                    object = ReflectUtils.wrapperValue(pClass, subtag.getText(), mOptions);
+                } else {
+                    object = toObject(pClass, subtag, null, parent);
+                }
             }
         }
-        if (object != null) {
+
+        if (!org && object != null) {
             try {
                 reflect.call(parent, "set" + field.getName(), object);
             } catch (Exception e) {

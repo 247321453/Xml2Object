@@ -347,7 +347,7 @@ class ReflectUtils {
                 //isString
                 String v = String.valueOf(o);
                 //value
-                String i = String.valueOf(Reflect.on(o.getClass(), options).call(o, "ordinal"));
+                Object i = Reflect.on(o.getClass(), options).call(o, "ordinal");
                 if (value.equalsIgnoreCase(v) || value.equals(i)) {
                     return o;
                 }
