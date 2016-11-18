@@ -1,4 +1,4 @@
-package net.kk.xml.v2.annotations;
+package net.kk.xml.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

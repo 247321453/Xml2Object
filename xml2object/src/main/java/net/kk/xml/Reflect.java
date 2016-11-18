@@ -1,9 +1,9 @@
-package net.kk.xml.v2;
+package net.kk.xml;
 
-import net.kk.xml.v2.annotations.XmlAttribute;
-import net.kk.xml.v2.annotations.XmlIgnore;
-import net.kk.xml.v2.annotations.XmlInnerText;
-import net.kk.xml.v2.annotations.XmlTag;
+import net.kk.xml.annotations.XmlAttribute;
+import net.kk.xml.annotations.XmlIgnore;
+import net.kk.xml.annotations.XmlInnerText;
+import net.kk.xml.annotations.XmlElement;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -144,7 +144,7 @@ class Reflect {
         if (attribute != null) {
             return true;
         }
-        XmlTag tag = field.getAnnotation(XmlTag.class);
+        XmlElement tag = field.getAnnotation(XmlElement.class);
         if (tag != null) {
             return true;
         }

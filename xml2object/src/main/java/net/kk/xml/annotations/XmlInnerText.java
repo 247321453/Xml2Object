@@ -13,19 +13,17 @@
  * limitations under the License.
  */
 
-package net.kk.xml.v2.annotations;
+package net.kk.xml.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/***
+ * xml元素的中间文字
+ */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface XmlAttribute {
-    /** tag名字 */
-    String value();
-    /** 同名 */
-    String alias() default "";
-    String namespace() default "";
+public @interface XmlInnerText {
 }

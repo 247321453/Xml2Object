@@ -1,20 +1,16 @@
-package net.kk.xml.v2;
+package net.kk.xml;
 
-import net.kk.xml.v2.annotations.XmlAttribute;
-import net.kk.xml.v2.annotations.XmlInnerText;
-import net.kk.xml.v2.annotations.XmlTag;
-import net.kk.xml.v2.bean.TagObject;
+import net.kk.xml.annotations.XmlAttribute;
+import net.kk.xml.annotations.XmlInnerText;
+import net.kk.xml.annotations.XmlElement;
+import net.kk.xml.bean.TagObject;
 
 import org.junit.Test;
-import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -26,7 +22,7 @@ public class MapTest {
             list = new LinkedHashMap<>();
         }
 
-        @XmlTag("bs")
+        @XmlElement("bs")
         Map<Integer, B> list;
         @XmlAttribute("name")
         String name;
@@ -49,7 +45,7 @@ public class MapTest {
         @XmlAttribute("id")
         int id;
 
-        @XmlTag("c")
+        @XmlElement("c")
         C name;
 
         @Override

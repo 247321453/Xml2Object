@@ -1,7 +1,7 @@
-package net.kk.xml.v2;
+package net.kk.xml;
 
-import net.kk.xml.v2.adapter.XmlConstructorAdapter;
-import net.kk.xml.v2.adapter.XmlTextAdapter;
+import net.kk.xml.adapter.XmlConstructorAdapter;
+import net.kk.xml.adapter.XmlTextAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package net.kk.xml.v2.bean;
+package net.kk.xml.bean;
 
 public class AttributeObject {
     public AttributeObject(String namespace, String name) {

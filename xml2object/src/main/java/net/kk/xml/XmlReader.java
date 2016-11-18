@@ -1,11 +1,9 @@
-package net.kk.xml.v2;
+package net.kk.xml;
 
-import com.sun.xml.internal.txw2.TXW;
-
-import net.kk.xml.v2.adapter.XmlTextAdapter;
-import net.kk.xml.v2.annotations.XmlTag;
-import net.kk.xml.v2.bean.AttributeObject;
-import net.kk.xml.v2.bean.TagObject;
+import net.kk.xml.bean.AttributeObject;
+import net.kk.xml.adapter.XmlTextAdapter;
+import net.kk.xml.annotations.XmlElement;
+import net.kk.xml.bean.TagObject;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -224,10 +222,10 @@ public class XmlReader extends XmlCore {
 //            if (!mOptions.isSameAsList()) {
 //                xmlObject = xmlObject.getChild(XmlTag.ITEM);
 //            }
-            TagObject tk = xmlObject.getChild(XmlTag.KEY);
+            TagObject tk = xmlObject.getChild(XmlElement.KEY);
             Object k = toObject(subClass[0], tk, null, parent);
             if (k != null) {
-                TagObject tv = xmlObject.getChild(XmlTag.VALUE);
+                TagObject tv = xmlObject.getChild(XmlElement.VALUE);
                 Object v = toObject(subClass[1], tv, null, parent);
                 on(t).call(t, "put", k, v);
             }

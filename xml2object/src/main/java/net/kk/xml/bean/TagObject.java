@@ -1,4 +1,4 @@
-package net.kk.xml.v2.bean;
+package net.kk.xml.bean;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -1,11 +1,9 @@
-package net.kk.xml.v2;
+package net.kk.xml;
 
-import com.sun.tracing.dtrace.Attributes;
-
-import net.kk.xml.v2.annotations.XmlAttribute;
-import net.kk.xml.v2.annotations.XmlInnerText;
-import net.kk.xml.v2.annotations.XmlTag;
-import net.kk.xml.v2.bean.TagObject;
+import net.kk.xml.annotations.XmlAttribute;
+import net.kk.xml.annotations.XmlInnerText;
+import net.kk.xml.bean.TagObject;
+import net.kk.xml.annotations.XmlElement;
 
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -22,7 +20,7 @@ public class ListTest {
             this.name = name;
         }
 
-        @XmlTag("bs")
+        @XmlElement("bs")
         List<B> list;
         @XmlAttribute("name")
         String name;
@@ -45,7 +43,7 @@ public class ListTest {
         @XmlAttribute("id")
         int id;
 
-        @XmlTag("c")
+        @XmlElement("c")
         C name;
 
         @Override

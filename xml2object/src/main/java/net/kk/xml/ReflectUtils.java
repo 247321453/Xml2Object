@@ -1,4 +1,4 @@
-package net.kk.xml.v2;
+package net.kk.xml;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

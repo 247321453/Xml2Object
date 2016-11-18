@@ -1,11 +1,11 @@
-package net.kk.xml.v2;
+package net.kk.xml;
 
-import net.kk.xml.v2.adapter.XmlTextAdapter;
-import net.kk.xml.v2.annotations.XmlAttribute;
-import net.kk.xml.v2.annotations.XmlInnerText;
-import net.kk.xml.v2.annotations.XmlTag;
-import net.kk.xml.v2.bean.AttributeObject;
-import net.kk.xml.v2.bean.TagObject;
+import net.kk.xml.adapter.XmlTextAdapter;
+import net.kk.xml.annotations.XmlAttribute;
+import net.kk.xml.annotations.XmlElement;
+import net.kk.xml.annotations.XmlInnerText;
+import net.kk.xml.bean.AttributeObject;
+import net.kk.xml.bean.TagObject;
 
 import org.xmlpull.v1.XmlSerializer;
 
@@ -162,7 +162,7 @@ public class XmlWriter extends XmlCore {
     }
 
     private TagObject toSubTag(Field field, Object object, Object parent) throws Exception {
-        XmlTag xmlElement = field.getAnnotation(XmlTag.class);
+        XmlElement xmlElement = field.getAnnotation(XmlElement.class);
         String name = xmlElement == null ? field.getName() : xmlElement.value();
         String namespace = xmlElement == null ? null : xmlElement.namespace();
         TagObject tagObject = new TagObject(name, namespace, 0, 0);
@@ -172,10 +172,10 @@ public class XmlWriter extends XmlCore {
 
     //region list
     private List<TagObject> array(Field field, Object object, Object parent) throws Exception {
-        XmlTag xmlElement = field.getAnnotation(XmlTag.class);
+        XmlElement xmlElement = field.getAnnotation(XmlElement.class);
         String name = xmlElement == null ? field.getName() : xmlElement.value();
         String namespace = xmlElement == null ? null : xmlElement.namespace();
-        String itemName = xmlElement == null ? XmlTag.ITEM : xmlElement.listItem();
+        String itemName = xmlElement == null ? XmlElement.ITEM : xmlElement.listItem();
         boolean isSameList = mOptions.isSameAsList();
         ArrayList<TagObject> list = new ArrayList<TagObject>();
         TagObject root = new TagObject(name, namespace, 0, 0);
@@ -203,10 +203,10 @@ public class XmlWriter extends XmlCore {
     }
 
     private List<TagObject> list(Field field, Object object, Object parent) throws Exception {
-        XmlTag xmlElement = field.getAnnotation(XmlTag.class);
+        XmlElement xmlElement = field.getAnnotation(XmlElement.class);
         String name = xmlElement == null ? field.getName() : xmlElement.value();
         String namespace = xmlElement == null ? null : xmlElement.namespace();
-        String itemName = xmlElement == null ? XmlTag.ITEM : xmlElement.listItem();
+        String itemName = xmlElement == null ? XmlElement.ITEM : xmlElement.listItem();
         boolean isSameList = mOptions.isSameAsList();
         ArrayList<TagObject> list = new ArrayList<TagObject>();
         TagObject root = new TagObject(name, namespace, 0, 0);
@@ -235,12 +235,12 @@ public class XmlWriter extends XmlCore {
     }
 
     private ArrayList<TagObject> map(Field field, Object object, Object parent) throws Exception {
-        XmlTag xmlElement = field.getAnnotation(XmlTag.class);
+        XmlElement xmlElement = field.getAnnotation(XmlElement.class);
         String name = xmlElement == null ? field.getName() : xmlElement.value();
         String namespace = xmlElement == null ? null : xmlElement.namespace();
-        String itemName = xmlElement == null ? XmlTag.ITEM : xmlElement.listItem();
-        String keyName = XmlTag.KEY;
-        String valueName = XmlTag.VALUE;
+        String itemName = xmlElement == null ? XmlElement.ITEM : xmlElement.listItem();
+        String keyName = XmlElement.KEY;
+        String valueName = XmlElement.VALUE;
         boolean isSameList = mOptions.isSameAsList();
         ArrayList<TagObject> list = new ArrayList<TagObject>();
         TagObject root = new TagObject(name, namespace, 0, 0);

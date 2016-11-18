@@ -1,12 +1,12 @@
-package net.kk.xml.v2;
+package net.kk.xml;
 
-import net.kk.xml.v2.adapter.XmlConstructorAdapter;
-import net.kk.xml.v2.adapter.XmlTextAdapter;
-import net.kk.xml.v2.annotations.XmlAttribute;
-import net.kk.xml.v2.annotations.XmlInnerText;
-import net.kk.xml.v2.annotations.XmlTag;
-import net.kk.xml.v2.bean.IXmlElement;
-import net.kk.xml.v2.bean.TagObject;
+import net.kk.xml.adapter.XmlConstructorAdapter;
+import net.kk.xml.adapter.XmlTextAdapter;
+import net.kk.xml.annotations.XmlAttribute;
+import net.kk.xml.annotations.XmlInnerText;
+import net.kk.xml.bean.IXmlElement;
+import net.kk.xml.bean.TagObject;
+import net.kk.xml.annotations.XmlElement;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -37,7 +37,7 @@ class XmlCore {
     }
 
     protected TagObject make(Class<?> pClass, int pos) {
-        XmlTag tag = pClass.getAnnotation(XmlTag.class);
+        XmlElement tag = pClass.getAnnotation(XmlElement.class);
         TagObject tagObject = null;
         if (tag != null) {
             tagObject = new TagObject(tag.value(), tag.namespace(), 0, pos);
@@ -51,7 +51,7 @@ class XmlCore {
 
     protected String getClassTag(Class<?> cls) {
         if (cls == null) return null;
-        XmlTag tag = cls.getAnnotation(XmlTag.class);
+        XmlElement tag = cls.getAnnotation(XmlElement.class);
         if (tag != null) {
             return tag.value();
         }
@@ -68,15 +68,15 @@ class XmlCore {
 
     protected boolean matchTag(Field field, String name) {
         if (isEmtry(name)) return false;
-        XmlTag xmlTag = field.getAnnotation(XmlTag.class);
-        if (xmlTag == null) {
+        XmlElement xmlElement = field.getAnnotation(XmlElement.class);
+        if (xmlElement == null) {
             if (mOptions.isIgnoreTagCase()) {
                 return field.getName().equalsIgnoreCase(name);
             } else {
                 return field.getName().equals(name);
             }
         } else {
-            String defname = xmlTag.value();
+            String defname = xmlElement.value();
             if (mOptions.isIgnoreTagCase()) {
                 if (name.equalsIgnoreCase(defname)) {
                     return true;
@@ -86,7 +86,7 @@ class XmlCore {
                     return true;
                 }
             }
-            String alias = xmlTag.alias();
+            String alias = xmlElement.alias();
             if (mOptions.isIgnoreTagCase()) {
                 if (name.equalsIgnoreCase(alias)) {
                     return true;
