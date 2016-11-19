@@ -56,6 +56,9 @@ public class XmlReader extends XmlCore {
 
     public <T> T fromInputStream(Class<T> pClass, InputStream inputStream, String encoding) throws Exception {
         TagObject root = parseTags(inputStream, encoding);
+        if (root == null) {
+            return null;
+        }
         return toObject(pClass, root, null, null);
     }
 
@@ -123,7 +126,7 @@ public class XmlReader extends XmlCore {
             //sub tag
             if (subTags != null) {
                 isList = false;
-                boolean isSameList=mOptions.isSameAsList();
+                boolean isSameList = mOptions.isSameAsList();
                 for (TagObject subtag : subTags) {
                     if (matchTag(field, subtag.getName())) {
                         if (isList) {
@@ -133,7 +136,7 @@ public class XmlReader extends XmlCore {
                                 || Map.class.isAssignableFrom(field.getType())) {
                             sublist.add(subtag);
                             isList = true;
-                            if(!isSameList){
+                            if (!isSameList) {
                                 break;
                             }
                         } else {
