@@ -123,6 +123,7 @@ public class XmlReader extends XmlCore {
             //sub tag
             if (subTags != null) {
                 isList = false;
+                boolean isSameList=mOptions.isSameAsList();
                 for (TagObject subtag : subTags) {
                     if (matchTag(field, subtag.getName())) {
                         if (isList) {
@@ -132,6 +133,9 @@ public class XmlReader extends XmlCore {
                                 || Map.class.isAssignableFrom(field.getType())) {
                             sublist.add(subtag);
                             isList = true;
+                            if(!isSameList){
+                                break;
+                            }
                         } else {
                             subTags.remove(subtag);
                             setField(reflect, t, field, subtag);
@@ -174,11 +178,17 @@ public class XmlReader extends XmlCore {
         }
     }
 
-    private <T> T array(List<TagObject> xmlObjects, Class<T> pClass, Object object, Object parent) throws Exception {
-        if (xmlObjects == null) {
+    private <T> T array(List<TagObject> _xmlObjects, Class<T> pClass, Object object, Object parent) throws Exception {
+        if (_xmlObjects == null || _xmlObjects.size() == 0) {
             return null;
         }
         Class<?> sc = pClass.getComponentType();
+        List<TagObject> xmlObjects;
+        if (!mOptions.isSameAsList()) {
+            xmlObjects = _xmlObjects.get(0).getSubTags();
+        } else {
+            xmlObjects = _xmlObjects;
+        }
         int count = xmlObjects.size();
         T t;
         if (object != null) {
@@ -235,9 +245,15 @@ public class XmlReader extends XmlCore {
         return t;
     }
 
-    private <T> T list(List<TagObject> xmlObjects, Class<T> pClass, Object object, Object parent, Class<?> subClass) throws Exception {
-        if (xmlObjects == null) {
+    private <T> T list(List<TagObject> _xmlObjects, Class<T> pClass, Object object, Object parent, Class<?> subClass) throws Exception {
+        if (_xmlObjects == null || _xmlObjects.size() == 0) {
             return null;
+        }
+        List<TagObject> xmlObjects;
+        if (!mOptions.isSameAsList()) {
+            xmlObjects = _xmlObjects.get(0).getSubTags();
+        } else {
+            xmlObjects = _xmlObjects;
         }
         T t;
         if (object == null) {

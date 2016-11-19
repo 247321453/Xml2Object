@@ -1,7 +1,7 @@
 package net.kk.xml;
 
 import net.kk.xml.annotations.XmlAttribute;
-import net.kk.xml.annotations.XmlInnerText;
+import net.kk.xml.annotations.XmlElementText;
 import net.kk.xml.bean.TagObject;
 import net.kk.xml.annotations.XmlElement;
 
@@ -60,7 +60,7 @@ public class ListTest {
             this.text = text;
         }
 
-        @XmlInnerText
+        @XmlElementText
         public String text;
 
         @Override
