@@ -29,7 +29,12 @@ class XmlCore {
 
     protected TagObject make(Object obj) throws Exception {
         if (IXmlElement.class.isInstance(obj)) {
-            int pos = on(obj).get(obj, "pos");
+            int pos = 0;
+            try {
+                pos = on(IXmlElement.class).get(obj, IXmlElement.FIELD_POS);
+            }catch (Exception e){
+
+            }
             return make(obj.getClass(), pos);
         }
         return make(obj.getClass(), 0);

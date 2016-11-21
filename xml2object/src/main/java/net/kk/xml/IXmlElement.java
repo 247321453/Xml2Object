@@ -5,6 +5,7 @@ import net.kk.xml.annotations.XmlIgnore;
 import java.util.Comparator;
 
 public class IXmlElement {
+    public static final String FIELD_POS = "pos";
     /** 同级元素的位置 */
     @XmlIgnore
     protected int pos;
