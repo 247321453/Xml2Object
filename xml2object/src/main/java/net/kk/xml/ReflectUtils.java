@@ -49,7 +49,6 @@ class ReflectUtils {
         }
         return objects;
     }
-
     public static Class<?> getListClass(Field field) {
         if (field.getType().isAssignableFrom(List.class)) //【2】
         {
