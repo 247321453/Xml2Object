@@ -66,7 +66,7 @@ public class XmlReader extends XmlCore {
         return toObject(pClass, object, null, null);
     }
 
-    private <T> T toObject(Class<T> pClass, TagObject root, T t, Object parent) throws Exception {
+    private <T> T toObject(Class<T> pClass, TagObject root, Object t, Object parent) throws Exception {
         if (t == null) {
             t = create(pClass, parent);
         }
@@ -155,7 +155,7 @@ public class XmlReader extends XmlCore {
                 }
             }
         }
-        return t;
+        return (T)t;
     }
 
     //endregion
