@@ -43,6 +43,11 @@ public class XmlOptions {
      */
     private boolean sameAsList = false;
 
+    /**
+     * <?xml version='1.0' encoding='UTF-8' ?>
+     */
+    private boolean hasXmlHead = true;
+
     /***
      * 未标注的也算
      */
@@ -53,6 +58,14 @@ public class XmlOptions {
             return mIgnoreClasses.contains(cls);
         }
         return false;
+    }
+
+    public void noXmlHead() {
+        hasXmlHead = false;
+    }
+
+    public boolean hasXmlHead() {
+        return hasXmlHead;
     }
 
     public Map<Class<?>, XmlTextAdapter<?>> getXmlTypeAdapterMap() {
@@ -162,6 +175,10 @@ public class XmlOptions {
 
         public Builder enableSameAsList() {
             mOptions.sameAsList = true;
+            return this;
+        }
+        public Builder noXmlHead() {
+            mOptions.hasXmlHead = false;
             return this;
         }
 

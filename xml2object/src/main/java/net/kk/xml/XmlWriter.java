@@ -38,8 +38,10 @@ public class XmlWriter extends XmlCore {
     }
 
     public void write(TagObject xmlObject, OutputStream outputStream, String encoding) throws Exception {
-        serializer.setOutput(outputStream, encoding==null?DEF_ENCODING:encoding);
-        serializer.startDocument(encoding, null);
+        serializer.setOutput(outputStream, encoding == null ? DEF_ENCODING : encoding);
+        if (mOptions.hasXmlHead()) {
+            serializer.startDocument(encoding, null);
+        }
         writeTag(xmlObject, serializer, 1);
         serializer.endDocument();
     }
