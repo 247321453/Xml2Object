@@ -427,8 +427,8 @@ public class XmlReader extends XmlCore {
                             for (int i = 0; i < len; i++) {
                                 char c = text.charAt(i);
                                 if (c > 32) {
-                                    text = text.trim();
-                                    curTag.setText(text);
+                                    curTag.setText(text.trim());
+                                    break;
                                 }
                             }
                         }
