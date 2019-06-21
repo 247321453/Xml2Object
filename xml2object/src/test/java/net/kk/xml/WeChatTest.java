@@ -1,9 +1,10 @@
 package net.kk.xml;
 
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import net.kk.xml.annotations.XmlElement;
 import org.junit.Test;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.ByteArrayOutputStream;
 
 public class WeChatTest {
     static final String XML1 = "<xml>\n" +
@@ -104,7 +105,7 @@ public class WeChatTest {
         WxRequest request = reader.fromXml(WxRequest.class, XML1);
         System.out.println(request.toString());
         XmlWriter writer = new XmlWriter(XmlPullParserFactory.newInstance().newSerializer(), DEFAULT);
-        ByteOutputStream outputStream = new ByteOutputStream();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         writer.write(request, outputStream, null);
         System.out.println(outputStream.toString());
     }
