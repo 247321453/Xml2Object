@@ -32,7 +32,7 @@ class XmlCore {
             int pos = 0;
             try {
                 pos = on(IXmlElement.class).get(obj, IXmlElement.FIELD_POS);
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
             return make(obj.getClass(), pos);
@@ -70,8 +70,14 @@ class XmlCore {
         return ae.getAnnotation(XmlElementText.class) != null;
     }
 
-    protected boolean matchTag(Field field, String name) {
-        if (isEmtry(name)) return false;
+    protected boolean matchTag(Field field, String _name, String namespace) {
+        if (isEmtry(_name)) return false;
+        String name;
+        if (!isEmtry(namespace)) {
+            name = namespace + ":" + _name;
+        } else {
+            name = _name;
+        }
         XmlElement xmlElement = field.getAnnotation(XmlElement.class);
         if (xmlElement == null) {
             if (mOptions.isIgnoreTagCase()) {
@@ -106,9 +112,8 @@ class XmlCore {
 
     protected boolean matchAttribute(Field field, String name, String namespace) {
         if (isEmtry(name)) return false;
-        XmlAttribute attribute = null;
+        XmlAttribute attribute  = field.getAnnotation(XmlAttribute.class);
         if (!isEmtry(namespace)) {
-            attribute = field.getAnnotation(XmlAttribute.class);
             if (attribute == null) {
                 return false;
             }
@@ -116,9 +121,7 @@ class XmlCore {
                 return false;
             }
         }
-        if (attribute == null) {
-            attribute = field.getAnnotation(XmlAttribute.class);
-        }
+
         if (attribute == null) {
             if (mOptions.isIgnoreTagCase()) {
                 return field.getName().equalsIgnoreCase(name);

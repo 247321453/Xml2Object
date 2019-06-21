@@ -79,13 +79,11 @@ public class XmlReader extends XmlCore {
         List<AttributeObject> attributes = null;
         List<TagObject> subTags = null;
         if (attributeObjects != null && !attributeObjects.isEmpty()) {
-            attributes = new ArrayList<>();
-            attributes.addAll(attributeObjects);
+            attributes = new ArrayList<>(attributeObjects);
         }
         List<TagObject> subTagObjects = root.getSubTags();
         if (subTagObjects != null && !subTagObjects.isEmpty()) {
-            subTags = new ArrayList<>();
-            subTags.addAll(subTagObjects);
+            subTags = new ArrayList<>(subTagObjects);
         }
         //text
         if (!isEmtry(root.getText())) {
@@ -109,6 +107,7 @@ public class XmlReader extends XmlCore {
             if (attributes != null) {
                 attr = null;
                 for (AttributeObject attributeObject : attributes) {
+
                     if (matchAttribute(field, attributeObject.getName(), attributeObject.getNamespace())) {
                         attr = attributeObject;
                         isattribute = true;
@@ -128,7 +127,7 @@ public class XmlReader extends XmlCore {
                 isList = false;
                 boolean isSameList = mOptions.isSameAsList();
                 for (TagObject subtag : subTags) {
-                    if (matchTag(field, subtag.getName())) {
+                    if (matchTag(field, subtag.getName(), subtag.getNamespace())) {
                         if (isList) {
                             sublist.add(subtag);
                         } else if (field.getType().isArray()
@@ -319,6 +318,7 @@ public class XmlReader extends XmlCore {
             try {
                 reflect.call(obj, "set" + field.getName(), val);
             } catch (Exception e) {
+                field.setAccessible(true);
                 field.set(obj, val);
             }
         }
@@ -337,23 +337,23 @@ public class XmlReader extends XmlCore {
 //        tags.add(tagObject);
 //    }
     /*
-    * <a>
-    *     <b>
-    *         <c></c>
-    *     </b>
-    *     <b>
-    *         <c></c>
-    *     </b>
-    * </a>
-    * <a>
-    *     <b>
-    *         <c></c>
-    *     </b>
-    *     <b>
-    *         <c></c>
-    *     </b>
-    * </a>
-    * */
+     * <a>
+     *     <b>
+     *         <c></c>
+     *     </b>
+     *     <b>
+     *         <c></c>
+     *     </b>
+     * </a>
+     * <a>
+     *     <b>
+     *         <c></c>
+     *     </b>
+     *     <b>
+     *         <c></c>
+     *     </b>
+     * </a>
+     * */
 
     /**
      * 从流转换为tag对象
@@ -369,7 +369,7 @@ public class XmlReader extends XmlCore {
         String xmlTag = null;
         int curDepth = -1;
         int curIndex = 0;
-
+        TagObject root = null;
         if (inputStream != null) {
             xmlParser.setInput(inputStream, encoding == null ? DEF_ENCODING : encoding);
         }
@@ -391,13 +391,23 @@ public class XmlReader extends XmlCore {
                     if (lastTag != null) {
                         lastTag.addSubTag(tag);
                     }
+                    if (root == null) {
+                        root = tag;
+                    }
                     //关联上级元素？
                     int count = xmlParser.getAttributeCount();
                     for (int i = 0; i < count; i++) {
                         String np = xmlParser.getAttributeNamespace(i);
                         String k = xmlParser.getAttributeName(i);
                         String v = xmlParser.getAttributeValue(i);
-                        tag.addAttribute(new AttributeObject(np, k, v));
+                        if (isEmtry(np) && k.contains(":") && !k.startsWith("xmlns:")) {
+                            String[] ws = k.split(":");
+                            k = ws[1];
+                            np = root.getNameSpace(ws[0]);
+                        }
+                        AttributeObject attr = new AttributeObject(np, k, v);
+//                        System.out.println(attr);
+                        tag.addAttribute(attr);
                     }
                     curTag = tag;
                 }

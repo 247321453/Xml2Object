@@ -43,7 +43,7 @@ public class AttributeObject {
             } else if (name != null) {
                 return false;
             }
-            if (other.getNamespace() != null && !other.getNamespace().equals(name)) {
+            if (other.getNamespace() != null && !other.getNamespace().equals(namespace)) {
                 return false;
             } else if (namespace != null) {
                 return false;
@@ -60,9 +60,7 @@ public class AttributeObject {
         if (namespace != null) {
             text += ", namespace='" + namespace + '\'';
         }
-        if (value != null) {
-            text += ", value='" + value + '\'';
-        }
+        text += ", value='" + value + '\'';
         text += '}';
         return text;
     }

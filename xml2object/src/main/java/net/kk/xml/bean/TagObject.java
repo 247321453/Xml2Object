@@ -18,6 +18,7 @@ public class TagObject {
     private List<String> comments;
     private List<AttributeObject> attributes;
     private List<TagObject> subTags;
+    private boolean isRoot;
 
     public TagObject() {
 
@@ -28,6 +29,29 @@ public class TagObject {
         this.namespace = namespace;
         this.depth = depth;
         this.pos = pos;
+    }
+
+    public void setRoot(boolean root) {
+        isRoot = root;
+    }
+
+    public boolean isRoot() {
+        return isRoot;
+    }
+
+
+    public String getNameSpace(String name) {
+        if (attributes != null) {
+            for (AttributeObject attr : attributes) {
+                if (attr.getName().startsWith("xmlns:")) {
+                    String np = attr.getName().split(":")[1];
+                    if (name.equalsIgnoreCase(np)) {
+                        return attr.getValue();
+                    }
+                }
+            }
+        }
+        return name;
     }
 
     public void addSubTag(TagObject tagObject) {
@@ -124,7 +148,7 @@ public class TagObject {
                 ", pos=" + pos;
         if (text != null)
             _text += ", text='" + text + '\'';
-        if (namespace != null&&namespace.length()>0)
+        if (namespace != null && namespace.length() > 0)
             _text += ", namespace='" + namespace + '\'';
         if (comments != null)
             _text += ", comments=" + comments;
